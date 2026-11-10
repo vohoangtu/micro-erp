@@ -4,6 +4,7 @@ const BOOKING_URL = process.env.BOOKING_ZONE_URL ?? 'http://localhost:3003';
 const POS_URL = process.env.POS_ZONE_URL ?? 'http://localhost:3004';
 const HR_URL = process.env.HR_ZONE_URL ?? 'http://localhost:3005';
 const AI_URL = process.env.AI_ZONE_URL ?? 'http://localhost:3007';
+const SYSTEM_URL = process.env.SYSTEM_ZONE_URL ?? 'http://localhost:3008';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -22,7 +23,9 @@ const nextConfig = {
       { source: '/hr', destination: `${HR_URL}/hr` },
       { source: '/hr/:path*', destination: `${HR_URL}/hr/:path*` },
       { source: '/ai', destination: `${AI_URL}/ai` },
-      { source: '/ai/:path*', destination: `${AI_URL}/ai/:path*` }
+      { source: '/ai/:path*', destination: `${AI_URL}/ai/:path*` },
+      { source: '/system', destination: `${SYSTEM_URL}/system` },
+      { source: '/system/:path*', destination: `${SYSTEM_URL}/system/:path*` }
     ];
   }
 };

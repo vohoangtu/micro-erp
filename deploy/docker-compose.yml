@@ -95,6 +95,7 @@ services:
       HR_ZONE_URL: http://erp-hr:3005
       BI_ZONE_URL: http://erp-bi:3006
       AI_ZONE_URL: http://erp-ai:3007
+      SYSTEM_ZONE_URL: http://erp-system:3008
       NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
     depends_on:
       - api-gateway
@@ -180,6 +181,19 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3007
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
+    networks:
+      - erp-network
+
+  system:
+    build:
+      context: ..
+      dockerfile: apps/system/Dockerfile
+    container_name: erp-system
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3008
       NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
     networks:
       - erp-network

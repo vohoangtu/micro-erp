@@ -12,6 +12,8 @@ import { HrController } from './hr/hr.controller.js';
 import { HrService } from './hr/hr.service.js';
 import { AiCopilotController } from './ai/ai.controller.js';
 import { AiCopilotService } from './ai/ai.service.js';
+import { SystemController } from './system/system.controller.js';
+import { SystemService } from './system/system.service.js';
 import { eventBus } from '@erp/event-bus';
 import { EventChannels } from '@erp/shared-types';
 
@@ -29,7 +31,8 @@ import { EventChannels } from '@erp/shared-types';
     BookingController,
     PosController,
     HrController,
-    AiCopilotController
+    AiCopilotController,
+    SystemController
   ],
   providers: [
     AuthService,
@@ -37,7 +40,8 @@ import { EventChannels } from '@erp/shared-types';
     BookingService,
     PosService,
     HrService,
-    AiCopilotService
+    AiCopilotService,
+    SystemService
   ]
 })
 export class AppModule implements OnModuleInit {

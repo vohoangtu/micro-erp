@@ -98,3 +98,109 @@ export const AiQueryResponseSchema = z.object({
   suggestedActions: z.array(z.string()).optional()
 });
 export type AiQueryResponse = z.infer<typeof AiQueryResponseSchema>;
+
+// Organization Structures
+export const BranchSchema = BaseEntitySchema.extend({
+  code: z.string(),
+  name: z.string(),
+  phone: z.string(),
+  email: z.string().email().optional().nullable(),
+  address: z.string(),
+  city: z.string(),
+  managerName: z.string().optional().nullable(),
+  isActive: z.boolean().default(true)
+});
+export type Branch = z.infer<typeof BranchSchema>;
+
+export const DepartmentSchema = BaseEntitySchema.extend({
+  branchId: z.string().uuid().optional().nullable(),
+  parentId: z.string().uuid().optional().nullable(),
+  code: z.string(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  managerName: z.string().optional().nullable(),
+  orderIndex: z.number().default(0),
+  isActive: z.boolean().default(true)
+});
+export type Department = z.infer<typeof DepartmentSchema>;
+
+export const JobPostSchema = BaseEntitySchema.extend({
+  code: z.string(),
+  name: z.string(),
+  level: z.number().default(5),
+  allowanceRate: z.number().default(0),
+  description: z.string().optional().nullable(),
+  isActive: z.boolean().default(true)
+});
+export type JobPost = z.infer<typeof JobPostSchema>;
+
+export const JobTitleSchema = BaseEntitySchema.extend({
+  code: z.string(),
+  name: z.string(),
+  field: z.string(),
+  standardRequirements: z.string().optional().nullable(),
+  isActive: z.boolean().default(true)
+});
+export type JobTitle = z.infer<typeof JobTitleSchema>;
+
+export const JobPositionSchema = BaseEntitySchema.extend({
+  departmentId: z.string().uuid().optional().nullable(),
+  postId: z.string().uuid().optional().nullable(),
+  titleId: z.string().uuid().optional().nullable(),
+  code: z.string(),
+  name: z.string(),
+  headcountQuota: z.number().default(1),
+  currentHeadcount: z.number().default(0),
+  minSalary: z.number().default(0),
+  maxSalary: z.number().default(0),
+  jdDescription: z.string().optional().nullable(),
+  isActive: z.boolean().default(true)
+});
+export type JobPosition = z.infer<typeof JobPositionSchema>;
+
+export const EmploymentTypeSchema = BaseEntitySchema.extend({
+  code: z.string(),
+  name: z.string(),
+  workHoursPerWeek: z.number().default(44),
+  hasInsurance: z.boolean().default(true),
+  standardAnnualLeave: z.number().default(12),
+  description: z.string().optional().nullable(),
+  isActive: z.boolean().default(true)
+});
+export type EmploymentType = z.infer<typeof EmploymentTypeSchema>;
+
+export const RoleSchema = BaseEntitySchema.extend({
+  code: z.string(),
+  name: z.string(),
+  description: z.string().optional().nullable(),
+  permissions: z.array(z.string()).default([]),
+  isSystem: z.boolean().default(false),
+  isActive: z.boolean().default(true)
+});
+export type Role = z.infer<typeof RoleSchema>;
+
+export const SystemSettingSchema = z.object({
+  id: z.string().uuid(),
+  tenantId: z.string(),
+  category: z.string(),
+  key: z.string(),
+  value: z.record(z.any()),
+  updatedAt: z.date()
+});
+export type SystemSetting = z.infer<typeof SystemSettingSchema>;
+
+export const AuditLogSchema = z.object({
+  id: z.string().uuid(),
+  tenantId: z.string(),
+  userId: z.string().uuid().optional().nullable(),
+  userName: z.string().optional().nullable(),
+  action: z.string(),
+  resource: z.string(),
+  resourceId: z.string().optional().nullable(),
+  diff: z.record(z.any()).optional().nullable(),
+  ipAddress: z.string().optional().nullable(),
+  userAgent: z.string().optional().nullable(),
+  createdAt: z.date()
+});
+export type AuditLog = z.infer<typeof AuditLogSchema>;
+
