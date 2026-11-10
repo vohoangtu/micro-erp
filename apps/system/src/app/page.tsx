@@ -231,7 +231,7 @@ export default function SystemControlTowerPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] text-slate-800 flex flex-col antialiased">
+    <div className="min-h-screen bg-[#faf8f5] text-slate-800 flex flex-col antialiased w-full overflow-x-hidden">
       {/* Topbar chung: Chuyển đổi giữa các phân hệ ERP qua 9-dots App Switcher & Home Launcher */}
       <UniversalTopbar
         currentZoneName="Hệ Thống & Tháp Điều Khiển (Zone 8)"
@@ -248,7 +248,7 @@ export default function SystemControlTowerPage() {
       )}
 
       {/* Main SaaS Layout: Left Sidebar + Right Content Area */}
-      <div className="flex flex-1">
+      <div className="flex flex-1 w-full relative">
         {/* Left Sidebar Điều Hướng Phân Hệ Chuẩn SaaS */}
         <Sidebar
           appName="Hệ Thống & Tháp Điều Khiển"
@@ -264,9 +264,10 @@ export default function SystemControlTowerPage() {
         />
 
         {/* Right Content Area: Giao diện SaaS nghiệp vụ chi tiết */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl">
-          {/* Breadcrumb & Section Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <main className="flex-1 min-w-0 p-6 md:p-8 overflow-y-auto w-full">
+          <div className="max-w-7xl mx-auto w-full space-y-6">
+            {/* Breadcrumb & Section Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
                 <span>Hệ Thống ERP</span>
@@ -937,6 +938,7 @@ export default function SystemControlTowerPage() {
               </div>
             </div>
           )}
+          </div>
         </main>
       </div>
     </div>

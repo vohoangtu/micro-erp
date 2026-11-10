@@ -81,7 +81,9 @@ export function Sidebar({
             href={item.href || '#'}
             onClick={handleClick}
             title={item.label}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
+            className={`flex items-center gap-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
+              isCollapsed ? 'justify-center px-2' : 'px-3'
+            } ${
               isActive
                 ? 'text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
@@ -98,7 +100,7 @@ export function Sidebar({
             )}
             {!isCollapsed && item.badge !== undefined && (
               <span
-                className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
+                className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
                   isActive
                     ? 'bg-white/20 text-white'
                     : item.badgeColor || 'bg-slate-200 text-slate-600'
@@ -176,8 +178,8 @@ export function Sidebar({
 
       {/* Desktop Persistent Sidebar */}
       <aside
-        className={`hidden md:flex flex-col justify-between bg-white/95 backdrop-blur-md border-r border-slate-200/90 h-[calc(100vh-3.5rem)] sticky top-14 shrink-0 transition-all duration-200 select-none ${
-          isCollapsed ? 'w-18' : 'w-64'
+        className={`hidden md:flex flex-col justify-between bg-white border-r border-slate-200/90 h-[calc(100vh-3.5rem)] sticky top-14 shrink-0 transition-all duration-200 select-none ${
+          isCollapsed ? 'w-16' : 'w-64'
         }`}
       >
         {/* Top Header of App */}

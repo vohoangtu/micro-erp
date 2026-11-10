@@ -1,0 +1,170 @@
+/* ERP CORE - Warm Editorial & Frosted Glass Light SaaS Styling */
+
+:root {
+  --bg-editorial-canvas: #faf8f5;
+  --bg-editorial-card: #ffffff;
+  --border-editorial: #eae6df;
+  --border-editorial-subtle: #f2efe9;
+  --text-editorial-main: #1c1917;
+  --text-editorial-muted: #78716c;
+  --text-editorial-dim: #a8a29e;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #1c1917;
+  background-color: #faf8f5;
+  min-height: 100vh;
+}
+
+/* Minimalist Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a29e;
+}
+
+/* Topbar Universal (Frosted Glass Warm Editorial) */
+.universal-topbar {
+  height: 56px;
+  background-color: rgba(250, 248, 245, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(234, 230, 223, 0.9);
+  box-shadow: 0 1px 3px rgba(28, 25, 23, 0.02);
+}
+
+/* SAAS App Layout (Warm Editorial Frosted Glass Light) */
+.saas-layout {
+  min-height: calc(100vh - 56px);
+  background-color: #faf8f5;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .saas-layout {
+    flex-direction: row;
+  }
+}
+
+.saas-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  border-right: 1px solid #eae6df;
+  background-color: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 767px) {
+  .saas-sidebar {
+    display: none !important;
+  }
+}
+
+.saas-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #57534e;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.saas-nav-item:hover {
+  background-color: #f5f2eb;
+  color: #1c1917;
+}
+
+.saas-nav-item.active {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+.saas-nav-item.active.theme-red {
+  background-color: #fff1f2;
+  color: #dc0037;
+  font-weight: 600;
+}
+
+.saas-nav-item.active.theme-blue {
+  background-color: #eff6ff;
+  color: #0066cc;
+  font-weight: 600;
+}
+
+/* Sidebar Collapsed State */
+.saas-sidebar.collapsed {
+  width: 68px;
+}
+.saas-sidebar.collapsed .sidebar-text,
+.saas-sidebar.collapsed .sidebar-badge-info,
+.saas-sidebar.collapsed .sidebar-footer-text,
+.saas-sidebar.collapsed .sidebar-section-title {
+  display: none !important;
+}
+.saas-sidebar.collapsed .saas-nav-item {
+  justify-content: center;
+  padding: 10px 0;
+}
+.saas-sidebar.collapsed .saas-nav-item svg {
+  margin-right: 0 !important;
+}
+.saas-sidebar.collapsed .sidebar-header-box {
+  justify-content: center;
+  padding: 6px 0;
+}
+
+/* High-Density Compact SaaS Table (Warm Editorial Tone) */
+.saas-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.saas-table th {
+  padding: 8px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #78716c;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background-color: #f7f5ef;
+  border-bottom: 1px solid #eae6df;
+  text-align: left;
+}
+
+.saas-table td {
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: #292524;
+  border-bottom: 1px solid #f2efe9;
+}
+
+.saas-table tr:hover td {
+  background-color: #fcfbf8;
+}
+
+/* Status indicator dot */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  display: inline-block;
+  margin-right: 6px;
+}

@@ -105,7 +105,7 @@ export function UniversalTopbar({
     : 'from-[#dc0037] to-[#990026]';
 
   return (
-    <header className="h-14 border-b border-[#eae6df] bg-[#faf8f5]/90 backdrop-blur-md px-5 flex items-center justify-between z-30 shrink-0 sticky top-0">
+    <header className="h-14 border-b border-[#eae6df] bg-[#faf8f5]/90 backdrop-blur-md px-5 flex items-center justify-between z-30 shrink-0 sticky top-0 w-full">
       {/* Left: App Switcher & Breadcrumbs */}
       <div className="flex items-center gap-3">
         {/* 9-Dots App Switcher Button */}
