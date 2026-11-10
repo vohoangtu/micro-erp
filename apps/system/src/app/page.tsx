@@ -220,12 +220,12 @@ export default function SystemControlTowerPage() {
 
   // Subpages for the Left Sidebar (SaaS Navigation)
   const systemSubpages: SubpageItem[] = [
-    { id: 'org', label: 'Cơ Cấu Tổ Chức', icon: Network, badge: `${departments.length} Khoa/Phòng` },
-    { id: 'users', label: 'Người Dùng & RBAC', icon: Users, badge: users.length },
-    { id: 'branches', label: 'Chuỗi Chi Nhánh', icon: Building2, badge: `${branches.length} Cơ sở` },
+    { id: 'org', label: 'Cơ Cấu Tổ Chức', icon: Network },
+    { id: 'users', label: 'Người Dùng & RBAC', icon: Users },
+    { id: 'branches', label: 'Chuỗi Chi Nhánh', icon: Building2 },
     { id: 'integrations', label: 'Tích Hợp VietQR / Zalo', icon: QrCode },
-    { id: 'ai', label: 'Trạm AI Copilot', icon: Bot, badge: 'Gemini 2.5' },
-    { id: 'vps', label: 'Giám Sát VPS Node', icon: Server, badge: '100% Sống' },
+    { id: 'ai', label: 'Trạm AI Copilot', icon: Bot },
+    { id: 'vps', label: 'Giám Sát VPS Node', icon: Server },
     { id: 'audit', label: 'Nhật Ký Audit', icon: FileText },
     { id: 'branding', label: 'Cấu Hình Thương Hiệu', icon: Sliders }
   ];
