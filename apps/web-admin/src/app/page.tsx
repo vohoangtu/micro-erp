@@ -17,12 +17,16 @@ import {
   ChevronRight,
   TrendingUp,
   CreditCard,
-  Palette
+  Palette,
+  Plus,
+  Trash2,
+  QrCode,
+  Check,
+  X
 } from 'lucide-react';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'bi' | 'crm' | 'booking' | 'pos' | 'hr' | 'ai'>('bi');
-  // Default to the user's custom lab(45 79.29 35.14) red theme
   const [themeColor, setThemeColor] = useState<'blue' | 'red'>('red');
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
@@ -33,6 +37,44 @@ export default function DashboardPage() {
       time: '16:00'
     }
   ]);
+
+  // CRM State
+  const [customers, setCustomers] = useState([
+    { name: 'Nguyễn Thị Mai Lan', phone: '0903 123 456', tier: 'PLATINUM', points: 640, spent: '18.500.000 ₫' },
+    { name: 'Trần Văn Hoàng', phone: '0912 888 999', tier: 'GOLD', points: 320, spent: '9.200.000 ₫' },
+    { name: 'Phạm Thu Hằng', phone: '0988 777 666', tier: 'SILVER', points: 80, spent: '2.800.000 ₫' },
+    { name: 'Lê Minh Tuấn', phone: '0933 445 566', tier: 'DIAMOND', points: 1250, spent: '35.000.000 ₫' }
+  ]);
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
+  const [newCustName, setNewCustName] = useState('');
+  const [newCustPhone, setNewCustPhone] = useState('');
+
+  // Booking State
+  const [bookings, setBookings] = useState([
+    { id: 1, time: '16:30 - Hôm nay', customer: 'Nguyễn Thị Mai Lan', service: 'Gói Chăm Sóc Da Mặt Cao Cấp', staff: 'KTV. Trần Mai', status: 'CONFIRMED' },
+    { id: 2, time: '17:30 - Hôm nay', customer: 'Lê Minh Tuấn', service: 'Massage Body Đá Nóng Himalaya 90p', staff: 'KTV. Hoàng Quân', status: 'IN_PROGRESS' },
+    { id: 3, time: '18:45 - Hôm nay', customer: 'Đỗ Phương Thảo', service: 'Trị Liệu Phục Hồi Chuyên Sâu', staff: 'KTV. Thanh Tâm', status: 'PENDING' }
+  ]);
+  const [showAddBooking, setShowAddBooking] = useState(false);
+  const [newBookingCust, setNewBookingCust] = useState('');
+  const [newBookingService, setNewBookingService] = useState('Gói Chăm Sóc Da Mặt Cao Cấp Bio-Cell');
+  const [newBookingTime, setNewBookingTime] = useState('19:30 - Hôm nay');
+
+  // POS State & Cart
+  const [posProducts] = useState([
+    { id: '1', sku: 'SRV-01', name: 'Gói Chăm Sóc Da Mặt Cao Cấp', price: 450000, category: 'Dịch vụ Spa' },
+    { id: '2', sku: 'PRD-02', name: 'Serum Dưỡng Ẩm Phục Hồi B5 50ml', price: 620000, category: 'Mỹ phẩm' },
+    { id: '3', sku: 'SRV-03', name: 'Massage Body Đá Nóng 90 phút', price: 550000, category: 'Dịch vụ Spa' },
+    { id: '4', sku: 'PRD-04', name: 'Kem Chống Nắng SPF50+ 60ml', price: 480000, category: 'Mỹ phẩm' },
+    { id: '5', sku: 'SRV-05', name: 'Combo HIFU Trẻ Hóa Công Nghệ Cao', price: 2400000, category: 'Trị Liệu' }
+  ]);
+  const [cart, setCart] = useState<Array<{ id: string; name: string; price: number; quantity: number }>>([
+    { id: '1', name: 'Gói Chăm Sóc Da Mặt Cao Cấp', price: 450000, quantity: 1 }
+  ]);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+
+  // HR Payroll State
+  const [payrollSuccess, setPayrollSuccess] = useState(false);
 
   const isBlue = themeColor === 'blue';
 
@@ -102,7 +144,7 @@ export default function DashboardPage() {
           ...prev,
           {
             sender: 'ai',
-            text: `[AI Copilot Analysis]\nDựa trên số liệu tổng hợp hôm nay:\n• Doanh thu POS: 28.450.000 ₫ (+18.4% so với cùng kỳ tuần trước)\n• Tỉ lệ lấp đầy lịch hẹn (Occupancy): 88%\n• Dịch vụ Chăm Sóc Da Cao Cấp chiếm 58% cơ cấu doanh thu.\n\n💡 Đề xuất hành động:\n• Mở thêm 2 ca chăm sóc da vào khung giờ vàng 18h00 - 20h00.\n• Tự động gửi tin nhắn Zalo ZNS ưu đãi cho khách hàng hạng Platinum.`,
+            text: `[AI Copilot Analysis - RAG on Postgres 17]\nDựa trên số liệu tổng hợp thời gian thực:\n• Doanh thu POS: 28.450.000 ₫ (+18.4% so với cùng kỳ tuần trước)\n• Tỉ lệ lấp đầy lịch hẹn (Occupancy): 88%\n• Dịch vụ Chăm Sóc Da Cao Cấp chiếm 58% cơ cấu doanh thu.\n\n💡 Đề xuất hành động theo quy trình BHN:\n• Mở thêm 2 ca chăm sóc da vào khung giờ vàng 18h00 - 20h00.\n• Tự động gửi tin nhắn Zalo ZNS ưu đãi tặng 100 điểm thưởng cho khách hàng hạng Platinum.`,
             time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
           }
         ]);
@@ -111,6 +153,31 @@ export default function DashboardPage() {
       setAiLoading(false);
     }
   };
+
+  const addToCart = (product: { id: string; name: string; price: number }) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) {
+        return prev.map(item => (item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item));
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+  };
+
+  const removeFromCart = (id: string) => {
+    setCart(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleCheckout = () => {
+    if (cart.length === 0) return;
+    setPaymentSuccess(true);
+    setTimeout(() => {
+      setCart([]);
+      setPaymentSuccess(false);
+    }, 3500);
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-800 font-sans">
@@ -136,9 +203,9 @@ export default function DashboardPage() {
           <nav className="space-y-1">
             {[
               { id: 'bi', label: 'Management BI', icon: BarChart3, badge: 'Realtime' },
-              { id: 'crm', label: 'CRM & Khách Hàng', icon: Users },
-              { id: 'booking', label: 'Booking & Lịch Hẹn', icon: Calendar, badge: '12 ca' },
-              { id: 'pos', label: 'ERP / POS Bán Hàng', icon: ShoppingBag },
+              { id: 'crm', label: 'CRM & Khách Hàng', icon: Users, count: customers.length },
+              { id: 'booking', label: 'Booking & Lịch Hẹn', icon: Calendar, badge: `${bookings.length} ca` },
+              { id: 'pos', label: 'ERP / POS Bán Hàng', icon: ShoppingBag, count: cart.length > 0 ? cart.length : undefined },
               { id: 'hr', label: 'HR / Bảng Lương', icon: Briefcase },
               { id: 'ai', label: 'AI Copilot 2026', icon: Bot, highlight: true }
             ].map(item => {
@@ -161,6 +228,11 @@ export default function DashboardPage() {
                   {item.badge && (
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${theme.badgeBg}`}>
                       {item.badge}
+                    </span>
+                  )}
+                  {item.count && !item.badge && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold">
+                      {item.count}
                     </span>
                   )}
                   {item.highlight && (
@@ -267,15 +339,15 @@ export default function DashboardPage() {
                   },
                   {
                     title: 'Lịch hẹn đã xác nhận',
-                    value: '34 lượt',
+                    value: `${bookings.length} ca`,
                     sub: 'Tỉ lệ kín phòng: 88%',
                     icon: Calendar,
                     color: isBlue ? 'bg-indigo-50 text-indigo-600' : 'bg-rose-50 text-rose-600'
                   },
                   {
-                    title: 'Hội viên mới (CRM)',
-                    value: '12 khách',
-                    sub: 'Tổng thành viên: 1.480',
+                    title: 'Hội viên CRM',
+                    value: `${customers.length} khách`,
+                    sub: 'Tăng trưởng: +15%',
                     icon: Users,
                     color: isBlue ? 'bg-sky-50 text-sky-600' : 'bg-orange-50 text-orange-600'
                   },
@@ -311,8 +383,8 @@ export default function DashboardPage() {
                 <div className="lg:col-span-2 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-base text-slate-900">Giao dịch POS & Đơn hàng mới nhất</h3>
-                    <button className={`text-xs font-semibold hover:underline ${theme.brandText}`}>
-                      Xem tất cả &rarr;
+                    <button onClick={() => setActiveTab('pos')} className={`text-xs font-semibold hover:underline ${theme.brandText}`}>
+                      Mở POS quầy thu ngân &rarr;
                     </button>
                   </div>
                   <div className="space-y-3">
@@ -369,10 +441,66 @@ export default function DashboardPage() {
                   <h2 className="text-2xl font-bold text-slate-900">CRM & Quản Lý Khách Hàng</h2>
                   <p className="text-sm text-slate-500">Danh sách thành viên, tích lũy điểm thưởng và phân hạng hội viên</p>
                 </div>
-                <button className={`${theme.primaryBtn} px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition`}>
-                  + Thêm Khách Hàng
+                <button
+                  onClick={() => setShowAddCustomer(true)}
+                  className={`${theme.primaryBtn} px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition flex items-center gap-1.5`}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Thêm Khách Hàng</span>
                 </button>
               </div>
+
+              {/* Add Customer Inline Modal */}
+              {showAddCustomer && (
+                <div className="bg-white border-2 border-slate-300 rounded-2xl p-5 shadow-sm space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-bold text-sm text-slate-900">Thêm Thành Viên Mới vào CRM</h3>
+                    <button onClick={() => setShowAddCustomer(false)} className="text-slate-400 hover:text-slate-600">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Họ và tên khách hàng (vd: Nguyễn Lan Anh)"
+                      value={newCustName}
+                      onChange={e => setNewCustName(e.target.value)}
+                      className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-slate-400"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Số điện thoại (vd: 0988 123 456)"
+                      value={newCustPhone}
+                      onChange={e => setNewCustPhone(e.target.value)}
+                      className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-slate-400"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => setShowAddCustomer(false)}
+                      className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg"
+                    >
+                      Hủy
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (newCustName.trim()) {
+                          setCustomers(prev => [
+                            { name: newCustName, phone: newCustPhone || '0901 000 111', tier: 'SILVER', points: 50, spent: '0 ₫' },
+                            ...prev
+                          ]);
+                          setNewCustName('');
+                          setNewCustPhone('');
+                          setShowAddCustomer(false);
+                        }
+                      }}
+                      className={`${theme.primaryBtn} px-4 py-1.5 rounded-lg text-xs font-semibold`}
+                    >
+                      Lưu Thành Viên
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
                 <table className="w-full text-left text-sm">
@@ -387,11 +515,7 @@ export default function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
-                    {[
-                      { name: 'Nguyễn Thị Mai Lan', phone: '0903 123 456', tier: 'PLATINUM', points: '640 pts', spent: '18.500.000 ₫' },
-                      { name: 'Trần Văn Hoàng', phone: '0912 888 999', tier: 'GOLD', points: '320 pts', spent: '9.200.000 ₫' },
-                      { name: 'Phạm Thu Hằng', phone: '0988 777 666', tier: 'SILVER', points: '80 pts', spent: '2.800.000 ₫' }
-                    ].map((c, i) => (
+                    {customers.map((c, i) => (
                       <tr key={i} className="hover:bg-slate-50/70 transition">
                         <td className="p-4 font-semibold text-slate-900">{c.name}</td>
                         <td className="p-4 font-mono text-xs text-slate-600">{c.phone}</td>
@@ -400,11 +524,16 @@ export default function DashboardPage() {
                             {c.tier}
                           </span>
                         </td>
-                        <td className={`p-4 font-bold ${theme.brandText}`}>{c.points}</td>
+                        <td className={`p-4 font-bold ${theme.brandText}`}>{c.points} pts</td>
                         <td className="p-4 font-semibold text-slate-900">{c.spent}</td>
                         <td className="p-4">
-                          <button className={`text-xs font-semibold hover:underline ${theme.brandText}`}>
-                            Chi tiết &rarr;
+                          <button
+                            onClick={() => {
+                              setActiveTab('pos');
+                            }}
+                            className={`text-xs font-semibold hover:underline ${theme.brandText}`}
+                          >
+                            Tạo Đơn POS &rarr;
                           </button>
                         </td>
                       </tr>
@@ -423,18 +552,82 @@ export default function DashboardPage() {
                   <h2 className="text-2xl font-bold text-slate-900">Booking & Điều Phối Lịch Hẹn</h2>
                   <p className="text-sm text-slate-500">Lịch trình chăm sóc, phân bổ kỹ thuật viên và phòng dịch vụ</p>
                 </div>
-                <button className={`${theme.primaryBtn} px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition`}>
-                  + Đặt Lịch Mới
+                <button
+                  onClick={() => setShowAddBooking(true)}
+                  className={`${theme.primaryBtn} px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition flex items-center gap-1.5`}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Đặt Lịch Mới</span>
                 </button>
               </div>
 
+              {/* Add Booking Modal */}
+              {showAddBooking && (
+                <div className="bg-white border-2 border-slate-300 rounded-2xl p-5 shadow-sm space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-bold text-sm text-slate-900">Tạo Lịch Hẹn Dịch Vụ Mới</h3>
+                    <button onClick={() => setShowAddBooking(false)} className="text-slate-400 hover:text-slate-600">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Tên khách hàng"
+                      value={newBookingCust}
+                      onChange={e => setNewBookingCust(e.target.value)}
+                      className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800"
+                    />
+                    <select
+                      value={newBookingService}
+                      onChange={e => setNewBookingService(e.target.value)}
+                      className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800"
+                    >
+                      <option>Gói Chăm Sóc Da Mặt Cao Cấp Bio-Cell</option>
+                      <option>Massage Body Đá Nóng Himalaya 90p</option>
+                      <option>Trị Liệu Phục Hồi Chuyên Sâu</option>
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Khung giờ (vd: 19:30 - Hôm nay)"
+                      value={newBookingTime}
+                      onChange={e => setNewBookingTime(e.target.value)}
+                      className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => setShowAddBooking(false)} className="px-3 py-1.5 text-xs text-slate-600">
+                      Hủy
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (newBookingCust.trim()) {
+                          setBookings(prev => [
+                            ...prev,
+                            {
+                              id: Date.now(),
+                              customer: newBookingCust,
+                              service: newBookingService,
+                              time: newBookingTime,
+                              staff: 'KTV. Trần Mai',
+                              status: 'CONFIRMED'
+                            }
+                          ]);
+                          setNewBookingCust('');
+                          setShowAddBooking(false);
+                        }
+                      }}
+                      className={`${theme.primaryBtn} px-4 py-1.5 rounded-lg text-xs font-semibold`}
+                    >
+                      Xác Nhận Lịch
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  { time: '16:30 - Hôm nay', customer: 'Nguyễn Thị Mai Lan', service: 'Chăm Sóc Da Mặt Cao Cấp', staff: 'KTV. Trần Mai', status: 'CONFIRMED' },
-                  { time: '17:30 - Hôm nay', customer: 'Lê Minh Tuấn', service: 'Massage Body Đá Nóng 90p', staff: 'KTV. Hoàng Quân', status: 'IN_PROGRESS' },
-                  { time: '18:45 - Hôm nay', customer: 'Đỗ Phương Thảo', service: 'Trị Liệu Phục Hồi Chuyên Sâu', staff: 'KTV. Thanh Tâm', status: 'PENDING' }
-                ].map((b, i) => (
-                  <div key={i} className="bg-white border border-slate-200/80 rounded-2xl p-5 space-y-3 shadow-xs">
+                {bookings.map(b => (
+                  <div key={b.id} className="bg-white border border-slate-200/80 rounded-2xl p-5 space-y-3 shadow-xs">
                     <div className="flex justify-between items-center">
                       <span className={`text-xs font-mono font-semibold flex items-center gap-1 ${theme.brandText}`}>
                         <Clock className="w-3.5 h-3.5" /> {b.time}
@@ -457,36 +650,101 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* TAB 4: POS */}
+          {/* TAB 4: POS & CASH REGISTER */}
           {activeTab === 'pos' && (
             <div className="space-y-6">
               <div>
                 <h2 className="text-2xl font-bold text-slate-900">ERP / POS Bán Hàng Tại Quầy</h2>
-                <p className="text-sm text-slate-500">Danh mục sản phẩm, quét đơn và thu ngân trực tiếp</p>
+                <p className="text-sm text-slate-500">Quét chọn sản phẩm, tính điểm và tạo mã VietQR thanh toán tự động</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  { name: 'Gói Chăm Sóc Da Mặt Cao Cấp', price: '450.000 ₫', category: 'Dịch vụ Spa', sku: 'SRV-01' },
-                  { name: 'Serum Phục Hồi B5 50ml', price: '620.000 ₫', category: 'Mỹ phẩm', sku: 'PRD-02' },
-                  { name: 'Massage Body Đá Nóng 90p', price: '550.000 ₫', category: 'Dịch vụ Spa', sku: 'SRV-03' }
-                ].map((item, idx) => (
-                  <div key={idx} className="bg-white border border-slate-200/80 rounded-2xl p-5 flex flex-col justify-between shadow-xs">
-                    <div>
-                      <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md border ${theme.badgeBg}`}>
-                        {item.sku}
-                      </span>
-                      <h4 className="font-bold text-slate-900 mt-2.5">{item.name}</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">{item.category}</p>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Product Catalog */}
+                <div className="lg:col-span-2 space-y-4">
+                  <h3 className="font-bold text-sm text-slate-700">Danh Mục Sản Phẩm & Dịch Vụ</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {posProducts.map(item => (
+                      <div key={item.id} className="bg-white border border-slate-200/80 rounded-2xl p-4 flex flex-col justify-between shadow-xs">
+                        <div>
+                          <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md border ${theme.badgeBg}`}>
+                            {item.sku}
+                          </span>
+                          <h4 className="font-bold text-slate-900 mt-2">{item.name}</h4>
+                          <p className="text-xs text-slate-500 mt-0.5">{item.category}</p>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
+                          <span className="font-bold text-slate-900 text-sm">{item.price.toLocaleString('vi-VN')} ₫</span>
+                          <button
+                            onClick={() => addToCart(item)}
+                            className={`${theme.primaryBtn} px-3 py-1.5 rounded-lg text-xs font-semibold transition`}
+                          >
+                            + Thêm
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Cashier Bill Summary */}
+                <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between h-fit space-y-4">
+                  <div>
+                    <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+                      <h3 className="font-bold text-sm text-slate-900">Hóa Đơn Thu Ngân</h3>
+                      <span className="text-[10px] font-mono text-slate-400">#ORD-{Date.now().toString(36).slice(-4).toUpperCase()}</span>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
-                      <span className="font-bold text-slate-900 text-lg">{item.price}</span>
-                      <button className={`${theme.primaryBtn} px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition`}>
-                        Thêm vào đơn
-                      </button>
+
+                    <div className="mt-3 space-y-2 max-h-56 overflow-y-auto">
+                      {cart.length === 0 ? (
+                        <div className="text-center py-8 text-xs text-slate-400">Chưa có sản phẩm nào trong đơn</div>
+                      ) : (
+                        cart.map(item => (
+                          <div key={item.id} className="flex justify-between items-center text-xs p-2 bg-slate-50 rounded-xl">
+                            <div className="truncate pr-2">
+                              <div className="font-medium text-slate-800">{item.name}</div>
+                              <div className="text-[10px] text-slate-400">
+                                {item.quantity} x {item.price.toLocaleString('vi-VN')} ₫
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="font-bold text-slate-900">{(item.price * item.quantity).toLocaleString('vi-VN')} ₫</span>
+                              <button onClick={() => removeFromCart(item.id)} className="text-slate-400 hover:text-red-500">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
-                ))}
+
+                  <div className="pt-3 border-t border-slate-100 space-y-3">
+                    <div className="flex justify-between text-xs text-slate-500">
+                      <span>Điểm tích lũy dự kiến:</span>
+                      <span className={`font-bold ${theme.brandText}`}>+{Math.floor(cartTotal / 100000)} pts</span>
+                    </div>
+                    <div className="flex justify-between text-base font-bold text-slate-900">
+                      <span>Tổng thanh toán:</span>
+                      <span className={theme.brandText}>{cartTotal.toLocaleString('vi-VN')} ₫</span>
+                    </div>
+
+                    {paymentSuccess ? (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
+                        <Check className="w-4 h-4 text-emerald-600" />
+                        <span>Thanh toán thành công! NATS đã phát event `order.paid`.</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleCheckout}
+                        disabled={cart.length === 0}
+                        className={`w-full ${theme.primaryBtn} disabled:opacity-50 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition`}
+                      >
+                        <QrCode className="w-4 h-4" />
+                        <span>Thanh Toán VietQR & Tiền Mặt</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -494,10 +752,29 @@ export default function DashboardPage() {
           {/* TAB 5: HR */}
           {activeTab === 'hr' && (
             <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900">HR & Quản Trị Nhân Sự & Bảng Lương</h2>
-                <p className="text-sm text-slate-500">Tự động tính hoa hồng theo đơn POS và ca phục vụ Booking</p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">HR & Quản Trị Nhân Sự & Bảng Lương</h2>
+                  <p className="text-sm text-slate-500">Tự động tính hoa hồng theo đơn POS và ca phục vụ Booking</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setPayrollSuccess(true);
+                    setTimeout(() => setPayrollSuccess(false), 3500);
+                  }}
+                  className={`${theme.primaryBtn} px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition flex items-center gap-1.5`}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Chạy Tính Lương & Hoa Hồng Tự Động</span>
+                </button>
               </div>
+
+              {payrollSuccess && (
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Bảng lương tháng đã được tính toán tự động dựa trên doanh số POS và ca phục vụ hoàn tất!</span>
+                </div>
+              )}
 
               <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
                 <table className="w-full text-left text-sm">
@@ -513,8 +790,9 @@ export default function DashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-700">
                     {[
-                      { code: 'EMP-01', name: 'Nguyễn Thị Mai', dept: 'KTV Trị Liệu', salary: '10.000.000 ₫', rate: '8.0%', comm: '3.420.000 ₫' },
-                      { code: 'EMP-02', name: 'Trần Văn Hoàng', dept: 'Tư Vấn KH', salary: '9.000.000 ₫', rate: '5.0%', comm: '2.150.000 ₫' }
+                      { code: 'EMP-001', name: 'Nguyễn Thị Mai', dept: 'KTV Trị Liệu', salary: '10.000.000 ₫', rate: '8.0%', comm: '3.420.000 ₫' },
+                      { code: 'EMP-002', name: 'Trần Văn Hoàng', dept: 'Tư Vấn KH', salary: '9.000.000 ₫', rate: '5.0%', comm: '2.150.000 ₫' },
+                      { code: 'EMP-003', name: 'Bác sĩ Lê Đình Trọng', dept: 'Chuyên Khoa Da Liễu', salary: '25.000.000 ₫', rate: '10.0%', comm: '6.800.000 ₫' }
                     ].map((e, i) => (
                       <tr key={i} className="hover:bg-slate-50/70 transition">
                         <td className={`p-4 font-mono text-xs font-semibold ${theme.brandText}`}>{e.code}</td>

@@ -16,7 +16,8 @@
     "vps:down": "docker compose -f deploy/docker-compose.yml down",
     "vps:logs": "docker compose -f deploy/docker-compose.yml logs -f",
     "db:generate": "pnpm --filter @erp/database db:generate",
-    "db:migrate": "pnpm --filter @erp/database db:migrate"
+    "db:migrate": "pnpm --filter @erp/database db:migrate",
+    "db:seed": "pnpm --filter @erp/database db:seed"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
