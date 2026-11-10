@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
+@theme {
+  --color-lab-red: lab(45% 79.29 35.14);
+  --color-lab-red-hover: #b9002e;
+  --color-lab-red-light: #fef1f3;
+  --color-lab-red-border: #fcd0d8;
+}
+
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
+  --color-primary-red: #dc0037; /* lab(45 79.29 35.14) */
 }
 
 body {
