@@ -1,0 +1,27 @@
+{
+  "name": "microservice-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Event-Driven Microservices ERP & Hybrid AI Copilot System (2026 Edition)",
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "infra:up": "docker compose -f deploy/docker-compose.infra.yml up -d",
+    "infra:down": "docker compose -f deploy/docker-compose.infra.yml down",
+    "infra:logs": "docker compose -f deploy/docker-compose.infra.yml logs -f",
+    "vps:up": "docker compose -f deploy/docker-compose.yml up -d --build",
+    "vps:down": "docker compose -f deploy/docker-compose.yml down",
+    "vps:logs": "docker compose -f deploy/docker-compose.yml logs -f",
+    "db:generate": "pnpm --filter @erp/database db:generate",
+    "db:migrate": "pnpm --filter @erp/database db:migrate"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "prettier": "^3.5.3",
+    "turbo": "^2.11.10",
+    "typescript": "^5.8.2"
+  }
+}

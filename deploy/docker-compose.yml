@@ -1,0 +1,110 @@
+services:
+  # --- Reverse Proxy with Auto SSL ---
+  traefik:
+    image: traefik:v3.3
+    container_name: erp-traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - traefik_acme:/etc/traefik
+    networks:
+      - erp-network
+
+  # --- Core Infrastructure ---
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: erp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_secure_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-erp_core}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - erp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-erp_core}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    container_name: erp-valkey
+    restart: unless-stopped
+    volumes:
+      - valkey_data:/data
+    networks:
+      - erp-network
+
+  nats:
+    image: nats:2.10-alpine
+    container_name: erp-nats
+    restart: unless-stopped
+    command: ["-js", "-m", "8222"]
+    volumes:
+      - nats_data:/data
+    networks:
+      - erp-network
+
+  # --- Unified Microservice Gateway & Domain Services ---
+  api-gateway:
+    build:
+      context: ..
+      dockerfile: services/api-gateway/Dockerfile
+    container_name: erp-gateway
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres_secure_2026}@postgres:5432/${POSTGRES_DB:-erp_core}?sslmode=disable
+      REDIS_URL: redis://valkey:6379
+      NATS_URL: nats://nats:4222
+      JWT_SECRET: ${JWT_SECRET:-super_secret_erp_jwt_key_2026_change_in_production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gateway.rule=Host(`${DOMAIN:-localhost}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.gateway.entrypoints=websecure"
+      - "traefik.http.services.gateway.loadbalancer.server.port=8000"
+    networks:
+      - erp-network
+
+  # --- Web Administration & BI Dashboard ---
+  web-admin:
+    build:
+      context: ..
+      dockerfile: apps/web-admin/Dockerfile
+    container_name: erp-web-admin
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
+    depends_on:
+      - api-gateway
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.admin.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.admin.entrypoints=websecure"
+      - "traefik.http.services.admin.loadbalancer.server.port=3000"
+    networks:
+      - erp-network
+
+networks:
+  erp-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  valkey_data:
+  nats_data:
+  traefik_acme:
