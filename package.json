@@ -5,7 +5,10 @@
   "description": "Event-Driven Microservices ERP & Hybrid AI Copilot System (2026 Edition)",
   "packageManager": "pnpm@10.33.2",
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "turbo dev --concurrency 25",
+    "dev:apps": "turbo dev --filter='@erp/*' --concurrency 25",
+    "dev:shell": "pnpm --filter @erp/shell dev",
+    "dev:api": "pnpm --filter @erp/api-gateway dev",
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
