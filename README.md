@@ -32,13 +32,19 @@ Hệ thống kiến trúc **Event-Driven Hub & Spoke Microservices** tích hợp
 
 ---
 
-## 📂 Cấu Trúc Dự Án (Monorepo Workspace)
+## 📂 Cấu Trúc Dự Án (Monorepo Workspace & Multi-Zone Micro-Frontends)
 
 ```text
 microservice-erp/
 ├── apps/
-│   ├── web-admin/                # Next.js 16.4 + React 19.3 Management BI & Admin Portal (Port 3000)
-│   └── member-app/               # React 19.3 PWA / Mobile Web cho hội viên (Port 3001)
+│   ├── shell/                    # Master Shell Launcher & Gateway Hub (Port 3000, Multi-Zone Router)
+│   ├── crm/                      # Phân hệ CRM Quản lý Khách hàng & Loyalty (Port 3002, /crm)
+│   ├── booking/                  # Phân hệ Đặt lịch Hẹn & Kỹ thuật viên (Port 3003, /booking)
+│   ├── pos/                      # Phân hệ Bán lẻ POS & Thu ngân (Port 3004, /pos)
+│   ├── hr/                       # Phân hệ Nhân sự HRM, Chấm công & Bảng lương (Port 3005, /hr)
+│   ├── bi/                       # Phân hệ Báo cáo Doanh thu & Quản trị BI (Port 3006, /bi)
+│   ├── ai-copilot/               # Phân hệ Trợ lý AI Copilot Hybrid (Port 3007, /ai)
+│   └── member-app/               # PWA Portal dành riêng cho Khách hàng/Hội viên (Port 3001)
 ├── services/
 │   └── api-gateway/              # NestJS 12.4 Fastify Gateway & Domain Controllers (Port 8000)
 │       ├── src/auth/             # Xác thực JWT & phân quyền vai trò (RBAC)
@@ -48,12 +54,13 @@ microservice-erp/
 │       ├── src/hr/               # Quản lý nhân sự, tính lương & hoa hồng tự động
 │       └── src/ai/               # Trợ lý AI Copilot Hybrid (RAG trên Postgres + LLM)
 ├── packages/
-│   ├── database/                 # Drizzle ORM Schema cho PostgreSQL 17 + pgvector
+│   ├── ui/                       # Bộ Universal Topbar (9-dot App Switcher, theme switcher `#dc0037`)
+│   ├── database/                 # Drizzle ORM Schema cho PostgreSQL 17 + pgvector (HNSW)
 │   ├── event-bus/                # NATS JetStream Client chuẩn hóa (Pub/Sub Event-Driven)
 │   ├── shared-types/             # TypeScript DTOs, Enums, Zod Validation Schemas
 │   └── config/                   # Cấu hình dùng chung
 ├── deploy/
-│   ├── docker-compose.yml        # Triển khai toàn bộ hệ thống lên VPS (1 lệnh duy nhất)
+│   ├── docker-compose.yml        # Triển khai toàn bộ hệ thống độc lập lên VPS qua Traefik
 │   ├── docker-compose.infra.yml  # Cụm hạ tầng phục vụ Local Dev (Postgres 17, Valkey, NATS)
 │   └── traefik/                  # Cấu hình Traefik v3 HTTP/3 & Let's Encrypt
 ├── pnpm-workspace.yaml
@@ -66,7 +73,7 @@ microservice-erp/
 ## ⚡ Hướng Dẫn Khởi Chạy Nhanh
 
 ### 1. Yêu cầu môi trường
-* Node.js >= 22 (Khuyến nghị **Node.js 26**)
+* Node.js >= 22 (Khuyến nghị **Node.js 26 LTS**)
 * `pnpm` >= 10
 * Docker & Docker Compose
 
@@ -75,7 +82,7 @@ microservice-erp/
 # Cài đặt toàn bộ dependencies trong monorepo
 pnpm install
 
-# Build tất cả các packages và services
+# Build tất cả 14 packages, services và independent apps
 pnpm build
 ```
 
@@ -84,12 +91,21 @@ pnpm build
 # Bước 1: Khởi động cụm hạ tầng (Postgres 17 + pgvector, Valkey 8, NATS JetStream)
 pnpm infra:up
 
-# Bước 2: Chạy song song toàn bộ services & web apps qua Turborepo
+# Bước 2: Seed dữ liệu mẫu cho Spa & Thẩm mỹ viện
+pnpm db:seed
+
+# Bước 3: Chạy song song toàn bộ services & web apps qua Turborepo
 pnpm dev
 ```
 
-* **Management BI & Web Admin:** [http://localhost:3000](http://localhost:3000)
-* **Member App (Mobile Portal):** [http://localhost:3001](http://localhost:3001)
+* **Master Shell Launcher:** [http://localhost:3000](http://localhost:3000)
+* **CRM Micro-App:** [http://localhost:3002/crm](http://localhost:3002/crm) (hoặc truy cập qua Shell: [http://localhost:3000/crm](http://localhost:3000/crm))
+* **Booking Micro-App:** [http://localhost:3003/booking](http://localhost:3003/booking) (hoặc qua Shell: [http://localhost:3000/booking](http://localhost:3000/booking))
+* **POS Micro-App:** [http://localhost:3004/pos](http://localhost:3004/pos) (hoặc qua Shell: [http://localhost:3000/pos](http://localhost:3000/pos))
+* **HR & Payroll Micro-App:** [http://localhost:3005/hr](http://localhost:3005/hr) (hoặc qua Shell: [http://localhost:3000/hr](http://localhost:3000/hr))
+* **Management BI Micro-App:** [http://localhost:3006/bi](http://localhost:3006/bi) (hoặc qua Shell: [http://localhost:3000/bi](http://localhost:3000/bi))
+* **AI Copilot Micro-App:** [http://localhost:3007/ai](http://localhost:3007/ai) (hoặc qua Shell: [http://localhost:3000/ai](http://localhost:3000/ai))
+* **Member App (Customer Portal PWA):** [http://localhost:3001](http://localhost:3001)
 * **API Gateway & Swagger Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
 * **NATS Monitoring:** [http://localhost:8222](http://localhost:8222)
 

@@ -6,10 +6,10 @@ RUN npm install -g pnpm@10.33.2
 
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml turbo.json tsconfig.base.json ./
 COPY packages/ ./packages/
-COPY apps/web-admin/ ./apps/web-admin/
+COPY apps/booking/ ./apps/booking/
 
 RUN pnpm install --frozen-lockfile || pnpm install
-RUN pnpm --filter @erp/web-admin build
+RUN pnpm --filter @erp/booking build
 
 FROM node:26-alpine AS runner
 
@@ -20,6 +20,6 @@ RUN npm install -g pnpm@10.33.2
 
 COPY --from=builder /app ./
 
-EXPOSE 3000
+EXPOSE 3003
 
-CMD ["pnpm", "--filter", "@erp/web-admin", "start"]
+CMD ["pnpm", "--filter", "@erp/booking", "start"]

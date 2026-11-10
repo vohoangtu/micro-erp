@@ -79,23 +79,126 @@ services:
     networks:
       - erp-network
 
-  # --- Web Administration & BI Dashboard ---
-  web-admin:
+  # --- Master Shell Launcher & Gateway ---
+  shell:
     build:
       context: ..
-      dockerfile: apps/web-admin/Dockerfile
-    container_name: erp-web-admin
+      dockerfile: apps/shell/Dockerfile
+    container_name: erp-shell
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      PORT: 3000
+      CRM_ZONE_URL: http://erp-crm:3002
+      BOOKING_ZONE_URL: http://erp-booking:3003
+      POS_ZONE_URL: http://erp-pos:3004
+      HR_ZONE_URL: http://erp-hr:3005
+      BI_ZONE_URL: http://erp-bi:3006
+      AI_ZONE_URL: http://erp-ai:3007
       NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
     depends_on:
       - api-gateway
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.admin.rule=Host(`${DOMAIN:-localhost}`)"
-      - "traefik.http.routers.admin.entrypoints=websecure"
-      - "traefik.http.services.admin.loadbalancer.server.port=3000"
+      - "traefik.http.routers.shell.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.shell.entrypoints=websecure"
+      - "traefik.http.services.shell.loadbalancer.server.port=3000"
+    networks:
+      - erp-network
+
+  crm:
+    build:
+      context: ..
+      dockerfile: apps/crm/Dockerfile
+    container_name: erp-crm
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
+    networks:
+      - erp-network
+
+  booking:
+    build:
+      context: ..
+      dockerfile: apps/booking/Dockerfile
+    container_name: erp-booking
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
+    networks:
+      - erp-network
+
+  pos:
+    build:
+      context: ..
+      dockerfile: apps/pos/Dockerfile
+    container_name: erp-pos
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
+    networks:
+      - erp-network
+
+  hr:
+    build:
+      context: ..
+      dockerfile: apps/hr/Dockerfile
+    container_name: erp-hr
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
+    networks:
+      - erp-network
+
+  bi:
+    build:
+      context: ..
+      dockerfile: apps/bi/Dockerfile
+    container_name: erp-bi
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3006
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
+    networks:
+      - erp-network
+
+  ai-copilot:
+    build:
+      context: ..
+      dockerfile: apps/ai-copilot/Dockerfile
+    container_name: erp-ai
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3007
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
+    networks:
+      - erp-network
+
+  member-app:
+    build:
+      context: ..
+      dockerfile: apps/member-app/Dockerfile
+    container_name: erp-member-app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      NEXT_PUBLIC_API_URL: https://${DOMAIN:-localhost}/api
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.member.rule=Host(`m.${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.member.entrypoints=websecure"
+      - "traefik.http.services.member.loadbalancer.server.port=3001"
     networks:
       - erp-network
 
