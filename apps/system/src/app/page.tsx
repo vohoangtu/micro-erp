@@ -2,45 +2,32 @@
 
 import React, { useState } from 'react';
 import {
-  Building2,
-  Users,
-  GitFork,
+  Settings,
   Network,
+  Users,
   ShieldCheck,
-  Server,
-  Key,
+  Building2,
   QrCode,
-  MessageSquare,
-  FileText,
   Bot,
-  Database,
-  Download,
-  CheckCircle2,
-  AlertCircle,
-  Plus,
-  RefreshCw,
-  Search,
+  Server,
+  FileText,
   Sliders,
-  Sparkles,
+  CheckCircle2,
+  Database,
+  Plus,
   Layers,
   Award,
   Clock,
   Briefcase,
   Check,
-  ChevronRight,
   HardDrive,
   Cpu,
   Activity,
-  ArrowUpRight,
-  Eye,
-  Edit,
-  Trash2,
-  ShieldAlert,
-  Send
+  MessageSquare
 } from 'lucide-react';
-import { UniversalTopbar } from '@erp/ui';
+import { UniversalTopbar, Sidebar, SubpageItem } from '@erp/ui';
 
-// Mock Data for Initial State (Synced with Seed Data)
+// Mock Data for Initial State (Synced with Database Seed)
 const INITIAL_BRANCHES = [
   {
     id: 'br-1',
@@ -185,17 +172,18 @@ const RBAC_MODULES = [
 
 export default function SystemControlTowerPage() {
   const [themeColor, setThemeColor] = useState<'blue' | 'red'>('red');
-  const [activeTab, setActiveTab] = useState<'org' | 'users' | 'branches' | 'integrations' | 'ai' | 'vps' | 'audit'>('org');
+  const [activeSubpageId, setActiveSubpageId] = useState<string>('org');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [orgSubTab, setOrgSubTab] = useState<'depts' | 'posts' | 'titles' | 'positions' | 'types'>('depts');
 
   // Interactive State
-  const [branches, setBranches] = useState(INITIAL_BRANCHES);
-  const [departments, setDepartments] = useState(INITIAL_DEPARTMENTS);
-  const [jobPosts, setJobPosts] = useState(INITIAL_JOB_POSTS);
-  const [jobTitles, setJobTitles] = useState(INITIAL_JOB_TITLES);
-  const [jobPositions, setJobPositions] = useState(INITIAL_JOB_POSITIONS);
-  const [employmentTypes, setEmploymentTypes] = useState(INITIAL_EMPLOYMENT_TYPES);
-  const [users, setUsers] = useState(INITIAL_USERS);
+  const [branches] = useState(INITIAL_BRANCHES);
+  const [departments] = useState(INITIAL_DEPARTMENTS);
+  const [jobPosts] = useState(INITIAL_JOB_POSTS);
+  const [jobTitles] = useState(INITIAL_JOB_TITLES);
+  const [jobPositions] = useState(INITIAL_JOB_POSITIONS);
+  const [employmentTypes] = useState(INITIAL_EMPLOYMENT_TYPES);
+  const [users] = useState(INITIAL_USERS);
 
   // VietQR Config State
   const [bankAccount, setBankAccount] = useState({
@@ -208,11 +196,10 @@ export default function SystemControlTowerPage() {
   // Zalo ZNS Config State
   const [zaloConfig, setZaloConfig] = useState({
     appId: '182736459012',
-    oaId: '992837465019',
-    status: 'CONNECTED'
+    oaId: '992837465019'
   });
 
-  // Toast Feedback State
+  // Toast Notification State
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -225,15 +212,27 @@ export default function SystemControlTowerPage() {
 
   // 1-Click Backup Simulation
   const handleTriggerBackup = () => {
-    showToast('🚀 Đang khởi chạy lệnh pg_dump snapshot trên PostgreSQL 17...');
+    showToast('🚀 Đang khởi chạy snapshot PostgreSQL 17...');
     setTimeout(() => {
-      showToast('✅ Đã tạo bản sao lưu Snapshot erp_core_backup_2026-11.sql.gz thành công (14.8 MB)!');
+      showToast('✅ Đã tạo bản sao lưu erp_core_backup_2026-11.sql.gz thành công (14.8 MB)!');
     }, 1500);
   };
 
+  // Subpages for the Left Sidebar (SaaS Navigation)
+  const systemSubpages: SubpageItem[] = [
+    { id: 'org', label: 'Cơ Cấu Tổ Chức', icon: Network, badge: `${departments.length} Khoa/Phòng` },
+    { id: 'users', label: 'Người Dùng & RBAC', icon: Users, badge: users.length },
+    { id: 'branches', label: 'Chuỗi Chi Nhánh', icon: Building2, badge: `${branches.length} Cơ sở` },
+    { id: 'integrations', label: 'Tích Hợp VietQR / Zalo', icon: QrCode },
+    { id: 'ai', label: 'Trạm AI Copilot', icon: Bot, badge: 'Gemini 2.5' },
+    { id: 'vps', label: 'Giám Sát VPS Node', icon: Server, badge: '100% Sống' },
+    { id: 'audit', label: 'Nhật Ký Audit', icon: FileText },
+    { id: 'branding', label: 'Cấu Hình Thương Hiệu', icon: Sliders }
+  ];
+
   return (
-    <div className="min-h-screen bg-[#faf8f5] text-slate-800 pb-24">
-      {/* Universal Topbar with 9-dot App Switcher and Theme Toggle */}
+    <div className="min-h-screen bg-[#faf8f5] text-slate-800 flex flex-col antialiased">
+      {/* Topbar chung: Chuyển đổi giữa các phân hệ ERP qua 9-dots App Switcher & Home Launcher */}
       <UniversalTopbar
         currentZoneName="Hệ Thống & Tháp Điều Khiển (Zone 8)"
         themeColor={themeColor}
@@ -248,705 +247,615 @@ export default function SystemControlTowerPage() {
         </div>
       )}
 
-      {/* Main Content Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        {/* Header Banner */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs mb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Main SaaS Layout: Left Sidebar + Right Content Area */}
+      <div className="flex flex-1">
+        {/* Left Sidebar Điều Hướng Phân Hệ Chuẩn SaaS */}
+        <Sidebar
+          appName="Hệ Thống & Tháp Điều Khiển"
+          appCode="ZONE 8 • CONTROL TOWER"
+          appIcon={Settings}
+          gradient="linear-gradient(135deg, #475569 0%, #1e293b 100%)"
+          themeColor={themeColor}
+          subpages={systemSubpages}
+          activeSubpageId={activeSubpageId}
+          onSelectSubpage={(id) => setActiveSubpageId(id)}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
+
+        {/* Right Content Area: Giao diện SaaS nghiệp vụ chi tiết */}
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl">
+          {/* Breadcrumb & Section Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span
-                  className="px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase text-white shadow-xs"
-                  style={{ backgroundColor: primaryColorHex }}
-                >
-                  ENTERPRISE CONTROL TOWER
+              <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                <span>Hệ Thống ERP</span>
+                <span>/</span>
+                <span className="font-semibold text-slate-800">
+                  {systemSubpages.find((s) => s.id === activeSubpageId)?.label}
                 </span>
-                <span className="text-xs text-slate-500 font-mono">Port 3008 • Zone 8</span>
               </div>
               <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                Tháp Điều Khiển Hệ Thống & Cơ Cấu Tổ Chức
+                {systemSubpages.find((s) => s.id === activeSubpageId)?.label}
               </h1>
-              <p className="text-sm text-slate-500 mt-0.5">
-                Quản lý cây cơ cấu tổ chức, người dùng, phân quyền ma trận RBAC, tích hợp Việt Nam và giám sát hạ tầng VPS.
-              </p>
             </div>
 
-            {/* Quick Action Buttons */}
             <div className="flex items-center gap-3">
               <button
                 onClick={handleTriggerBackup}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-sm transition-all hover:opacity-90 active:scale-95"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-white shadow-xs transition hover:opacity-90 active:scale-95"
                 style={{ backgroundColor: primaryColorHex }}
               >
-                <Database className="w-4 h-4" />
-                <span>Sao Lưu DB 1-Click</span>
+                <Database className="w-3.5 h-3.5" />
+                <span>Sao Lưu DB Snapshot</span>
               </button>
             </div>
           </div>
 
-          {/* Primary Navigation Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto border-t border-slate-100 pt-4 mt-5">
-            {[
-              { id: 'org', label: '🏛️ Cơ Cấu Tổ Chức', count: `${departments.length} Khoa/Phòng` },
-              { id: 'users', label: '👥 Người Dùng & RBAC', count: `${users.length} Tài khoản` },
-              { id: 'branches', label: '🏢 Chuỗi Chi Nhánh', count: `${branches.length} Cơ sở` },
-              { id: 'integrations', label: '🔌 Tích Hợp (VietQR / Zalo)', count: '3 Cổng' },
-              { id: 'ai', label: '🧠 AI Copilot Control', count: 'Gemini 2.5' },
-              { id: 'vps', label: '🖥️ Giám Sát VPS Node', count: '100% Sống' },
-              { id: 'audit', label: '🛡️ Audit Logs & Brand', count: '2 Bản ghi' }
-            ].map((tab) => {
-              const isSelected = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                    isSelected
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
-                >
-                  <span>{tab.label}</span>
-                  <span
-                    className={`text-[11px] px-1.5 py-0.5 rounded-md ${
-                      isSelected ? 'bg-slate-800 text-slate-200' : 'bg-slate-200/80 text-slate-600'
-                    }`}
-                  >
-                    {tab.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* TAB 1: CƠ CẤU TỔ CHỨC DOANH NGHIỆP */}
-        {activeTab === 'org' && (
-          <div className="space-y-6">
-            {/* Sub-tab Pill Navigation */}
-            <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 shadow-2xs">
-              {[
-                { id: 'depts', label: '🏢 Phòng Ban (Org Units)', icon: Network, count: departments.length },
-                { id: 'posts', label: '🎖️ Chức Vụ (Cấp 1-5)', icon: Award, count: jobPosts.length },
-                { id: 'titles', label: '🏷️ Chức Danh Chuyên Môn', icon: Briefcase, count: jobTitles.length },
-                { id: 'positions', label: '📌 Vị Trí & Định Biên', icon: Layers, count: jobPositions.length },
-                { id: 'types', label: '⏳ Tính Chất Công Việc', icon: Clock, count: employmentTypes.length }
-              ].map((sub) => {
-                const isSubSelected = orgSubTab === sub.id;
-                const Icon = sub.icon;
-                return (
-                  <button
-                    key={sub.id}
-                    onClick={() => setOrgSubTab(sub.id as any)}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                      isSubSelected
-                        ? 'text-white shadow-xs'
-                        : 'text-slate-600 hover:bg-slate-100'
-                    }`}
-                    style={isSubSelected ? { backgroundColor: primaryColorHex } : {}}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span>{sub.label}</span>
-                    <span className="text-[10px] opacity-80">({sub.count})</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Sub-tab 1: Phòng Ban */}
-            {orgSubTab === 'depts' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {departments.map((dept) => (
-                  <div
-                    key={dept.id}
-                    className="bg-white rounded-xl border border-slate-200/90 p-5 shadow-xs hover:border-slate-300 transition-all"
-                  >
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div>
-                        <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">
-                          {dept.code}
-                        </span>
-                        <h3 className="font-bold text-slate-900 text-base leading-snug mt-0.5">
-                          {dept.name}
-                        </h3>
-                      </div>
-                      <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {dept.level}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5 text-xs text-slate-600 border-t border-slate-100 pt-3">
-                      <div className="flex justify-between">
-                        <span className="text-slate-400">Trưởng đơn vị:</span>
-                        <span className="font-semibold text-slate-800">{dept.manager}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-400">Trực thuộc:</span>
-                        <span className="font-medium text-slate-700">{dept.branch}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-400">Nhân sự thực tế:</span>
-                        <span className="font-bold text-emerald-600">{dept.headcount} nhân viên</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          {/* 1. SUBPAGE: CƠ CẤU TỔ CHỨC */}
+          {activeSubpageId === 'org' && (
+            <div className="space-y-6">
+              {/* Sub-tab Pill Navigation */}
+              <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200/90 shadow-2xs overflow-x-auto">
+                {[
+                  { id: 'depts', label: '🏢 Phòng Ban (Org Units)', icon: Network, count: departments.length },
+                  { id: 'posts', label: '🎖️ Chức Vụ (Cấp 1-5)', icon: Award, count: jobPosts.length },
+                  { id: 'titles', label: '🏷️ Chức Danh Chuyên Môn', icon: Briefcase, count: jobTitles.length },
+                  { id: 'positions', label: '📌 Vị Trí & Định Biên', icon: Layers, count: jobPositions.length },
+                  { id: 'types', label: '⏳ Tính Chất Công Việc', icon: Clock, count: employmentTypes.length }
+                ].map((sub) => {
+                  const isSubSelected = orgSubTab === sub.id;
+                  const Icon = sub.icon;
+                  return (
+                    <button
+                      key={sub.id}
+                      onClick={() => setOrgSubTab(sub.id as any)}
+                      className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                        isSubSelected ? 'text-white shadow-xs' : 'text-slate-600 hover:bg-slate-100'
+                      }`}
+                      style={isSubSelected ? { backgroundColor: primaryColorHex } : {}}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{sub.label}</span>
+                      <span className="text-[10px] opacity-80">({sub.count})</span>
+                    </button>
+                  );
+                })}
               </div>
-            )}
 
-            {/* Sub-tab 2: Chức Vụ */}
-            {orgSubTab === 'posts' && (
-              <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-bold text-slate-900 text-sm">Danh Mục Cấp Bậc Chức Vụ Hành Chính</h3>
-                    <p className="text-xs text-slate-500">Phân định quyền hạn điều hành, cấp bậc quản lý (Level 1 đến Level 5) và phụ cấp chức danh</p>
-                  </div>
-                </div>
-                <div className="divide-y divide-slate-100">
-                  {jobPosts.map((post) => (
-                    <div key={post.id} className="p-4 flex items-center justify-between hover:bg-slate-50/60 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-xs shadow-2xs"
-                          style={{ backgroundColor: primaryColorHex }}
-                        >
-                          L{post.level}
-                        </div>
+              {/* Sub-tab 1: Phòng Ban */}
+              {orgSubTab === 'depts' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {departments.map((dept) => (
+                    <div
+                      key={dept.id}
+                      className="bg-white rounded-xl border border-slate-200/90 p-5 shadow-xs hover:border-slate-300 transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-3 mb-3">
                         <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-900 text-sm">{post.name}</span>
-                            <span className="font-mono text-[11px] text-slate-400">{post.code}</span>
-                          </div>
-                          <p className="text-xs text-slate-500 mt-0.5">{post.desc}</p>
+                          <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider">
+                            {dept.code}
+                          </span>
+                          <h3 className="font-bold text-slate-900 text-base leading-snug mt-0.5">
+                            {dept.name}
+                          </h3>
                         </div>
+                        <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          {dept.level}
+                        </span>
                       </div>
-                      <div className="text-right">
-                        <span className="text-xs font-bold text-emerald-600">{post.allowance}</span>
-                        <span className="block text-[11px] text-slate-400">Phụ cấp trách nhiệm</span>
+
+                      <div className="space-y-1.5 text-xs text-slate-600 border-t border-slate-100 pt-3">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Trưởng đơn vị:</span>
+                          <span className="font-semibold text-slate-800">{dept.manager}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Trực thuộc:</span>
+                          <span className="font-medium text-slate-700">{dept.branch}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Nhân sự thực tế:</span>
+                          <span className="font-bold text-emerald-600">{dept.headcount} nhân sự</span>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Sub-tab 3: Chức Danh Chuyên Môn */}
-            {orgSubTab === 'titles' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {jobTitles.map((title) => (
-                  <div key={title.id} className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <h4 className="font-bold text-slate-900 text-sm">{title.name}</h4>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
-                        {title.code}
-                      </span>
-                    </div>
-                    <div className="text-xs space-y-1.5 mt-3">
-                      <div>
-                        <span className="text-slate-400">Lĩnh vực chuyên môn:</span>{' '}
-                        <span className="font-semibold text-slate-700">{title.field}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-400">Yêu cầu chứng chỉ / CCHN:</span>{' '}
-                        <span className="text-slate-600">{title.cert}</span>
-                      </div>
-                    </div>
+              {/* Sub-tab 2: Chức Vụ */}
+              {orgSubTab === 'posts' && (
+                <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                  <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 className="font-bold text-slate-900 text-sm">Danh Mục Cấp Bậc Chức Vụ Hành Chính</h3>
+                    <p className="text-xs text-slate-500">Phân định quyền hạn điều hành từ Level 1 đến Level 5 và phụ cấp trách nhiệm</p>
                   </div>
-                ))}
-              </div>
-            )}
+                  <div className="divide-y divide-slate-100">
+                    {jobPosts.map((post) => (
+                      <div key={post.id} className="p-4 flex items-center justify-between hover:bg-slate-50/60 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-xs shadow-2xs"
+                            style={{ backgroundColor: primaryColorHex }}
+                          >
+                            L{post.level}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-900 text-sm">{post.name}</span>
+                              <span className="font-mono text-[11px] text-slate-400">{post.code}</span>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">{post.desc}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-xs font-bold text-emerald-600">{post.allowance}</span>
+                          <span className="block text-[11px] text-slate-400">Phụ cấp trách nhiệm</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-            {/* Sub-tab 4: Vị Trí Công Việc & Định Biên */}
-            {orgSubTab === 'positions' && (
+              {/* Sub-tab 3: Chức Danh Chuyên Môn */}
+              {orgSubTab === 'titles' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {jobTitles.map((title) => (
+                    <div key={title.id} className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h4 className="font-bold text-slate-900 text-sm">{title.name}</h4>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                          {title.code}
+                        </span>
+                      </div>
+                      <div className="text-xs space-y-1.5 mt-3">
+                        <div>
+                          <span className="text-slate-400">Lĩnh vực chuyên môn:</span>{' '}
+                          <span className="font-semibold text-slate-700">{title.field}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Yêu cầu chứng chỉ / CCHN:</span>{' '}
+                          <span className="text-slate-600">{title.cert}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Sub-tab 4: Vị Trí Công Việc & Định Biên */}
+              {orgSubTab === 'positions' && (
+                <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                        <th className="py-3 px-4">Mã Vị Trí</th>
+                        <th className="py-3 px-4">Tên Vị Trí Công Việc</th>
+                        <th className="py-3 px-4">Khoa / Phòng</th>
+                        <th className="py-3 px-4">Định Biên (Thực / Tiêu Chuẩn)</th>
+                        <th className="py-3 px-4">Dải Lương Khung</th>
+                        <th className="py-3 px-4 text-center">Trạng Thái</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-xs">
+                      {jobPositions.map((pos) => {
+                        const isFull = pos.current >= pos.quota;
+                        return (
+                          <tr key={pos.id} className="hover:bg-slate-50/60">
+                            <td className="py-3 px-4 font-mono font-semibold text-slate-500">{pos.code}</td>
+                            <td className="py-3 px-4 font-bold text-slate-900">{pos.name}</td>
+                            <td className="py-3 px-4 text-slate-600">{pos.dept}</td>
+                            <td className="py-3 px-4">
+                              <span className="font-semibold text-slate-800">{pos.current}</span>
+                              <span className="text-slate-400"> / {pos.quota} người</span>
+                              {!isFull && (
+                                <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200">
+                                  Cần tuyển {pos.quota - pos.current}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 font-mono font-medium text-slate-700">{pos.salaryRange}</td>
+                            <td className="py-3 px-4 text-center">
+                              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
+                                <CheckCircle2 className="w-3.5 h-3.5" /> Hoạt động
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Sub-tab 5: Tính Chất Công Việc */}
+              {orgSubTab === 'types' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {employmentTypes.map((et) => (
+                    <div key={et.id} className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">{et.code}</span>
+                          {et.insurance ? (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                              Có BHXH/BHYT
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-500">
+                              Không BHXH
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="font-bold text-slate-900 text-sm leading-snug">{et.name}</h4>
+                        <p className="text-xs text-slate-500 mt-2">{et.desc}</p>
+                      </div>
+                      <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between text-xs text-slate-600">
+                        <span>{et.hours} giờ / tuần</span>
+                        <span>{et.leave} ngày phép/năm</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 2. SUBPAGE: NGƯỜI DÙNG & RBAC */}
+          {activeSubpageId === 'users' && (
+            <div className="space-y-6">
               <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-sm">Danh Sách Tài Khoản Nội Bộ</h3>
+                    <p className="text-xs text-slate-500">Gán quyền hạn và liên kết nhân sự với Cơ cấu tổ chức</p>
+                  </div>
+                  <button
+                    onClick={() => showToast('Mở hộp thoại tạo tài khoản nhân sự mới...')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-xs"
+                    style={{ backgroundColor: primaryColorHex }}
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Thêm Tài Khoản
+                  </button>
+                </div>
+
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                      <th className="py-3 px-4">Mã Vị Trí</th>
-                      <th className="py-3 px-4">Tên Vị Trí Công Việc</th>
-                      <th className="py-3 px-4">Thuộc Khoa / Phòng</th>
-                      <th className="py-3 px-4">Định Biên (Thực / Chuẩn)</th>
-                      <th className="py-3 px-4">Dải Lương Khung</th>
+                      <th className="py-3 px-4">Họ Và Tên</th>
+                      <th className="py-3 px-4">Email / Đăng Nhập</th>
+                      <th className="py-3 px-4">Vai Trò Hệ Thống</th>
+                      <th className="py-3 px-4">Cơ Sở Công Tác</th>
+                      <th className="py-3 px-4">Phòng Ban</th>
                       <th className="py-3 px-4 text-center">Trạng Thái</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-xs">
-                    {jobPositions.map((pos) => {
-                      const isFull = pos.current >= pos.quota;
-                      return (
-                        <tr key={pos.id} className="hover:bg-slate-50/60">
-                          <td className="py-3 px-4 font-mono font-semibold text-slate-500">{pos.code}</td>
-                          <td className="py-3 px-4 font-bold text-slate-900">{pos.name}</td>
-                          <td className="py-3 px-4 text-slate-600">{pos.dept}</td>
-                          <td className="py-3 px-4">
-                            <span className="font-semibold text-slate-800">{pos.current}</span>
-                            <span className="text-slate-400"> / {pos.quota} người</span>
-                            {!isFull && (
-                              <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200">
-                                Cần tuyển {pos.quota - pos.current}
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-3 px-4 font-mono font-medium text-slate-700">{pos.salaryRange}</td>
-                          <td className="py-3 px-4 text-center">
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
-                              <CheckCircle2 className="w-3.5 h-3.5" /> Hoạt động
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Sub-tab 5: Tính Chất Công Việc */}
-            {orgSubTab === 'types' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {employmentTypes.map((et) => (
-                  <div key={et.id} className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600">{et.code}</span>
-                        {et.insurance ? (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                            Có BHXH/BHYT
+                    {users.map((u) => (
+                      <tr key={u.id} className="hover:bg-slate-50/60">
+                        <td className="py-3 px-4 font-bold text-slate-900">{u.name}</td>
+                        <td className="py-3 px-4 font-mono text-slate-600">{u.email}</td>
+                        <td className="py-3 px-4">
+                          <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">
+                            {u.role}
                           </span>
-                        ) : (
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-500">
-                            Không BHXH
+                        </td>
+                        <td className="py-3 px-4 text-slate-600">{u.branch}</td>
+                        <td className="py-3 px-4 text-slate-600">{u.dept}</td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            {u.status}
                           </span>
-                        )}
-                      </div>
-                      <h4 className="font-bold text-slate-900 text-sm leading-snug">{et.name}</h4>
-                      <p className="text-xs text-slate-500 mt-2">{et.desc}</p>
-                    </div>
-                    <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between text-xs text-slate-600">
-                      <span>{et.hours} giờ / tuần</span>
-                      <span>{et.leave} ngày phép/năm</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* TAB 2: QUẢN TRỊ NGƯỜI DÙNG & RBAC */}
-        {activeTab === 'users' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Danh Sách Tài Khoản Nội Bộ & Gán Vai Trò</h3>
-                  <p className="text-xs text-slate-500">Liên kết tài khoản đăng nhập với Cơ cấu tổ chức và Quyền hạn ma trận</p>
-                </div>
-                <button
-                  onClick={() => showToast('Mở form tạo tài khoản người dùng mới...')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-xs"
-                  style={{ backgroundColor: primaryColorHex }}
-                >
-                  <Plus className="w-3.5 h-3.5" /> Thêm Tài Khoản
-                </button>
-              </div>
-
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                    <th className="py-3 px-4">Họ Và Tên</th>
-                    <th className="py-3 px-4">Email / Đăng Nhập</th>
-                    <th className="py-3 px-4">Vai Trò Hệ Thống</th>
-                    <th className="py-3 px-4">Cơ Sở Công Tác</th>
-                    <th className="py-3 px-4">Phòng Ban</th>
-                    <th className="py-3 px-4 text-center">Trạng Thái</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
-                  {users.map((u) => (
-                    <tr key={u.id} className="hover:bg-slate-50/60">
-                      <td className="py-3 px-4 font-bold text-slate-900">{u.name}</td>
-                      <td className="py-3 px-4 font-mono text-slate-600">{u.email}</td>
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-slate-600">{u.branch}</td>
-                      <td className="py-3 px-4 text-slate-600">{u.dept}</td>
-                      <td className="py-3 px-4 text-center">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          {u.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Granular RBAC Matrix Preview */}
-            <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-              <h3 className="font-bold text-slate-900 text-sm mb-1">Ma Trận Phân Quyền Granular RBAC (Theo Phân Hệ)</h3>
-              <p className="text-xs text-slate-500 mb-4">Quy định quyền truy cập CRUD cho từng chức vụ và vai trò trên 7 phân hệ ERP</p>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
-                      <th className="p-2.5">Phân Hệ ERP</th>
-                      <th className="p-2.5 text-center">Xem (Read)</th>
-                      <th className="p-2.5 text-center">Tạo Mới (Create)</th>
-                      <th className="p-2.5 text-center">Chỉnh Sửa (Update)</th>
-                      <th className="p-2.5 text-center">Xóa / Hủy (Delete)</th>
-                      <th className="p-2.5 text-center">Phê Duyệt (Approve)</th>
-                      <th className="p-2.5 text-center">Xuất File (Export)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {RBAC_MODULES.map((mod) => (
-                      <tr key={mod.id} className="hover:bg-slate-50/50">
-                        <td className="p-2.5 font-semibold text-slate-800">{mod.name}</td>
-                        <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
-                        <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
-                        <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
-                        <td className="p-2.5 text-center"><Check className="w-4 h-4 text-slate-300 mx-auto" /></td>
-                        <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
-                        <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* TAB 3: QUẢN LÝ CHUỖI CHI NHÁNH */}
-        {activeTab === 'branches' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {branches.map((b) => (
-              <div key={b.id} className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-slate-400">{b.code}</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      Đang Hoạt Động
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-slate-900 text-base leading-snug">{b.name}</h3>
-                  <p className="text-xs text-slate-500 mt-2 leading-relaxed">{b.address}</p>
-
-                  <div className="space-y-1.5 text-xs text-slate-600 border-t border-slate-100 pt-3 mt-4">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Hotline cơ sở:</span>
-                      <span className="font-semibold text-slate-800">{b.phone}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Giám đốc cơ sở:</span>
-                      <span className="font-semibold text-slate-800">{b.managerName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Quy mô nhân sự:</span>
-                      <span className="font-bold text-emerald-600">{b.headcount} nhân sự</span>
-                    </div>
-                  </div>
+              {/* RBAC Matrix */}
+              <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
+                <h3 className="font-bold text-slate-900 text-sm mb-1">Ma Trận Phân Quyền Granular RBAC (Theo Phân Hệ)</h3>
+                <p className="text-xs text-slate-500 mb-4">Quy định quyền truy cập CRUD cho từng chức vụ trên 7 phân hệ ERP</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                        <th className="p-2.5">Phân Hệ ERP</th>
+                        <th className="p-2.5 text-center">Xem (Read)</th>
+                        <th className="p-2.5 text-center">Tạo Mới (Create)</th>
+                        <th className="p-2.5 text-center">Chỉnh Sửa (Update)</th>
+                        <th className="p-2.5 text-center">Xóa / Hủy (Delete)</th>
+                        <th className="p-2.5 text-center">Phê Duyệt (Approve)</th>
+                        <th className="p-2.5 text-center">Xuất File (Export)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {RBAC_MODULES.map((mod) => (
+                        <tr key={mod.id} className="hover:bg-slate-50/50">
+                          <td className="p-2.5 font-semibold text-slate-800">{mod.name}</td>
+                          <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
+                          <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
+                          <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
+                          <td className="p-2.5 text-center"><Check className="w-4 h-4 text-slate-300 mx-auto" /></td>
+                          <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
+                          <td className="p-2.5 text-center"><Check className="w-4 h-4 text-emerald-600 mx-auto" /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
+              </div>
+            </div>
+          )}
 
-                <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between">
+          {/* 3. SUBPAGE: CHUỖI CHI NHÁNH */}
+          {activeSubpageId === 'branches' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {branches.map((b) => (
+                <div key={b.id} className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] text-slate-400 block">Doanh thu hôm nay</span>
-                    <span className="font-bold text-slate-900 text-sm">{b.revenueToday}</span>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-mono text-xs font-bold text-slate-400">{b.code}</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        Đang Hoạt Động
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-slate-900 text-base leading-snug">{b.name}</h3>
+                    <p className="text-xs text-slate-500 mt-2 leading-relaxed">{b.address}</p>
+
+                    <div className="space-y-1.5 text-xs text-slate-600 border-t border-slate-100 pt-3 mt-4">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Hotline cơ sở:</span>
+                        <span className="font-semibold text-slate-800">{b.phone}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Giám đốc cơ sở:</span>
+                        <span className="font-semibold text-slate-800">{b.managerName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Quy mô nhân sự:</span>
+                        <span className="font-bold text-emerald-600">{b.headcount} nhân sự</span>
+                      </div>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => showToast(`Chuyển ngữ cảnh quản trị sang: ${b.name}`)}
-                    className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
-                  >
-                    Xem Chi Tiết
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
 
-        {/* TAB 4: TÍCH HỢP VIỆT NAM (VietQR / ZALO ZNS) */}
-        {activeTab === 'integrations' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* VietQR Configuration */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                  style={{ backgroundColor: primaryColorHex }}
-                >
-                  <QrCode className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-base">Cấu Hình VietQR & Chuyển Khoản NAPAS 247</h3>
-                  <p className="text-xs text-slate-500">Tự động sinh mã QR động kèm số tiền và mã hóa đơn tại quầy POS</p>
-                </div>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                <div>
-                  <label className="block text-slate-600 font-semibold mb-1">Ngân Hàng Thụ Hưởng</label>
-                  <input
-                    type="text"
-                    value={bankAccount.bank}
-                    onChange={(e) => setBankAccount({ ...bankAccount, bank: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-medium"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-600 font-semibold mb-1">Số Tài Khoản</label>
-                  <input
-                    type="text"
-                    value={bankAccount.accountNumber}
-                    onChange={(e) => setBankAccount({ ...bankAccount, accountNumber: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-mono font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-600 font-semibold mb-1">Tên Chủ Tài Khoản (In hoa không dấu)</label>
-                  <input
-                    type="text"
-                    value={bankAccount.accountHolder}
-                    onChange={(e) => setBankAccount({ ...bankAccount, accountHolder: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-semibold"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-4">
-                <div className="w-20 h-20 bg-white p-2 rounded-lg border border-slate-200 flex items-center justify-center shrink-0">
-                  <QrCode className="w-16 h-16 text-slate-800" />
-                </div>
-                <div className="text-xs">
-                  <span className="font-bold text-slate-900 block">Xem trước mẫu VietQR động:</span>
-                  <p className="text-slate-500 mt-0.5">Mã QR sinh ra sẽ tự động kèm mã đơn `BHN-POS-XXXX` để hệ thống tự động đối soát thanh toán qua Webhook.</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => showToast('✅ Đã lưu cấu hình tài khoản VietQR thành công!')}
-                className="w-full mt-4 py-2.5 rounded-xl text-xs font-semibold text-white shadow-xs"
-                style={{ backgroundColor: primaryColorHex }}
-              >
-                Lưu Cấu Hình VietQR
-              </button>
-            </div>
-
-            {/* Zalo ZNS Configuration */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white">
-                  <MessageSquare className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-base">Zalo Official Account & Mẫu ZNS Tự Động</h3>
-                  <p className="text-xs text-slate-500">Tự động gửi thông báo lịch hẹn và tri ân hội viên qua Zalo ZNS</p>
-                </div>
-              </div>
-
-              <div className="space-y-3 text-xs">
-                <div>
-                  <label className="block text-slate-600 font-semibold mb-1">Zalo App ID</label>
-                  <input
-                    type="text"
-                    value={zaloConfig.appId}
-                    onChange={(e) => setZaloConfig({ ...zaloConfig, appId: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono text-slate-800"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-600 font-semibold mb-1">Zalo OA ID</label>
-                  <input
-                    type="text"
-                    value={zaloConfig.oaId}
-                    onChange={(e) => setZaloConfig({ ...zaloConfig, oaId: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono text-slate-800"
-                  />
-                </div>
-              </div>
-
-              {/* Template list */}
-              <div className="mt-4 space-y-2 text-xs">
-                <span className="font-bold text-slate-800 block">Các mẫu thông báo tự động đang kích hoạt:</span>
-                {[
-                  { name: 'ZNS 01: Xác nhận đặt lịch hẹn thành công', time: 'Tức thì khi đặt' },
-                  { name: 'ZNS 02: Nhắc lịch hẹn trước 120 phút', time: 'Tự động 2h trước ca' },
-                  { name: 'ZNS 03: Chúc mừng sinh nhật & Tặng Voucher 20%', time: '08:00 sáng sinh nhật' }
-                ].map((tmpl, idx) => (
-                  <div key={idx} className="p-2.5 rounded-lg border border-slate-100 bg-slate-50 flex items-center justify-between">
+                  <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between">
                     <div>
-                      <span className="font-semibold text-slate-900 block">{tmpl.name}</span>
-                      <span className="text-[11px] text-slate-400">{tmpl.time}</span>
+                      <span className="text-[10px] text-slate-400 block">Doanh thu hôm nay</span>
+                      <span className="font-bold text-slate-900 text-sm">{b.revenueToday}</span>
                     </div>
                     <button
-                      onClick={() => showToast(`Đang gửi thử nghiệm mẫu: ${tmpl.name}`)}
-                      className="text-[11px] font-semibold px-2 py-1 rounded bg-white border border-slate-200 hover:bg-slate-100"
+                      onClick={() => showToast(`Chuyển ngữ cảnh quản trị sang: ${b.name}`)}
+                      className="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition"
                     >
-                      Bắn Thử
+                      Xem Cơ Sở
                     </button>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* TAB 5: AI COPILOT CONTROL */}
-        {activeTab === 'ai' && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">Trạm Điều Khiển AI Copilot & Vector Store RAG</h3>
-                <p className="text-xs text-slate-500">Giám sát mức tiêu thụ Token theo từng chi nhánh và cập nhật tri thức `pgvector` HNSW</p>
-              </div>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                Google Gemini 2.5 Flash (Context 1M+)
-              </span>
-            </div>
+          {/* 4. SUBPAGE: TÍCH HỢP VIỆT NAM (VietQR / Zalo ZNS) */}
+          {activeSubpageId === 'integrations' && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+                    style={{ backgroundColor: primaryColorHex }}
+                  >
+                    <QrCode className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base">Cấu Hình VietQR NAPAS 247</h3>
+                    <p className="text-xs text-slate-500">Tự động sinh mã QR động kèm số tiền và mã hóa đơn tại quầy POS</p>
+                  </div>
+                </div>
 
-            {/* Quota Progress */}
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1.5">
-                <span>Hạn mức Token toàn chuỗi tháng 11/2026</span>
-                <span className="font-mono text-emerald-600">142.850 / 1.000.000 Tokens (14.2%)</span>
-              </div>
-              <div className="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden">
-                <div className="h-full rounded-full bg-emerald-500" style={{ width: '14.2%' }}></div>
-              </div>
-              <span className="text-[11px] text-slate-400 mt-1 block">Chi phí token ước tính: ~0.42 USD / 10.500 VNĐ</span>
-            </div>
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1">Ngân Hàng Thụ Hưởng</label>
+                    <input
+                      type="text"
+                      value={bankAccount.bank}
+                      onChange={(e) => setBankAccount({ ...bankAccount, bank: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1">Số Tài Khoản</label>
+                    <input
+                      type="text"
+                      value={bankAccount.accountNumber}
+                      onChange={(e) => setBankAccount({ ...bankAccount, accountNumber: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-mono font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1">Tên Chủ Tài Khoản (In hoa)</label>
+                    <input
+                      type="text"
+                      value={bankAccount.accountHolder}
+                      onChange={(e) => setBankAccount({ ...bankAccount, accountHolder: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 font-semibold"
+                    />
+                  </div>
+                </div>
 
-            {/* RAG Documents */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-bold text-slate-900 text-sm">Văn Bản Tri Thức Doanh Nghiệp (PostgreSQL 17 HNSW Index)</h4>
                 <button
-                  onClick={() => showToast('Mở hộp thoại tải lên tài liệu PDF/Docx để nhúng vector...')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-xs"
+                  onClick={() => showToast('✅ Đã lưu cấu hình tài khoản VietQR thành công!')}
+                  className="w-full mt-4 py-2.5 rounded-xl text-xs font-semibold text-white shadow-xs"
                   style={{ backgroundColor: primaryColorHex }}
                 >
-                  <Plus className="w-3.5 h-3.5" /> Thêm Văn Bản RAG
+                  Lưu Cấu Hình VietQR
                 </button>
               </div>
 
-              <div className="space-y-2.5 text-xs">
-                {[
-                  { title: 'Chính sách Tích lũy Điểm thưởng & Nâng hạng Hội viên BHN Privilege 2026', chunks: 14, category: 'Hội Viên' },
-                  { title: 'Quy trình Điều phối Phòng Dịch vụ & Xử lý Hủy lịch hẹn', chunks: 8, category: 'Vận Hành' },
-                  { title: 'Chính sách Chi trả Hoa hồng & Thưởng Hiệu suất Nhân sự (HR & Commission)', chunks: 19, category: 'Nhân Sự' }
-                ].map((doc, idx) => (
-                  <div key={idx} className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between hover:bg-slate-50/50">
-                    <div>
-                      <span className="font-bold text-slate-900 block">{doc.title}</span>
-                      <span className="text-[11px] text-slate-400">Phân loại: {doc.category} • {doc.chunks} vector chunks (1536 dims)</span>
-                    </div>
-                    <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Đã Lập Chỉ Mục HNSW
-                    </span>
+              {/* Zalo ZNS */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white">
+                    <MessageSquare className="w-5 h-5" />
                   </div>
-                ))}
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base">Zalo Official Account & ZNS</h3>
+                    <p className="text-xs text-slate-500">Tự động gửi thông báo lịch hẹn và tri ân hội viên qua Zalo</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1">Zalo App ID</label>
+                    <input
+                      type="text"
+                      value={zaloConfig.appId}
+                      onChange={(e) => setZaloConfig({ ...zaloConfig, appId: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono text-slate-800"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-600 font-semibold mb-1">Zalo OA ID</label>
+                    <input
+                      type="text"
+                      value={zaloConfig.oaId}
+                      onChange={(e) => setZaloConfig({ ...zaloConfig, oaId: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg font-mono text-slate-800"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-2 text-xs">
+                  <span className="font-bold text-slate-800 block">Mẫu thông báo ZNS tự động:</span>
+                  {[
+                    { name: 'ZNS 01: Xác nhận đặt lịch hẹn thành công', time: 'Tức thì' },
+                    { name: 'ZNS 02: Nhắc lịch hẹn trước 120 phút', time: 'Trước 2h' },
+                    { name: 'ZNS 03: Chúc mừng sinh nhật & Tặng Voucher 20%', time: '08:00 AM' }
+                  ].map((tmpl, idx) => (
+                    <div key={idx} className="p-2.5 rounded-lg border border-slate-100 bg-slate-50 flex items-center justify-between">
+                      <span className="font-semibold text-slate-900">{tmpl.name}</span>
+                      <button
+                        onClick={() => showToast(`Bắn thử nghiệm mẫu: ${tmpl.name}`)}
+                        className="text-[11px] font-semibold px-2 py-1 rounded bg-white border border-slate-200 hover:bg-slate-100"
+                      >
+                        Bắn Thử
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* TAB 6: GIÁM SÁT HẠ TẦNG VPS */}
-        {activeTab === 'vps' && (
-          <div className="space-y-6">
-            {/* Live Metrics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
-                  <span className="text-xs font-semibold">Tải Vi Xử Lý (CPU)</span>
-                  <Cpu className="w-4 h-4 text-blue-500" />
-                </div>
-                <span className="text-2xl font-bold text-slate-900 font-mono">14.8%</span>
-                <span className="text-[11px] text-slate-500 block mt-1">4 vCPUs • 2.6 GHz</span>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
-                  <span className="text-xs font-semibold">Bộ Nhớ RAM</span>
-                  <HardDrive className="w-4 h-4 text-emerald-500" />
-                </div>
-                <span className="text-2xl font-bold text-slate-900 font-mono">2.8 / 8.0 GB</span>
-                <span className="text-[11px] text-emerald-600 font-semibold block mt-1">35% Sử dụng (Dư 5.2GB)</span>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
-                  <span className="text-xs font-semibold">Ổ Cứng SSD NVMe</span>
-                  <Database className="w-4 h-4 text-amber-500" />
-                </div>
-                <span className="text-2xl font-bold text-slate-900 font-mono">34 / 160 GB</span>
-                <span className="text-[11px] text-slate-500 block mt-1">Còn trống 126 GB</span>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-2">
-                  <span className="text-xs font-semibold">Uptime Máy Chủ</span>
-                  <Activity className="w-4 h-4 text-purple-500" />
-                </div>
-                <span className="text-2xl font-bold text-slate-900 font-mono">99.98%</span>
-                <span className="text-[11px] text-slate-500 block mt-1">Hoạt động 38 ngày liên tục</span>
-              </div>
-            </div>
-
-            {/* Microservices Health Matrix */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          {/* 5. SUBPAGE: AI COPILOT CONTROL */}
+          {activeSubpageId === 'ai' && (
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Trạng Thái Sức Khỏe Toàn Bộ Dịch Vụ Microservices</h3>
-                  <p className="text-xs text-slate-500">Giám sát trực tiếp các container Docker chạy nền trên máy chủ VPS</p>
+                  <h3 className="font-bold text-slate-900 text-base">Trạm Điều Khiển AI Copilot & Vector Store RAG</h3>
+                  <p className="text-xs text-slate-500">Giám sát mức tiêu thụ Token theo từng chi nhánh và cập nhật tri thức `pgvector` HNSW</p>
                 </div>
-                <span className="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Tất Cả Dịch Vụ Sẵn Sàng
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                  Google Gemini 2.5 Flash
                 </span>
               </div>
 
-              <div className="divide-y divide-slate-100 text-xs">
-                {[
-                  { name: 'PostgreSQL 17 + pgvector (HNSW)', port: 5432, role: 'Lưu trữ CSDL quan hệ & Vector embeddings', latency: '1.2 ms', status: 'OPTIMAL' },
-                  { name: 'Valkey 8 (Linux Foundation Cache)', port: 6379, role: 'In-memory cache & Session store', latency: '0.4 ms', status: 'OPTIMAL' },
-                  { name: 'NATS 2.29 JetStream Message Bus', port: 4222, role: 'Event-driven broker bất đồng bộ', latency: '< 0.1 ms', status: 'OPTIMAL' },
-                  { name: 'NestJS 12.4 Fastify Gateway', port: 8000, role: 'API Gateway & Controllers nghiệp vụ', latency: '3.8 ms', status: 'OPTIMAL' },
-                  { name: 'Traefik v3 Ingress & SSL', port: '80 / 443', role: 'Reverse proxy, HTTP/3 QUIC & Let\'s Encrypt', latency: '1.0 ms', status: 'OPTIMAL' }
-                ].map((svc, idx) => (
-                  <div key={idx} className="p-4 flex items-center justify-between hover:bg-slate-50/50">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1.5">
+                  <span>Hạn mức Token toàn chuỗi tháng 11/2026</span>
+                  <span className="font-mono text-emerald-600">142.850 / 1.000.000 Tokens (14.2%)</span>
+                </div>
+                <div className="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden">
+                  <div className="h-full rounded-full bg-emerald-500" style={{ width: '14.2%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-bold text-slate-900 text-sm mb-3">Tài Liệu Tri Thức Doanh Nghiệp (PostgreSQL 17 HNSW Index)</h4>
+                <div className="space-y-2.5 text-xs">
+                  {[
+                    { title: 'Chính sách Tích lũy Điểm thưởng & Nâng hạng Hội viên BHN Privilege 2026', chunks: 14, category: 'Hội Viên' },
+                    { title: 'Quy trình Điều phối Phòng Dịch vụ & Xử lý Hủy lịch hẹn', chunks: 8, category: 'Vận Hành' },
+                    { title: 'Chính sách Chi trả Hoa hồng & Thưởng Hiệu suất Nhân sự (HR & Commission)', chunks: 19, category: 'Nhân Sự' }
+                  ].map((doc, idx) => (
+                    <div key={idx} className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-slate-900 block">{doc.title}</span>
+                        <span className="text-[11px] text-slate-400">Phân loại: {doc.category} • {doc.chunks} vector chunks (1536 dims)</span>
+                      </div>
+                      <span className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Đã Lập Chỉ Mục HNSW
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 6. SUBPAGE: GIÁM SÁT VPS */}
+          {activeSubpageId === 'vps' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                  <span className="text-xs font-semibold text-slate-400 block mb-1">Tải Vi Xử Lý (CPU)</span>
+                  <span className="text-2xl font-bold text-slate-900 font-mono">14.8%</span>
+                  <span className="text-[11px] text-slate-500 block mt-1">4 vCPUs • 2.6 GHz</span>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                  <span className="text-xs font-semibold text-slate-400 block mb-1">Bộ Nhớ RAM</span>
+                  <span className="text-2xl font-bold text-slate-900 font-mono">2.8 / 8.0 GB</span>
+                  <span className="text-[11px] text-emerald-600 font-semibold block mt-1">35% Sử dụng</span>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                  <span className="text-xs font-semibold text-slate-400 block mb-1">Ổ Cứng SSD NVMe</span>
+                  <span className="text-2xl font-bold text-slate-900 font-mono">34 / 160 GB</span>
+                  <span className="text-[11px] text-slate-500 block mt-1">Còn trống 126 GB</span>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                  <span className="text-xs font-semibold text-slate-400 block mb-1">Uptime Máy Chủ</span>
+                  <span className="text-2xl font-bold text-slate-900 font-mono">99.98%</span>
+                  <span className="text-[11px] text-slate-500 block mt-1">38 ngày liên tục</span>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                  <h3 className="font-bold text-slate-900 text-sm">Trạng Thái Sức Khỏe Toàn Bộ Dịch Vụ Microservices</h3>
+                  <span className="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Tất Cả Dịch Vụ Sẵn Sàng
+                  </span>
+                </div>
+                <div className="divide-y divide-slate-100 text-xs">
+                  {[
+                    { name: 'PostgreSQL 17 + pgvector (HNSW)', port: 5432, role: 'Lưu trữ CSDL quan hệ & Vector embeddings', latency: '1.2 ms' },
+                    { name: 'Valkey 8 (Linux Foundation Cache)', port: 6379, role: 'In-memory cache & Session store', latency: '0.4 ms' },
+                    { name: 'NATS 2.29 JetStream Message Bus', port: 4222, role: 'Event-driven broker bất đồng bộ', latency: '< 0.1 ms' },
+                    { name: 'NestJS 12.4 Fastify Gateway', port: 8000, role: 'API Gateway & Controllers nghiệp vụ', latency: '3.8 ms' },
+                    { name: 'Traefik v3 Ingress & SSL', port: '80 / 443', role: 'Reverse proxy, HTTP/3 QUIC & Let\'s Encrypt', latency: '1.0 ms' }
+                  ].map((svc, idx) => (
+                    <div key={idx} className="p-4 flex items-center justify-between hover:bg-slate-50/50">
                       <div>
                         <span className="font-bold text-slate-900 text-sm block">{svc.name}</span>
                         <span className="text-slate-400">{svc.role} • Port: {svc.port}</span>
                       </div>
+                      <span className="font-mono text-emerald-600 font-semibold">{svc.latency}</span>
                     </div>
-                    <div className="text-right">
-                      <span className="font-mono text-slate-700 font-semibold">{svc.latency}</span>
-                      <span className="block text-[10px] font-bold text-emerald-600">{svc.status}</span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* TAB 7: AUDIT LOGS & BRAND */}
-        {activeTab === 'audit' && (
-          <div className="space-y-6">
+          {/* 7. SUBPAGE: AUDIT LOGS */}
+          {activeSubpageId === 'audit' && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Nhật Ký Truy Vết Thao Tác (Audit Trails)</h3>
-                  <p className="text-xs text-slate-500">Ghi vết toàn bộ hành vi nhạy cảm: Đăng nhập, Duyệt lương, Hủy đơn, Sao lưu dữ liệu</p>
-                </div>
+              <div className="px-5 py-4 border-b border-slate-100">
+                <h3 className="font-bold text-slate-900 text-sm">Nhật Ký Truy Vết Thao Tác (Audit Trails)</h3>
+                <p className="text-xs text-slate-500">Ghi vết toàn bộ hành vi nhạy cảm: Đăng nhập, Duyệt lương, Hủy đơn, Sao lưu dữ liệu</p>
               </div>
 
               <div className="divide-y divide-slate-100 text-xs">
@@ -971,8 +880,10 @@ export default function SystemControlTowerPage() {
                 ))}
               </div>
             </div>
+          )}
 
-            {/* White-label settings */}
+          {/* 8. SUBPAGE: CẤU HÌNH THƯƠNG HIỆU */}
+          {activeSubpageId === 'branding' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
               <h3 className="font-bold text-slate-900 text-base mb-1">Cấu Hình Thương Hiệu White-Label</h3>
               <p className="text-xs text-slate-500 mb-4">Tùy biến tên doanh nghiệp, logo và tông màu chủ đạo hiển thị toàn chuỗi</p>
@@ -999,7 +910,9 @@ export default function SystemControlTowerPage() {
               <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
                 <div>
                   <span className="font-semibold text-slate-800 block text-xs">Tông màu mặc định hệ thống:</span>
-                  <span className="text-[11px] text-slate-500">Hiện tại: {isBlue ? '🔵 Xanh Biếc (Azure Blue)' : '🔴 Đỏ Ruby lab(45 79.29 35.14) (#dc0037)'}</span>
+                  <span className="text-[11px] text-slate-500">
+                    Hiện tại: {isBlue ? '🔵 Xanh Biếc (Azure Blue)' : '🔴 Đỏ Ruby lab(45 79.29 35.14) (#dc0037)'}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -1023,9 +936,9 @@ export default function SystemControlTowerPage() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
-      </main>
+          )}
+        </main>
+      </div>
     </div>
   );
 }
