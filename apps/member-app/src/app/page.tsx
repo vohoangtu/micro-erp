@@ -21,41 +21,41 @@ export default function MemberApp() {
           <span className="text-xs text-slate-500 font-medium">Xin chào,</span>
           <h2 className="text-xl font-bold text-slate-900">Chị Mai Lan</h2>
         </div>
-        <div className="w-10 h-10 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center font-bold text-emerald-800 text-sm shadow-2xs">
+        <div className="w-10 h-10 rounded-full bg-blue-100 border border-blue-300 flex items-center justify-center font-bold text-blue-700 text-sm shadow-2xs">
           ML
         </div>
       </div>
 
-      {/* Digital Membership Card (Luxury Privilege Card) */}
-      <div className="bg-gradient-to-tr from-emerald-800 via-teal-900 to-slate-900 rounded-3xl p-6 text-white shadow-lg shadow-teal-950/20 relative overflow-hidden">
+      {/* Digital Membership Card (Sapphire Privilege Card) */}
+      <div className="bg-gradient-to-tr from-blue-700 via-indigo-800 to-slate-950 rounded-3xl p-6 text-white shadow-lg shadow-blue-950/20 relative overflow-hidden border border-blue-400/30">
         <div className="flex justify-between items-start">
           <div>
-            <span className="text-[10px] tracking-widest uppercase font-mono text-emerald-300 font-semibold">
+            <span className="text-[10px] tracking-widest uppercase font-mono text-blue-300 font-semibold">
               BHN Privilege Card
             </span>
             <h3 className="text-xl font-extrabold tracking-wider mt-1 text-white">PLATINUM MEMBER</h3>
           </div>
-          <QrCode className="w-8 h-8 text-emerald-300" />
+          <QrCode className="w-8 h-8 text-blue-300" />
         </div>
 
         <div className="mt-8 flex justify-between items-end">
           <div>
-            <div className="text-[11px] text-teal-200">Điểm tích lũy</div>
+            <div className="text-[11px] text-blue-200">Điểm tích lũy</div>
             <div className="text-3xl font-black text-white tracking-tight flex items-center gap-1.5">
               <span>640</span>
-              <span className="text-xs font-normal text-emerald-300">pts</span>
+              <span className="text-xs font-normal text-blue-300">pts</span>
             </div>
           </div>
           <div className="text-right">
-            <span className="text-[10px] text-teal-200 font-mono">Thẻ ID: #8829-4401</span>
+            <span className="text-[10px] text-blue-300 font-mono">Thẻ ID: #8829-4401</span>
           </div>
         </div>
       </div>
 
       {/* Quick Booking Form */}
       <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 space-y-4 shadow-2xs">
-        <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-          <Calendar className="w-4 h-4 text-emerald-600" />
+        <div className="flex items-center gap-2 text-blue-800 font-bold text-sm">
+          <Calendar className="w-4 h-4 text-blue-600" />
           <span>Đặt Lịch Hẹn Nhanh</span>
         </div>
 
@@ -65,7 +65,7 @@ export default function MemberApp() {
             <select
               value={service}
               onChange={e => setService(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-2xs"
+              className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 shadow-2xs"
             >
               <option>Chăm Sóc Da Mặt Cao Cấp (75p)</option>
               <option>Massage Body Đá Nóng Trị Liệu (90p)</option>
@@ -78,7 +78,7 @@ export default function MemberApp() {
             <select
               value={time}
               onChange={e => setTime(e.target.value)}
-              className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 shadow-2xs"
+              className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 shadow-2xs"
             >
               <option>17:00 - Hôm nay</option>
               <option>18:00 - Hôm nay</option>
@@ -89,15 +89,15 @@ export default function MemberApp() {
 
           <button
             onClick={handleBook}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-2"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-2"
           >
             <Sparkles className="w-4 h-4" />
             <span>Xác Nhận Đặt Chỗ Ngay</span>
           </button>
 
           {bookingSuccess && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2 shadow-2xs">
-              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 flex items-center gap-2 shadow-2xs">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-blue-600" />
               <span>Lịch hẹn đã được gửi tới BHN Core thành công! Chuyên viên sẽ gọi xác nhận ngay.</span>
             </div>
           )}
@@ -119,7 +119,7 @@ export default function MemberApp() {
               </div>
             </div>
             <div className="text-right">
-              <span className="font-bold text-emerald-700">{v.points}</span>
+              <span className="font-bold text-blue-600">{v.points}</span>
               <div className="text-[10px] text-slate-500">{v.status}</div>
             </div>
           </div>

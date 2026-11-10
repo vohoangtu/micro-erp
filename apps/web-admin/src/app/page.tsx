@@ -17,14 +17,12 @@ import {
   ChevronRight,
   TrendingUp,
   CreditCard,
-  Building2,
-  Search,
-  Bell,
-  Filter
+  Palette
 } from 'lucide-react';
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'bi' | 'crm' | 'booking' | 'pos' | 'hr' | 'ai'>('bi');
+  const [themeColor, setThemeColor] = useState<'blue' | 'red'>('blue');
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiMessages, setAiMessages] = useState<Array<{ sender: 'user' | 'ai'; text: string; time: string }>>([
@@ -34,6 +32,36 @@ export default function DashboardPage() {
       time: '16:00'
     }
   ]);
+
+  const isBlue = themeColor === 'blue';
+
+  // Dynamic theme tokens
+  const theme = {
+    brandGradient: isBlue
+      ? 'from-blue-600 to-indigo-700 shadow-blue-600/20'
+      : 'from-red-600 to-rose-700 shadow-red-600/20',
+    brandText: isBlue ? 'text-blue-600' : 'text-red-600',
+    brandSubtext: isBlue ? 'text-blue-700' : 'text-red-700',
+    activeNav: isBlue
+      ? 'bg-blue-50 text-blue-700 font-semibold border-blue-200'
+      : 'bg-red-50 text-red-700 font-semibold border-red-200',
+    navIconActive: isBlue ? 'text-blue-600' : 'text-red-600',
+    badgeBg: isBlue ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700',
+    pingBg: isBlue ? 'bg-blue-500' : 'bg-red-500',
+    primaryBtn: isBlue
+      ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20'
+      : 'bg-red-600 hover:bg-red-700 text-white shadow-red-600/20',
+    kpiHighlight: isBlue ? 'text-blue-600' : 'text-red-600',
+    kpiIconBg: isBlue ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600',
+    cardInsightBg: isBlue
+      ? 'from-blue-50/70 to-indigo-50/40 border-blue-100'
+      : 'from-red-50/70 to-rose-50/40 border-red-100',
+    cardInsightTitle: isBlue ? 'text-blue-800' : 'text-red-800',
+    chatBubbleUser: isBlue ? 'bg-blue-600 text-white' : 'bg-red-600 text-white',
+    inputFocus: isBlue
+      ? 'focus:border-blue-600 focus:ring-blue-500/20'
+      : 'focus:border-red-600 focus:ring-red-500/20'
+  };
 
   const handleSendAi = async (textToSend?: string) => {
     const q = textToSend || aiQuery;
@@ -68,7 +96,6 @@ export default function DashboardPage() {
         throw new Error('API offline');
       }
     } catch {
-      // Fallback local simulation
       setTimeout(() => {
         setAiMessages(prev => [
           ...prev,
@@ -86,17 +113,21 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 text-slate-800 font-sans">
-      {/* Sidebar Navigation (Crisp Light Theme) */}
+      {/* Sidebar Navigation */}
       <aside className="w-64 border-r border-slate-200/80 bg-white flex flex-col justify-between p-4 shadow-xs">
         <div>
           {/* Logo Brand */}
           <div className="flex items-center gap-3 px-2 py-3 mb-6 border-b border-slate-100">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center shadow-md shadow-emerald-700/20">
+            <div
+              className={`w-10 h-10 rounded-xl bg-gradient-to-br ${theme.brandGradient} flex items-center justify-center shadow-md`}
+            >
               <Layers className="w-5 h-5 text-white" />
             </div>
             <div>
               <h1 className="font-bold text-base tracking-wider text-slate-900">BHN CORE</h1>
-              <p className="text-[10px] text-emerald-700 font-semibold tracking-wider uppercase">Integration + Data</p>
+              <p className={`text-[10px] font-semibold tracking-wider uppercase ${theme.brandSubtext}`}>
+                Integration + Data
+              </p>
             </div>
           </div>
 
@@ -118,23 +149,23 @@ export default function DashboardPage() {
                   onClick={() => setActiveTab(item.id as any)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200/80 shadow-xs'
+                      ? `${theme.activeNav} border shadow-xs`
                       : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-700' : 'text-slate-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? theme.navIconActive : 'text-slate-400'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${theme.badgeBg}`}>
                       {item.badge}
                     </span>
                   )}
                   {item.highlight && (
                     <span className="flex h-2 w-2 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${theme.pingBg} opacity-75`}></span>
+                      <span className={`relative inline-flex rounded-full h-2 w-2 ${theme.pingBg}`}></span>
                     </span>
                   )}
                 </button>
@@ -147,8 +178,8 @@ export default function DashboardPage() {
         <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 text-xs space-y-2">
           <div className="flex items-center justify-between text-slate-600">
             <span className="font-medium">Hạ Tầng VPS:</span>
-            <span className="text-emerald-700 font-semibold flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Docker Live
+            <span className={`font-semibold flex items-center gap-1.5 ${theme.brandText}`}>
+              <span className={`w-2 h-2 rounded-full ${theme.pingBg} animate-pulse`}></span> Docker Live
             </span>
           </div>
           <div className="text-[11px] text-slate-500 font-mono space-y-0.5">
@@ -166,18 +197,48 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 text-sm text-slate-500">
             <span className="font-medium text-slate-700">BHN Core</span>
             <ChevronRight className="w-4 h-4 text-slate-400" />
-            <span className="text-emerald-700 font-semibold capitalize">{activeTab}</span>
+            <span className={`font-semibold capitalize ${theme.brandText}`}>{activeTab}</span>
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Color Theme Switcher: Xanh Biếc vs Đỏ Tươi */}
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+              <span className="px-2 text-slate-400 flex items-center gap-1 font-medium">
+                <Palette className="w-3.5 h-3.5" /> Tone màu:
+              </span>
+              <button
+                onClick={() => setThemeColor('blue')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition ${
+                  isBlue ? 'bg-white text-blue-700 shadow-2xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                <span>Xanh Biếc</span>
+              </button>
+              <button
+                onClick={() => setThemeColor('red')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-medium transition ${
+                  !isBlue ? 'bg-white text-red-700 shadow-2xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-red-600"></span>
+                <span>Đỏ Tươi</span>
+              </button>
+            </div>
+
+            {/* AI Copilot Button */}
             <button
               onClick={() => setActiveTab('ai')}
-              className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold transition shadow-xs"
+              className={`flex items-center gap-2 ${theme.primaryBtn} px-3.5 py-1.5 rounded-lg text-xs font-semibold transition shadow-xs`}
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Hỏi AI Copilot</span>
             </button>
-            <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-xs font-bold text-emerald-800">
+            <div
+              className={`w-8 h-8 rounded-full ${
+                isBlue ? 'bg-blue-100 border-blue-300 text-blue-800' : 'bg-red-100 border-red-300 text-red-800'
+              } border flex items-center justify-center text-xs font-bold`}
+            >
               AD
             </div>
           </div>
@@ -196,10 +257,34 @@ export default function DashboardPage() {
               {/* KPI Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {[
-                  { title: 'Doanh thu POS hôm nay', value: '28.450.000 ₫', sub: '+18.4% so với tuần trước', icon: TrendingUp, color: 'bg-emerald-50 text-emerald-600' },
-                  { title: 'Lịch hẹn đã xác nhận', value: '34 lượt', sub: 'Tỉ lệ kín phòng: 88%', icon: Calendar, color: 'bg-teal-50 text-teal-600' },
-                  { title: 'Hội viên mới (CRM)', value: '12 khách', sub: 'Tổng thành viên: 1.480', icon: Users, color: 'bg-blue-50 text-blue-600' },
-                  { title: 'Chi phí hoa hồng NV', value: '3.620.000 ₫', sub: 'Tự động tính theo đơn POS', icon: CreditCard, color: 'bg-amber-50 text-amber-600' }
+                  {
+                    title: 'Doanh thu POS hôm nay',
+                    value: '28.450.000 ₫',
+                    sub: '+18.4% so với tuần trước',
+                    icon: TrendingUp,
+                    color: isBlue ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'
+                  },
+                  {
+                    title: 'Lịch hẹn đã xác nhận',
+                    value: '34 lượt',
+                    sub: 'Tỉ lệ kín phòng: 88%',
+                    icon: Calendar,
+                    color: isBlue ? 'bg-indigo-50 text-indigo-600' : 'bg-rose-50 text-rose-600'
+                  },
+                  {
+                    title: 'Hội viên mới (CRM)',
+                    value: '12 khách',
+                    sub: 'Tổng thành viên: 1.480',
+                    icon: Users,
+                    color: isBlue ? 'bg-sky-50 text-sky-600' : 'bg-orange-50 text-orange-600'
+                  },
+                  {
+                    title: 'Chi phí hoa hồng NV',
+                    value: '3.620.000 ₫',
+                    sub: 'Tự động tính theo đơn POS',
+                    icon: CreditCard,
+                    color: 'bg-amber-50 text-amber-600'
+                  }
                 ].map((kpi, idx) => {
                   const Icon = kpi.icon;
                   return (
@@ -211,7 +296,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <div className="text-2xl font-bold text-slate-900 tracking-tight">{kpi.value}</div>
-                      <div className="text-[11px] text-emerald-700 font-medium mt-1.5 flex items-center gap-1">
+                      <div className={`text-[11px] font-medium mt-1.5 flex items-center gap-1 ${theme.brandText}`}>
                         <ArrowUpRight className="w-3.5 h-3.5" />
                         <span>{kpi.sub}</span>
                       </div>
@@ -225,7 +310,9 @@ export default function DashboardPage() {
                 <div className="lg:col-span-2 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-base text-slate-900">Giao dịch POS & Đơn hàng mới nhất</h3>
-                    <button className="text-xs text-emerald-700 font-semibold hover:underline">Xem tất cả &rarr;</button>
+                    <button className={`text-xs font-semibold hover:underline ${theme.brandText}`}>
+                      Xem tất cả &rarr;
+                    </button>
                   </div>
                   <div className="space-y-3">
                     {[
@@ -236,7 +323,7 @@ export default function DashboardPage() {
                       <div key={i} className="flex items-center justify-between p-3.5 bg-slate-50/70 hover:bg-slate-50 rounded-xl border border-slate-200/60 transition">
                         <div>
                           <div className="font-semibold text-sm text-slate-900">{row.customer}</div>
-                          <div className="text-xs text-slate-500 mt-0.5">{row.item} • <span className="font-mono text-emerald-700 font-medium">{row.code}</span></div>
+                          <div className="text-xs text-slate-500 mt-0.5">{row.item} • <span className={`font-mono font-medium ${theme.brandText}`}>{row.code}</span></div>
                         </div>
                         <div className="text-right">
                           <div className="font-bold text-sm text-slate-900">{row.amount}</div>
@@ -249,10 +336,10 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-emerald-50/50 to-teal-50/30 border border-emerald-100 rounded-2xl p-6 flex flex-col justify-between shadow-xs">
+                <div className={`bg-gradient-to-br ${theme.cardInsightBg} border rounded-2xl p-6 flex flex-col justify-between shadow-xs`}>
                   <div>
-                    <div className="flex items-center gap-2 text-emerald-800 font-bold mb-2">
-                      <Sparkles className="w-4 h-4 text-emerald-600" />
+                    <div className={`flex items-center gap-2 font-bold mb-2 ${theme.cardInsightTitle}`}>
+                      <Sparkles className="w-4 h-4" />
                       <span>AI Copilot Quick Insights</span>
                     </div>
                     <p className="text-xs text-slate-600 leading-relaxed">
@@ -264,7 +351,7 @@ export default function DashboardPage() {
                       setActiveTab('ai');
                       handleSendAi('Phân tích chi tiết điều phối lịch hẹn tối nay');
                     }}
-                    className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-xs"
+                    className={`w-full mt-4 ${theme.primaryBtn} font-semibold py-2.5 rounded-xl text-xs transition shadow-xs`}
                   >
                     Mở Trợ Lý AI Phân Tích &rarr;
                   </button>
@@ -281,7 +368,7 @@ export default function DashboardPage() {
                   <h2 className="text-2xl font-bold text-slate-900">CRM & Quản Lý Khách Hàng</h2>
                   <p className="text-sm text-slate-500">Danh sách thành viên, tích lũy điểm thưởng và phân hạng hội viên</p>
                 </div>
-                <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition">
+                <button className={`${theme.primaryBtn} px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition`}>
                   + Thêm Khách Hàng
                 </button>
               </div>
@@ -312,10 +399,12 @@ export default function DashboardPage() {
                             {c.tier}
                           </span>
                         </td>
-                        <td className="p-4 font-bold text-emerald-700">{c.points}</td>
+                        <td className={`p-4 font-bold ${theme.brandText}`}>{c.points}</td>
                         <td className="p-4 font-semibold text-slate-900">{c.spent}</td>
                         <td className="p-4">
-                          <button className="text-xs text-emerald-700 font-semibold hover:underline">Chi tiết &rarr;</button>
+                          <button className={`text-xs font-semibold hover:underline ${theme.brandText}`}>
+                            Chi tiết &rarr;
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -333,7 +422,7 @@ export default function DashboardPage() {
                   <h2 className="text-2xl font-bold text-slate-900">Booking & Điều Phối Lịch Hẹn</h2>
                   <p className="text-sm text-slate-500">Lịch trình chăm sóc, phân bổ kỹ thuật viên và phòng dịch vụ</p>
                 </div>
-                <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition">
+                <button className={`${theme.primaryBtn} px-4 py-2 rounded-xl text-xs font-semibold shadow-xs transition`}>
                   + Đặt Lịch Mới
                 </button>
               </div>
@@ -346,10 +435,10 @@ export default function DashboardPage() {
                 ].map((b, i) => (
                   <div key={i} className="bg-white border border-slate-200/80 rounded-2xl p-5 space-y-3 shadow-xs">
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-mono text-emerald-700 font-semibold flex items-center gap-1">
+                      <span className={`text-xs font-mono font-semibold flex items-center gap-1 ${theme.brandText}`}>
                         <Clock className="w-3.5 h-3.5" /> {b.time}
                       </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${theme.badgeBg}`}>
                         {b.status}
                       </span>
                     </div>
@@ -359,7 +448,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="pt-2.5 border-t border-slate-100 text-xs text-slate-500 flex justify-between items-center">
                       <span>Phụ trách: <strong className="text-slate-800">{b.staff}</strong></span>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      <CheckCircle2 className={`w-4 h-4 ${theme.brandText}`} />
                     </div>
                   </div>
                 ))}
@@ -383,7 +472,7 @@ export default function DashboardPage() {
                 ].map((item, idx) => (
                   <div key={idx} className="bg-white border border-slate-200/80 rounded-2xl p-5 flex flex-col justify-between shadow-xs">
                     <div>
-                      <span className="text-[10px] font-mono font-semibold text-emerald-700 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200">
+                      <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md border ${theme.badgeBg}`}>
                         {item.sku}
                       </span>
                       <h4 className="font-bold text-slate-900 mt-2.5">{item.name}</h4>
@@ -391,7 +480,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center">
                       <span className="font-bold text-slate-900 text-lg">{item.price}</span>
-                      <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition">
+                      <button className={`${theme.primaryBtn} px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-xs transition`}>
                         Thêm vào đơn
                       </button>
                     </div>
@@ -427,12 +516,12 @@ export default function DashboardPage() {
                       { code: 'EMP-02', name: 'Trần Văn Hoàng', dept: 'Tư Vấn KH', salary: '9.000.000 ₫', rate: '5.0%', comm: '2.150.000 ₫' }
                     ].map((e, i) => (
                       <tr key={i} className="hover:bg-slate-50/70 transition">
-                        <td className="p-4 font-mono text-xs text-emerald-700 font-semibold">{e.code}</td>
+                        <td className={`p-4 font-mono text-xs font-semibold ${theme.brandText}`}>{e.code}</td>
                         <td className="p-4 font-semibold text-slate-900">{e.name}</td>
                         <td className="p-4 text-xs text-slate-500">{e.dept}</td>
                         <td className="p-4 font-semibold text-slate-800">{e.salary}</td>
                         <td className="p-4 font-mono text-xs text-amber-700 font-bold">{e.rate}</td>
-                        <td className="p-4 font-bold text-emerald-700">{e.comm}</td>
+                        <td className={`p-4 font-bold ${theme.brandText}`}>{e.comm}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -446,7 +535,7 @@ export default function DashboardPage() {
             <div className="h-full flex flex-col max-w-4xl mx-auto space-y-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <Bot className="w-6 h-6 text-emerald-700" />
+                  <Bot className={`w-6 h-6 ${theme.brandText}`} />
                   <h2 className="text-2xl font-bold text-slate-900">AI Copilot Điều Hành Doanh Nghiệp (2026)</h2>
                 </div>
                 <p className="text-sm text-slate-500">
@@ -464,7 +553,7 @@ export default function DashboardPage() {
                     <div
                       className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-line shadow-2xs ${
                         msg.sender === 'user'
-                          ? 'bg-emerald-600 text-white font-medium rounded-tr-none'
+                          ? `${theme.chatBubbleUser} font-medium rounded-tr-none`
                           : 'bg-slate-50 border border-slate-200/80 text-slate-800 rounded-tl-none'
                       }`}
                     >
@@ -474,8 +563,8 @@ export default function DashboardPage() {
                   </div>
                 ))}
                 {aiLoading && (
-                  <div className="flex items-center gap-2 text-xs text-emerald-700 italic">
-                    <Sparkles className="w-4 h-4 animate-spin text-emerald-600" />
+                  <div className={`flex items-center gap-2 text-xs italic ${theme.brandText}`}>
+                    <Sparkles className="w-4 h-4 animate-spin" />
                     AI Copilot đang phân tích dữ liệu ERP từ PostgreSQL...
                   </div>
                 )}
@@ -507,12 +596,12 @@ export default function DashboardPage() {
                   onChange={e => setAiQuery(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleSendAi()}
                   placeholder="Đặt câu hỏi cho AI Copilot về doanh thu, khách hàng, booking..."
-                  className="flex-1 bg-white border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition shadow-2xs"
+                  className={`flex-1 bg-white border border-slate-300 ${theme.inputFocus} focus:ring-2 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition shadow-2xs`}
                 />
                 <button
                   onClick={() => handleSendAi()}
                   disabled={aiLoading}
-                  className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-6 rounded-xl font-bold flex items-center gap-2 transition shadow-xs"
+                  className={`${theme.primaryBtn} disabled:opacity-50 px-6 rounded-xl font-bold flex items-center gap-2 transition shadow-xs`}
                 >
                   <Send className="w-4 h-4" />
                   <span>Gửi</span>
