@@ -180,9 +180,8 @@ const RBAC_MODULES = [
 
 export default function SystemControlTowerPage() {
   const [themeColor, setThemeColor] = useState<'blue' | 'red'>('red');
-  const [activeSubpageId, setActiveSubpageId] = useState<string>('org');
+  const [activeSubpageId, setActiveSubpageId] = useState<string>('org-depts');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [orgSubTab, setOrgSubTab] = useState<'depts' | 'posts' | 'titles' | 'positions' | 'types' | 'chart'>('depts');
 
   // Interactive State for Organization Structure
   const [branches, setBranches] = useState(INITIAL_BRANCHES);
@@ -338,9 +337,21 @@ export default function SystemControlTowerPage() {
     }, 1500);
   };
 
-  // Subpages for the Left Sidebar (SaaS Navigation)
+  // Subpages for the Left Sidebar (SaaS Navigation with Nested Sub-menus for Org Structure)
   const systemSubpages: SubpageItem[] = [
-    { id: 'org', label: 'Cơ Cấu Tổ Chức', icon: Network },
+    {
+      id: 'org',
+      label: 'Cơ Cấu Tổ Chức',
+      icon: Network,
+      children: [
+        { id: 'org-depts', label: 'Phòng Ban (Org Units)', icon: Network },
+        { id: 'org-posts', label: 'Chức Vụ Hành Chính', icon: Award },
+        { id: 'org-titles', label: 'Chức Danh Chuyên Môn', icon: Briefcase },
+        { id: 'org-positions', label: 'Vị Trí & Định Biên', icon: Layers },
+        { id: 'org-types', label: 'Tính Chất Công Việc', icon: Clock },
+        { id: 'org-chart', label: 'Sơ Đồ Cây Phân Cấp', icon: Network }
+      ]
+    },
     { id: 'users', label: 'Người Dùng & RBAC', icon: Users },
     { id: 'branches', label: 'Chuỗi Chi Nhánh', icon: Building2 },
     { id: 'integrations', label: 'Tích Hợp VietQR / Zalo', icon: QrCode },
@@ -349,6 +360,24 @@ export default function SystemControlTowerPage() {
     { id: 'audit', label: 'Nhật Ký Audit', icon: FileText },
     { id: 'branding', label: 'Cấu Hình Thương Hiệu', icon: Sliders }
   ];
+
+  const getPageTitleAndBreadcrumb = () => {
+    const topMatch = systemSubpages.find(s => s.id === activeSubpageId);
+    if (topMatch) {
+      return { parent: 'Hệ Thống ERP', current: topMatch.label };
+    }
+    for (const parent of systemSubpages) {
+      if (parent.children) {
+        const childMatch = parent.children.find(c => c.id === activeSubpageId);
+        if (childMatch) {
+          return { parent: parent.label, current: childMatch.label };
+        }
+      }
+    }
+    return { parent: 'Hệ Thống ERP', current: 'Cơ Cấu Tổ Chức' };
+  };
+
+  const { parent: breadcrumbParent, current: currentTitle } = getPageTitleAndBreadcrumb();
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-slate-800 flex flex-col antialiased w-full overflow-x-hidden">
@@ -388,154 +417,123 @@ export default function SystemControlTowerPage() {
           <div className="max-w-7xl mx-auto w-full space-y-6">
             {/* Breadcrumb & Section Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-              <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                <span>Hệ Thống ERP</span>
-                <span>/</span>
-                <span className="font-semibold text-slate-800">
-                  {systemSubpages.find((s) => s.id === activeSubpageId)?.label}
-                </span>
-              </div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                {systemSubpages.find((s) => s.id === activeSubpageId)?.label}
-              </h1>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleTriggerBackup}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-white shadow-xs transition hover:opacity-90 active:scale-95"
-                style={{ backgroundColor: primaryColorHex }}
-              >
-                <Database className="w-3.5 h-3.5" />
-                <span>Sao Lưu DB Snapshot</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 1. SUBPAGE: CƠ CẤU TỔ CHỨC */}
-          {activeSubpageId === 'org' && (
-            <div className="space-y-6">
-              {/* Org Metric High-Level Ribbon */}
-              <OrgMetricRibbon
-                totalDepts={departments.length}
-                totalPositions={jobPositions.length}
-                currentHeadcount={totalCurrentHeadcount}
-                quotaHeadcount={totalQuotaHeadcount}
-                totalAllowance={totalAllowancePost}
-                themeColorHex={primaryColorHex}
-              />
-
-              {/* Sub-tab Pill Navigation: 5 modules + 1 Visual Tree Chart */}
-              <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200/90 shadow-2xs overflow-x-auto">
-                {[
-                  { id: 'depts', label: '🏢 Phòng Ban (Org Units)', icon: Network, count: departments.length },
-                  { id: 'posts', label: '🎖️ Chức Vụ (Cấp 1-5)', icon: Award, count: jobPosts.length },
-                  { id: 'titles', label: '🏷️ Chức Danh Chuyên Môn', icon: Briefcase, count: jobTitles.length },
-                  { id: 'positions', label: '📌 Vị Trí & Định Biên', icon: Layers, count: jobPositions.length },
-                  { id: 'types', label: '⏳ Tính Chất Công Việc', icon: Clock, count: employmentTypes.length },
-                  { id: 'chart', label: '🌳 Sơ Đồ Cây Phân Cấp', icon: Network, count: 'Sơ đồ' }
-                ].map((sub) => {
-                  const isSubSelected = orgSubTab === sub.id;
-                  const Icon = sub.icon;
-                  return (
-                    <button
-                      key={sub.id}
-                      onClick={() => setOrgSubTab(sub.id as any)}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-                        isSubSelected ? 'text-white shadow-xs font-bold' : 'text-slate-600 hover:bg-slate-100'
-                      }`}
-                      style={isSubSelected ? { backgroundColor: primaryColorHex } : {}}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      <span>{sub.label}</span>
-                      <span className="text-[10px] opacity-80">({sub.count})</span>
-                    </button>
-                  );
-                })}
+              <div>
+                <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                  <span>{breadcrumbParent}</span>
+                  <span>/</span>
+                  <span className="font-semibold text-slate-800">{currentTitle}</span>
+                </div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                  {currentTitle}
+                </h1>
               </div>
 
-              {/* Sub-tab 1: Phòng Ban */}
-              {orgSubTab === 'depts' && (
-                <DepartmentManager
-                  departments={departments}
-                  themeColorHex={primaryColorHex}
-                  onAdd={() => openAddModal('department')}
-                  onEdit={(dept) => openEditModal('department', dept)}
-                  onDelete={(id) => {
-                    const d = departments.find(item => item.id === id);
-                    handleDeleteEntity('department', id, d?.name);
-                  }}
-                  onToggleActive={handleToggleActiveDept}
-                />
-              )}
-
-              {/* Sub-tab 2: Chức Vụ Hành Chính */}
-              {orgSubTab === 'posts' && (
-                <JobPostManager
-                  jobPosts={jobPosts}
-                  themeColorHex={primaryColorHex}
-                  onAdd={() => openAddModal('post')}
-                  onEdit={(post) => openEditModal('post', post)}
-                  onDelete={(id) => {
-                    const p = jobPosts.find(item => item.id === id);
-                    handleDeleteEntity('post', id, p?.name);
-                  }}
-                />
-              )}
-
-              {/* Sub-tab 3: Chức Danh Chuyên Môn */}
-              {orgSubTab === 'titles' && (
-                <JobTitleManager
-                  jobTitles={jobTitles}
-                  themeColorHex={primaryColorHex}
-                  onAdd={() => openAddModal('title')}
-                  onEdit={(title) => openEditModal('title', title)}
-                  onDelete={(id) => {
-                    const t = jobTitles.find(item => item.id === id);
-                    handleDeleteEntity('title', id, t?.name);
-                  }}
-                />
-              )}
-
-              {/* Sub-tab 4: Vị Trí Công Việc & Định Biên */}
-              {orgSubTab === 'positions' && (
-                <JobPositionManager
-                  jobPositions={jobPositions}
-                  themeColorHex={primaryColorHex}
-                  onAdd={() => openAddModal('position')}
-                  onEdit={(pos) => openEditModal('position', pos)}
-                  onDelete={(id) => {
-                    const p = jobPositions.find(item => item.id === id);
-                    handleDeleteEntity('position', id, p?.name);
-                  }}
-                />
-              )}
-
-              {/* Sub-tab 5: Tính Chất Công Việc & Phúc Lợi */}
-              {orgSubTab === 'types' && (
-                <EmploymentTypeManager
-                  employmentTypes={employmentTypes}
-                  themeColorHex={primaryColorHex}
-                  onAdd={() => openAddModal('type')}
-                  onEdit={(type) => openEditModal('type', type)}
-                  onDelete={(id) => {
-                    const t = employmentTypes.find(item => item.id === id);
-                    handleDeleteEntity('type', id, t?.name);
-                  }}
-                />
-              )}
-
-              {/* Sub-tab 6: Sơ Đồ Cây Phân Cấp Doanh Nghiệp (Visual Org Chart) */}
-              {orgSubTab === 'chart' && (
-                <OrgTreeChart
-                  departments={departments}
-                  positions={jobPositions}
-                  themeColorHex={primaryColorHex}
-                />
-              )}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleTriggerBackup}
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-white shadow-xs transition hover:opacity-90 active:scale-95"
+                  style={{ backgroundColor: primaryColorHex }}
+                >
+                  <Database className="w-3.5 h-3.5" />
+                  <span>Sao Lưu DB Snapshot</span>
+                </button>
+              </div>
             </div>
-          )}
+
+            {/* 1. SUBPAGES: CƠ CẤU TỔ CHỨC & CÁC SUB-MENUS */}
+            {(activeSubpageId === 'org' || activeSubpageId.startsWith('org-')) && (
+              <div className="space-y-6">
+                {/* Org Metric High-Level Ribbon */}
+                <OrgMetricRibbon
+                  totalDepts={departments.length}
+                  totalPositions={jobPositions.length}
+                  currentHeadcount={totalCurrentHeadcount}
+                  quotaHeadcount={totalQuotaHeadcount}
+                  totalAllowance={totalAllowancePost}
+                  themeColorHex={primaryColorHex}
+                />
+
+                {/* Sub-menu 1: Phòng Ban */}
+                {(activeSubpageId === 'org-depts' || activeSubpageId === 'org') && (
+                  <DepartmentManager
+                    departments={departments}
+                    themeColorHex={primaryColorHex}
+                    onAdd={() => openAddModal('department')}
+                    onEdit={(dept) => openEditModal('department', dept)}
+                    onDelete={(id) => {
+                      const d = departments.find(item => item.id === id);
+                      handleDeleteEntity('department', id, d?.name);
+                    }}
+                    onToggleActive={handleToggleActiveDept}
+                  />
+                )}
+
+                {/* Sub-menu 2: Chức Vụ Hành Chính */}
+                {activeSubpageId === 'org-posts' && (
+                  <JobPostManager
+                    jobPosts={jobPosts}
+                    themeColorHex={primaryColorHex}
+                    onAdd={() => openAddModal('post')}
+                    onEdit={(post) => openEditModal('post', post)}
+                    onDelete={(id) => {
+                      const p = jobPosts.find(item => item.id === id);
+                      handleDeleteEntity('post', id, p?.name);
+                    }}
+                  />
+                )}
+
+                {/* Sub-menu 3: Chức Danh Chuyên Môn */}
+                {activeSubpageId === 'org-titles' && (
+                  <JobTitleManager
+                    jobTitles={jobTitles}
+                    themeColorHex={primaryColorHex}
+                    onAdd={() => openAddModal('title')}
+                    onEdit={(title) => openEditModal('title', title)}
+                    onDelete={(id) => {
+                      const t = jobTitles.find(item => item.id === id);
+                      handleDeleteEntity('title', id, t?.name);
+                    }}
+                  />
+                )}
+
+                {/* Sub-menu 4: Vị Trí Công Việc & Định Biên */}
+                {activeSubpageId === 'org-positions' && (
+                  <JobPositionManager
+                    jobPositions={jobPositions}
+                    themeColorHex={primaryColorHex}
+                    onAdd={() => openAddModal('position')}
+                    onEdit={(pos) => openEditModal('position', pos)}
+                    onDelete={(id) => {
+                      const p = jobPositions.find(item => item.id === id);
+                      handleDeleteEntity('position', id, p?.name);
+                    }}
+                  />
+                )}
+
+                {/* Sub-menu 5: Tính Chất Công Việc & Phúc Lợi */}
+                {activeSubpageId === 'org-types' && (
+                  <EmploymentTypeManager
+                    employmentTypes={employmentTypes}
+                    themeColorHex={primaryColorHex}
+                    onAdd={() => openAddModal('type')}
+                    onEdit={(type) => openEditModal('type', type)}
+                    onDelete={(id) => {
+                      const t = employmentTypes.find(item => item.id === id);
+                      handleDeleteEntity('type', id, t?.name);
+                    }}
+                  />
+                )}
+
+                {/* Sub-menu 6: Sơ Đồ Cây Phân Cấp Doanh Nghiệp (Visual Org Chart) */}
+                {activeSubpageId === 'org-chart' && (
+                  <OrgTreeChart
+                    departments={departments}
+                    positions={jobPositions}
+                    themeColorHex={primaryColorHex}
+                  />
+                )}
+              </div>
+            )}
 
           {/* 2. SUBPAGE: NGƯỜI DÙNG & RBAC */}
           {activeSubpageId === 'users' && (

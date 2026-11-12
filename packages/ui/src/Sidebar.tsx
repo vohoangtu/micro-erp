@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Home,
   Menu,
   X,
@@ -18,6 +19,7 @@ export interface SubpageItem {
   badgeColor?: string;
   href?: string;
   onClick?: () => void;
+  children?: SubpageItem[];
 }
 
 export interface SidebarProps {
@@ -46,6 +48,7 @@ export function Sidebar({
   onToggleCollapse
 }: SidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const isBlue = themeColor === 'blue';
   const primaryColorHex = isBlue ? '#0066cc' : '#dc0037';
   const defaultGradient = isBlue
@@ -54,6 +57,25 @@ export function Sidebar({
 
   const activeGradient = gradient || defaultGradient;
 
+  const isItemExpanded = (item: SubpageItem) => {
+    if (expandedItems[item.id] !== undefined) {
+      return expandedItems[item.id];
+    }
+    // Auto-expand if activeSubpageId matches this item or one of its children
+    if (item.id === activeSubpageId || item.children?.some(c => c.id === activeSubpageId)) {
+      return true;
+    }
+    return false;
+  };
+
+  const toggleExpand = (itemId: string, item: SubpageItem) => {
+    const current = isItemExpanded(item);
+    setExpandedItems(prev => ({
+      ...prev,
+      [itemId]: !current
+    }));
+  };
+
   const renderNavItems = () => (
     <nav className="space-y-1 px-3 py-3 flex-1 overflow-y-auto">
       <div className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -61,55 +83,142 @@ export function Sidebar({
       </div>
 
       {subpages.map((item) => {
-        const isActive = item.id === activeSubpageId;
+        const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+        const isChildActive = hasChildren && item.children!.some(c => c.id === activeSubpageId);
+        const isExactActive = item.id === activeSubpageId;
+        const isExpanded = !isCollapsed && isItemExpanded(item);
         const Icon = item.icon;
 
         const handleClick = (e: React.MouseEvent) => {
-          if (item.onClick) {
+          if (hasChildren) {
+            e.preventDefault();
+            toggleExpand(item.id, item);
+            if (!isChildActive && !isExactActive && onSelectSubpage) {
+              onSelectSubpage(item.children![0].id);
+            }
+          } else if (item.onClick) {
             e.preventDefault();
             item.onClick();
+            setIsMobileOpen(false);
           } else if (onSelectSubpage) {
             e.preventDefault();
             onSelectSubpage(item.id);
+            setIsMobileOpen(false);
           }
-          setIsMobileOpen(false);
         };
 
         return (
-          <a
-            key={item.id}
-            href={item.href || '#'}
-            onClick={handleClick}
-            title={item.label}
-            className={`flex items-center gap-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
-              isCollapsed ? 'justify-center px-2' : 'px-3'
-            } ${
-              isActive
-                ? 'text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-            }`}
-            style={isActive ? { backgroundColor: primaryColorHex } : {}}
-          >
-            <Icon
-              className={`w-4 h-4 shrink-0 transition-transform ${
-                isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-800'
+          <div key={item.id} className="space-y-1">
+            <a
+              href={item.href || '#'}
+              onClick={handleClick}
+              title={item.label}
+              className={`flex items-center gap-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
+                isCollapsed ? 'justify-center px-2' : 'px-3'
+              } ${
+                isExactActive
+                  ? 'text-white shadow-xs font-bold'
+                  : isChildActive
+                  ? 'text-slate-900 bg-slate-100/90 font-bold border border-slate-200/60'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
               }`}
-            />
-            {!isCollapsed && (
-              <span className="truncate flex-1">{item.label}</span>
-            )}
-            {!isCollapsed && item.badge !== undefined && (
-              <span
-                className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                  isActive
-                    ? 'bg-white/20 text-white'
-                    : item.badgeColor || 'bg-slate-200 text-slate-600'
+              style={isExactActive ? { backgroundColor: primaryColorHex } : {}}
+            >
+              <Icon
+                className={`w-4 h-4 shrink-0 transition-transform ${
+                  isExactActive
+                    ? 'text-white'
+                    : isChildActive
+                    ? ''
+                    : 'text-slate-500 group-hover:text-slate-800'
                 }`}
-              >
-                {item.badge}
-              </span>
+                style={isChildActive && !isExactActive ? { color: primaryColorHex } : {}}
+              />
+              {!isCollapsed && (
+                <span className="truncate flex-1">{item.label}</span>
+              )}
+              {!isCollapsed && hasChildren && (
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    toggleExpand(item.id, item);
+                  }}
+                  className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition"
+                  title={isExpanded ? 'Thu gọn' : 'Mở rộng'}
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  ) : (
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  )}
+                </span>
+              )}
+              {!isCollapsed && !hasChildren && item.badge !== undefined && (
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                    isExactActive
+                      ? 'bg-white/20 text-white'
+                      : item.badgeColor || 'bg-slate-200 text-slate-600'
+                  }`}
+                >
+                  {item.badge}
+                </span>
+              )}
+            </a>
+
+            {/* Nested Sub-menus */}
+            {isExpanded && hasChildren && (
+              <div className="ml-4 pl-3 border-l-2 border-slate-200/80 space-y-1 my-1 animate-in fade-in slide-in-from-top-1">
+                {item.children!.map((child) => {
+                  const isSubActive = child.id === activeSubpageId;
+                  const ChildIcon = child.icon;
+
+                  const handleChildClick = (e: React.MouseEvent) => {
+                    if (child.onClick) {
+                      e.preventDefault();
+                      child.onClick();
+                    } else if (onSelectSubpage) {
+                      e.preventDefault();
+                      onSelectSubpage(child.id);
+                    }
+                    setIsMobileOpen(false);
+                  };
+
+                  return (
+                    <a
+                      key={child.id}
+                      href={child.href || '#'}
+                      onClick={handleChildClick}
+                      title={child.label}
+                      className={`flex items-center gap-2.5 py-2 px-2.5 rounded-xl text-xs font-semibold transition-all group ${
+                        isSubActive
+                          ? 'text-white shadow-xs font-bold'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                      }`}
+                      style={isSubActive ? { backgroundColor: primaryColorHex } : {}}
+                    >
+                      <ChildIcon
+                        className={`w-3.5 h-3.5 shrink-0 ${
+                          isSubActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'
+                        }`}
+                      />
+                      <span className="truncate flex-1">{child.label}</span>
+                      {child.badge !== undefined && (
+                        <span
+                          className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                            isSubActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
+                          }`}
+                        >
+                          {child.badge}
+                        </span>
+                      )}
+                    </a>
+                  );
+                })}
+              </div>
             )}
-          </a>
+          </div>
         );
       })}
     </nav>
