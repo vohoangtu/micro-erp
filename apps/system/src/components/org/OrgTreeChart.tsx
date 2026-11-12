@@ -21,7 +21,9 @@ import {
   FolderTree,
   LayoutGrid,
   CheckCircle2,
-  Briefcase
+  Briefcase,
+  MapPin,
+  Building
 } from 'lucide-react';
 import { DepartmentItem } from './DepartmentManager';
 import { JobPositionItem } from './JobPositionManager';
@@ -45,8 +47,47 @@ interface OrgBlock {
   levelKey: string;
 }
 
+const BRANCH_INFO: Record<string, { title: string; subtitle: string; manager: string; levelBadge: string; quota: string }> = {
+  'Cơ sở Hoàn Kiếm': {
+    title: 'BHN Clinic & Spa — Trụ Sở Hoàn Kiếm (Hà Nội)',
+    subtitle: 'Cơ Sở 1 • Trung Tâm Thẩm Mỹ & Spa Công Nghệ Cao',
+    manager: 'Trần Hương Giang — Giám Đốc Chi Nhánh',
+    levelBadge: 'CƠ SỞ 1 • CHI NHÁNH HÀ NỘI',
+    quota: '30 Nhân sự • 4 Phòng ban'
+  },
+  'Chi Nhánh Quận 1': {
+    title: 'BHN Wellness Center — Chi Nhánh Quận 1 (TP. HCM)',
+    subtitle: 'Cơ Sở 2 • Viện Thẩm Mỹ & Trị Liệu Da Chuyên Sâu',
+    manager: 'Võ Minh Quân — Giám Đốc Chi Nhánh',
+    levelBadge: 'CƠ SỞ 2 • CHI NHÁNH TP. HCM',
+    quota: '22 Nhân sự • 4 Phòng ban'
+  },
+  'Chi Nhánh Đà Nẵng': {
+    title: 'BHN Aesthetic Clinic — Chi Nhánh Hải Châu (Đà Nẵng)',
+    subtitle: 'Cơ Sở 3 • Phòng Khám Da Liễu Miền Trung',
+    manager: 'Đặng Thảo Vy — Giám Đốc Chi Nhánh',
+    levelBadge: 'CƠ SỞ 3 • CHI NHÁNH ĐÀ NẴNG',
+    quota: '14 Nhân sự • 4 Phòng ban'
+  },
+  'Toàn Hệ Thống': {
+    title: 'Ban Giám Đốc & Điều Hành Chiến Lược',
+    subtitle: 'Trụ Sở Trung Ương • Tổng Giám Đốc (CEO) & C-Level',
+    manager: 'Hội Đồng Quản Trị & Ban Điều Hành',
+    levelBadge: 'TRỤ SỞ TỔNG • CẤP QUẢN TRỊ',
+    quota: '7 Nhân sự • 2 Khối trực thuộc'
+  },
+  'Kho Tổng Hà Nội': {
+    title: 'Phòng Kho Dược Mỹ Phẩm & Thiết Bị Y Tế',
+    subtitle: 'Trung Tâm Phân Phối Dược Mỹ Phẩm & Vật Tư Y Tế',
+    manager: 'Trịnh Quốc Bảo — Quản Lý Kho Tổng',
+    levelBadge: 'KHO TỔNG • HẬU CẦN',
+    quota: '4 Nhân sự'
+  }
+};
+
 export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeChartProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('tree');
+  const [selectedBranch, setSelectedBranch] = useState<string>('ALL');
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [collapsedNodes, setCollapsedNodes] = useState<Record<string, boolean>>({});
   const [searchHighlight, setSearchHighlight] = useState('');
@@ -115,71 +156,50 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
     }
   ];
 
+  const branchOptions = [
+    { id: 'ALL', label: '🌐 Toàn Hệ Thống (Mọi Cơ Sở)' },
+    { id: 'Cơ sở Hoàn Kiếm', label: '📍 Cơ Sở Hoàn Kiếm (HN)' },
+    { id: 'Chi Nhánh Quận 1', label: '📍 Chi Nhánh Quận 1 (TP. HCM)' },
+    { id: 'Chi Nhánh Đà Nẵng', label: '📍 Chi Nhánh Hải Châu (Đà Nẵng)' },
+    { id: 'Toàn Hệ Thống', label: '🏛️ Trụ Sở & Điều Hành (HQ)' },
+    { id: 'Kho Tổng Hà Nội', label: '📦 Kho Tổng Hà Nội' }
+  ];
+
+  // Filtered lists based on selected branch
+  const activeDepartments = useMemo(() => {
+    if (selectedBranch === 'ALL') return departments;
+    return departments.filter(d => d.branch === selectedBranch);
+  }, [departments, selectedBranch]);
+
+  const activePositions = useMemo(() => {
+    if (selectedBranch === 'ALL') return positions;
+    return positions.filter(p => p.branch === selectedBranch || (!p.branch && selectedBranch === 'Toàn Hệ Thống'));
+  }, [positions, selectedBranch]);
+
   // Helper to match positions with department
-  const getPositionsForDept = (deptName: string, deptCode: string) => {
+  const getPositionsForDept = (deptName: string, deptCode: string, deptBranch: string) => {
     const normDept = deptName.toLowerCase();
-    return positions.filter(p => {
+    return activePositions.filter(p => {
+      // If position has branch, it must match dept branch
+      if (p.branch && p.branch !== deptBranch && deptBranch !== 'Toàn Hệ Thống') {
+        return false;
+      }
+
       const normPosDept = (p.dept || '').toLowerCase();
       const normPosName = (p.name || '').toLowerCase();
 
-      if (deptCode === 'DEPT-BOD' || normDept.includes('ban giám đốc')) {
-        return (
-          normPosDept.includes('giám đốc') ||
-          normPosDept.includes('bod') ||
-          normPosName.includes('giám đốc') ||
-          normPosName.includes('ceo')
-        );
-      }
-      if (deptCode === 'DEPT-CLINIC' || normDept.includes('bác sĩ')) {
-        return (
-          normPosDept.includes('bác sĩ') ||
-          normPosDept.includes('chuyên môn') ||
-          normPosName.includes('bác sĩ')
-        );
-      }
-      if (
-        deptCode === 'DEPT-SPA-THERAPY' ||
-        normDept.includes('kỹ thuật viên') ||
-        normDept.includes('spa')
-      ) {
-        return (
-          normPosDept.includes('kỹ thuật') ||
-          normPosDept.includes('spa') ||
-          normPosName.includes('laser') ||
-          normPosName.includes('spa')
-        );
-      }
-      if (
-        deptCode === 'DEPT-SALES-CSKH' ||
-        normDept.includes('tư vấn') ||
-        normDept.includes('crm')
-      ) {
-        return (
-          normPosDept.includes('tư vấn') ||
-          normPosDept.includes('cskh') ||
-          normPosName.includes('tư vấn')
-        );
-      }
-      if (
-        deptCode === 'DEPT-FINANCE-POS' ||
-        normDept.includes('kế toán') ||
-        normDept.includes('thu ngân')
-      ) {
-        return (
-          normPosDept.includes('kế toán') ||
-          normPosDept.includes('pos') ||
-          normPosDept.includes('thu ngân') ||
-          normPosName.includes('thu ngân')
-        );
-      }
-      if (deptCode === 'DEPT-WAREHOUSE' || normDept.includes('kho')) {
-        return (
-          normPosDept.includes('kho') ||
-          normPosDept.includes('hậu cần') ||
-          normPosName.includes('kho')
-        );
-      }
-      return normPosDept.includes(normDept) || normDept.includes(normPosDept);
+      if (normPosDept === normDept) return true;
+      if (normPosDept.includes(normDept) || normDept.includes(normPosDept)) return true;
+
+      // Match by keyword in Model 1
+      if (deptCode.includes('CLINIC') && (normPosName.includes('bác sĩ') || normPosDept.includes('bác sĩ'))) return true;
+      if (deptCode.includes('SPA') && (normPosName.includes('spa') || normPosName.includes('laser') || normPosDept.includes('spa'))) return true;
+      if (deptCode.includes('SALES') && (normPosName.includes('tư vấn') || normPosDept.includes('kinh doanh') || normPosName.includes('sale'))) return true;
+      if (deptCode.includes('FINANCE') && (normPosName.includes('thu ngân') || normPosDept.includes('kế toán'))) return true;
+      if (deptCode.includes('WAREHOUSE') && (normPosName.includes('kho') || normPosDept.includes('kho'))) return true;
+      if (deptCode.includes('BOD') && (normPosName.includes('giám đốc') || normPosDept.includes('giám đốc'))) return true;
+
+      return false;
     });
   };
 
@@ -219,22 +239,31 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
     blocks.forEach(b => {
       if (b.name.toLowerCase().includes(query)) count++;
     });
-    departments.forEach(d => {
+    activeDepartments.forEach(d => {
       if (d.name.toLowerCase().includes(query) || d.manager.toLowerCase().includes(query) || d.code.toLowerCase().includes(query)) count++;
     });
-    positions.forEach(p => {
+    activePositions.forEach(p => {
       if (p.name.toLowerCase().includes(query) || p.code.toLowerCase().includes(query)) count++;
     });
     return count;
-  }, [searchHighlight, departments, positions]);
+  }, [searchHighlight, activeDepartments, activePositions]);
 
   // Total system metrics
-  const totalSystemHeadcount = departments.reduce((s, d) => s + d.headcount, 0) + 3; // +3 BOD
+  const totalSystemHeadcount = activeDepartments.reduce((s, d) => s + d.headcount, 0) + (selectedBranch === 'ALL' || selectedBranch === 'Toàn Hệ Thống' ? 3 : 0);
+
+  // Get Branch Badge Style
+  const getBranchBadge = (branchName: string) => {
+    if (branchName.includes('Hoàn Kiếm')) return 'bg-purple-100 text-purple-800 border-purple-200';
+    if (branchName.includes('Quận 1')) return 'bg-blue-100 text-blue-800 border-blue-200';
+    if (branchName.includes('Đà Nẵng')) return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+    if (branchName.includes('Kho')) return 'bg-amber-100 text-amber-800 border-amber-200';
+    return 'bg-rose-100 text-rose-800 border-rose-200';
+  };
 
   // Render a Department Card with its positions
   const renderDepartmentCard = (dept: DepartmentItem, blockBadgeColor: string) => {
     const isDeptCollapsed = !!collapsedNodes[dept.id];
-    const deptPositions = getPositionsForDept(dept.name, dept.code);
+    const deptPositions = getPositionsForDept(dept.name, dept.code, dept.branch);
     const isDeptMatched =
       isMatchSearch(dept.name) || isMatchSearch(dept.code) || isMatchSearch(dept.manager);
 
@@ -252,15 +281,20 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
           className="flex items-start justify-between cursor-pointer select-none"
         >
           <div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[10px] font-mono font-bold text-slate-400">{dept.code}</span>
+              {selectedBranch === 'ALL' && (
+                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md border ${getBranchBadge(dept.branch)}`}>
+                  {dept.branch}
+                </span>
+              )}
               {isDeptMatched && (
                 <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800">
                   Khớp
                 </span>
               )}
             </div>
-            <h5 className="font-bold text-slate-900 text-xs leading-snug mt-0.5">{dept.name}</h5>
+            <h5 className="font-bold text-slate-900 text-xs leading-snug mt-1">{dept.name}</h5>
           </div>
           {deptPositions.length > 0 && (
             <button
@@ -301,7 +335,10 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
                       : 'bg-slate-50/90 border-slate-200/80 text-slate-700'
                   }`}
                 >
-                  <span className="font-semibold truncate pr-2">{pos.name}</span>
+                  <div className="flex items-center gap-1.5 truncate pr-2">
+                    <Briefcase className="w-3 h-3 text-slate-400 shrink-0" />
+                    <span className="font-semibold truncate">{pos.name}</span>
+                  </div>
                   <span className="font-mono font-bold text-slate-600 shrink-0 bg-white px-1.5 py-0.5 rounded border border-slate-200">
                     {pos.current}/{pos.quota}
                   </span>
@@ -370,17 +407,34 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
     );
   };
 
+  // Branch Info for current view
+  const currentBranchInfo = BRANCH_INFO[selectedBranch];
+
   return (
     <div className="space-y-4">
       {/* Chart Control Toolbar */}
       <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-        {/* Left: Search Bar & Info */}
+        {/* Left: Search Bar & Branch Selector */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="relative min-w-[240px]">
+          {/* Branch Filter Dropdown (Model 1 Core Feature) */}
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-[#dc0037] shrink-0" />
+            <select
+              value={selectedBranch}
+              onChange={e => setSelectedBranch(e.target.value)}
+              className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs font-bold text-slate-800 shadow-2xs focus:outline-hidden cursor-pointer"
+            >
+              {branchOptions.map(b => (
+                <option key={b.id} value={b.id}>{b.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative min-w-[220px]">
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
-              placeholder="Tìm node phòng ban, chức vụ, quản lý..."
+              placeholder="Tìm phòng ban, vị trí, chức vụ..."
               value={searchHighlight}
               onChange={e => setSearchHighlight(e.target.value)}
               className="w-full bg-slate-50 border border-slate-200/90 pl-9 pr-4 py-2 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:border-slate-400 focus:bg-white transition"
@@ -394,7 +448,7 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
           )}
 
           <span className="text-xs text-slate-400 hidden xl:inline">
-            • Tổng quy mô: <strong>{totalSystemHeadcount} nhân sự</strong>
+            • Quy mô: <strong>{totalSystemHeadcount} nhân sự</strong> ({activeDepartments.length} phòng)
           </span>
         </div>
 
@@ -505,88 +559,139 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
             }}
             className="flex flex-col items-center min-w-max mx-auto py-2"
           >
-            {/* ROOT NODE: BOD & HỘI ĐỒNG QUẢN TRỊ */}
-            <div className="flex flex-col items-center">
-              <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-800 text-white p-5 rounded-2xl shadow-xl border border-slate-700 w-84 text-center relative hover:scale-102 transition-transform select-none">
-                <span className="text-[10px] font-mono tracking-widest text-rose-300 font-bold uppercase">
-                  LEVEL 1 • TỐI CAO
-                </span>
-                <h3 className="font-black text-base mt-1">Ban Giám Đốc & Hội Đồng Quản Trị</h3>
-                <p className="text-xs text-slate-300 mt-1 font-medium">Tổng Giám Đốc (CEO) & C-Level</p>
-                <div className="mt-3 pt-2.5 border-t border-slate-700/80 flex justify-between text-[11px] text-slate-400">
-                  <span>
-                    Định biên: <strong>3 Nhân sự</strong>
+            {/* ROOT NODE */}
+            {selectedBranch === 'ALL' ? (
+              // Macro Root Node: BOD Toàn Hệ Thống
+              <div className="flex flex-col items-center">
+                <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-800 text-white p-5 rounded-2xl shadow-xl border border-slate-700 w-88 text-center relative hover:scale-102 transition-transform select-none">
+                  <span className="text-[10px] font-mono tracking-widest text-rose-300 font-bold uppercase">
+                    LEVEL 1 • TỐI CAO TOÀN CHUỖI
                   </span>
-                  <span className="text-emerald-400 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" /> 100% Lấp đầy
-                  </span>
-                </div>
-              </div>
-
-              {/* Vertical Trunk coming down from BOD */}
-              <div className="w-0.5 h-8 bg-slate-300" />
-            </div>
-
-            {/* LEVEL 1: KHỐI CHỨC NĂNG (6 COLUMNS WITH PERFECT CONTINUOUS BUS CONNECTOR) */}
-            <div className="flex justify-center items-start pt-0 min-w-max mx-auto">
-              {blocks.map((block, idx) => {
-                const isFirst = idx === 0;
-                const isLast = idx === blocks.length - 1;
-                const depts = departments.filter(d => d.level === block.levelKey);
-
-                return (
-                  <div key={block.id} className="flex flex-col items-center relative px-3 w-68 sm:w-72">
-                    {/* Continuous Branch Lines:
-                        Left half: touches previous column's right edge.
-                        Right half: touches next column's left edge.
-                        Vertical drop: connects straight to the block card.
-                    */}
-                    <div className="w-full h-8 relative pointer-events-none">
-                      {!isFirst && (
-                        <div className="absolute top-0 left-0 right-1/2 h-0.5 bg-slate-300" />
-                      )}
-                      {!isLast && (
-                        <div className="absolute top-0 left-1/2 right-0 h-0.5 bg-slate-300" />
-                      )}
-                      {/* Vertical Drop Line */}
-                      <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0.5 bg-slate-300" />
-                      {/* Junction Dot */}
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-slate-400 ring-2 ring-white" />
-                    </div>
-
-                    {/* Block Card & Children */}
-                    {renderBlockCard(block, depts)}
+                  <h3 className="font-black text-base mt-1">Ban Giám Đốc & Hội Đồng Quản Trị</h3>
+                  <p className="text-xs text-slate-300 mt-1 font-medium">Tổng Giám Đốc (CEO) & C-Level Toàn Hệ Thống</p>
+                  <div className="mt-3 pt-2.5 border-t border-slate-700/80 flex justify-between text-[11px] text-slate-400">
+                    <span>
+                      Quy mô chuỗi: <strong>{departments.length} Phòng Ban</strong>
+                    </span>
+                    <span className="text-emerald-400 font-bold flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> {totalSystemHeadcount} Nhân sự
+                    </span>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+
+                {/* Vertical Trunk coming down from BOD */}
+                <div className="w-0.5 h-8 bg-slate-300" />
+              </div>
+            ) : (
+              // Specific Branch Root Node (Model 1 Core)
+              <div className="flex flex-col items-center">
+                <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-xl border border-slate-700 w-92 text-center relative hover:scale-102 transition-transform select-none">
+                  <span className="text-[10px] font-mono tracking-widest text-emerald-300 font-bold uppercase">
+                    {currentBranchInfo?.levelBadge || 'CƠ SỞ ĐỘC LẬP'}
+                  </span>
+                  <h3 className="font-black text-base mt-1">
+                    {currentBranchInfo?.title || selectedBranch}
+                  </h3>
+                  <p className="text-xs text-slate-300 mt-1 font-medium">
+                    {currentBranchInfo?.manager}
+                  </p>
+                  <div className="mt-3 pt-2.5 border-t border-slate-700/80 flex justify-between text-[11px] text-slate-400">
+                    <span>{currentBranchInfo?.quota}</span>
+                    <span className="text-emerald-400 font-bold">Vận Hành Độc Lập</span>
+                  </div>
+                </div>
+
+                <div className="w-0.5 h-8 bg-slate-300" />
+              </div>
+            )}
+
+            {/* LEVEL 1: COLUMNS WITH MATHEMATICAL BUS CONNECTOR */}
+            {selectedBranch === 'ALL' ? (
+              // Macro View: 6 Functional Blocks
+              <div className="flex justify-center items-start pt-0 min-w-max mx-auto">
+                {blocks.map((block, idx) => {
+                  const isFirst = idx === 0;
+                  const isLast = idx === blocks.length - 1;
+                  const depts = activeDepartments.filter(d => d.level === block.levelKey);
+
+                  return (
+                    <div key={block.id} className="flex flex-col items-center relative px-3 w-68 sm:w-72">
+                      <div className="w-full h-8 relative pointer-events-none">
+                        {!isFirst && (
+                          <div className="absolute top-0 left-0 right-1/2 h-0.5 bg-slate-300" />
+                        )}
+                        {!isLast && (
+                          <div className="absolute top-0 left-1/2 right-0 h-0.5 bg-slate-300" />
+                        )}
+                        <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0.5 bg-slate-300" />
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-slate-400 ring-2 ring-white" />
+                      </div>
+
+                      {renderBlockCard(block, depts)}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              // Specific Branch View (Model 1): Departments of this branch directly as columns
+              <div className="flex justify-center items-start pt-0 min-w-max mx-auto">
+                {activeDepartments.map((dept, idx) => {
+                  const isFirst = idx === 0;
+                  const isLast = idx === activeDepartments.length - 1;
+                  const deptPositions = getPositionsForDept(dept.name, dept.code, dept.branch);
+
+                  return (
+                    <div key={dept.id} className="flex flex-col items-center relative px-3 w-72 sm:w-80">
+                      <div className="w-full h-8 relative pointer-events-none">
+                        {!isFirst && (
+                          <div className="absolute top-0 left-0 right-1/2 h-0.5 bg-slate-300" />
+                        )}
+                        {!isLast && (
+                          <div className="absolute top-0 left-1/2 right-0 h-0.5 bg-slate-300" />
+                        )}
+                        <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0.5 bg-slate-300" />
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-slate-400 ring-2 ring-white" />
+                      </div>
+
+                      {/* Department Card */}
+                      <div className="w-full">
+                        {renderDepartmentCard(dept, '#0ea5e9')}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* VIEW MODE 2: PHÂN CẤP 2 TẦNG (2-TIER CLUSTERED GRID WITH EXPLICIT BACKBONE) */}
+      {/* VIEW MODE 2: PHÂN CẤP 2 TẦNG (2-TIER CLUSTERED GRID) */}
       {viewMode === 'grid2' && (
         <div className="bg-[#faf9f6] border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs overflow-x-auto w-full">
           <div className="max-w-5xl mx-auto flex flex-col items-center">
-            {/* ROOT NODE: BOD */}
+            {/* ROOT NODE */}
             <div className="flex flex-col items-center">
-              <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-lg border border-slate-700 w-80 text-center relative select-none">
+              <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-lg border border-slate-700 w-84 text-center relative select-none">
                 <span className="text-[10px] font-mono tracking-widest text-rose-300 font-bold uppercase">
-                  LEVEL 1 • TỐI CAO
+                  {selectedBranch === 'ALL' ? 'LEVEL 1 • TỐI CAO TOÀN CHUỖI' : (currentBranchInfo?.levelBadge || 'CƠ SỞ')}
                 </span>
-                <h3 className="font-black text-base mt-1">Ban Giám Đốc & Hội Đồng Quản Trị</h3>
-                <p className="text-xs text-slate-300 mt-1 font-medium">Tổng Giám Đốc (CEO) & C-Level</p>
+                <h3 className="font-black text-base mt-1">
+                  {selectedBranch === 'ALL' ? 'Ban Giám Đốc & Hội Đồng Quản Trị' : currentBranchInfo?.title}
+                </h3>
+                <p className="text-xs text-slate-300 mt-1 font-medium">
+                  {selectedBranch === 'ALL' ? 'Tổng Giám Đốc (CEO) & C-Level' : currentBranchInfo?.manager}
+                </p>
                 <div className="mt-3 pt-2.5 border-t border-slate-700/80 flex justify-between text-[11px] text-slate-400">
-                  <span>Định biên: <strong>3 Nhân sự</strong></span>
-                  <span className="text-emerald-400 font-bold">100% Lấp đầy</span>
+                  <span>Quy mô: <strong>{activeDepartments.length} Phòng Ban</strong></span>
+                  <span className="text-emerald-400 font-bold">{totalSystemHeadcount} Nhân sự</span>
                 </div>
               </div>
 
-              {/* Vertical Trunk to Tier 1 */}
               <div className="w-0.5 h-8 bg-slate-300" />
             </div>
 
-            {/* TIER 1: CORE BLOCKS (QUẢN TRỊ, CHUYÊN MÔN, VẬN HÀNH SPA) */}
+            {/* TIER 1: CORE BLOCKS */}
             <div className="w-full">
               <div className="text-center mb-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">
@@ -594,12 +699,11 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
                 </span>
               </div>
 
-              {/* Tier 1 Columns with Continuous Connectors */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-0">
                 {blocks.slice(0, 3).map((block, idx) => {
                   const isFirst = idx === 0;
                   const isLast = idx === 2;
-                  const depts = departments.filter(d => d.level === block.levelKey);
+                  const depts = activeDepartments.filter(d => d.level === block.levelKey);
 
                   return (
                     <div key={block.id} className="flex flex-col items-center relative">
@@ -630,7 +734,7 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
               <div className="w-0.5 h-8 bg-slate-300" />
             </div>
 
-            {/* TIER 2: SUPPORT BLOCKS (CRM, TÀI CHÍNH POS, HẬU CẦN KHO) */}
+            {/* TIER 2: SUPPORT BLOCKS */}
             <div className="w-full">
               <div className="text-center mb-1">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">
@@ -638,12 +742,11 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
                 </span>
               </div>
 
-              {/* Tier 2 Columns with Continuous Connectors */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-0">
                 {blocks.slice(3, 6).map((block, idx) => {
                   const isFirst = idx === 0;
                   const isLast = idx === 2;
-                  const depts = departments.filter(d => d.level === block.levelKey);
+                  const depts = activeDepartments.filter(d => d.level === block.levelKey);
 
                   return (
                     <div key={block.id} className="flex flex-col items-center relative">
@@ -679,31 +782,33 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
               </div>
               <div>
                 <span className="text-[10px] font-mono text-rose-300 font-bold uppercase">
-                  Cấp Lãnh Đạo Tối Cao
+                  {selectedBranch === 'ALL' ? 'Cấp Lãnh Đạo Tối Cao Toàn Chuỗi' : currentBranchInfo?.levelBadge}
                 </span>
-                <h4 className="font-bold text-sm">Ban Giám Đốc & Hội Đồng Quản Trị (BOD)</h4>
+                <h4 className="font-bold text-sm">
+                  {selectedBranch === 'ALL' ? 'Ban Giám Đốc & Hội Đồng Quản Trị (BOD)' : currentBranchInfo?.title}
+                </h4>
               </div>
             </div>
             <div className="text-right text-xs">
-              <span className="text-emerald-400 font-bold">3 Nhân sự</span>
-              <span className="text-slate-400 block text-[11px]">Định biên 100%</span>
+              <span className="text-emerald-400 font-bold">{totalSystemHeadcount} Nhân sự</span>
+              <span className="text-slate-400 block text-[11px]">{activeDepartments.length} Phòng Ban</span>
             </div>
           </div>
 
           {/* Directory Hierarchy Branches */}
           <div className="space-y-4 border-l-2 border-slate-300 ml-4 pl-4 sm:pl-6">
             {blocks.map(block => {
-              const depts = departments.filter(d => d.level === block.levelKey);
+              const depts = activeDepartments.filter(d => d.level === block.levelKey);
+              if (depts.length === 0) return null;
+
               const isBlockCollapsed = !!collapsedNodes[block.id];
               const BlockIcon = block.icon;
               const blockHeadcount = depts.reduce((s, d) => s + d.headcount, 0);
 
               return (
                 <div key={block.id} className="relative space-y-2">
-                  {/* Branch Horizontal Arm */}
                   <div className="absolute -left-4 sm:-left-6 top-5 w-4 sm:w-6 h-0.5 bg-slate-300" />
 
-                  {/* Block Node Item */}
                   <div
                     onClick={() => toggleNode(block.id)}
                     className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer hover:shadow-xs transition select-none ${
@@ -739,7 +844,7 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
                     <div className="space-y-2 border-l-2 border-slate-200 ml-5 pl-4 sm:pl-6 pt-1">
                       {depts.map(dept => {
                         const isDeptCollapsed = !!collapsedNodes[dept.id];
-                        const deptPositions = getPositionsForDept(dept.name, dept.code);
+                        const deptPositions = getPositionsForDept(dept.name, dept.code, dept.branch);
 
                         return (
                           <div key={dept.id} className="relative space-y-1.5">
@@ -749,9 +854,12 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
                               onClick={() => toggleNode(dept.id)}
                               className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white hover:border-slate-300 cursor-pointer transition select-none"
                             >
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
                                   {dept.code}
+                                </span>
+                                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md border ${getBranchBadge(dept.branch)}`}>
+                                  {dept.branch}
                                 </span>
                                 <span className="font-bold text-xs text-slate-800">{dept.name}</span>
                               </div>

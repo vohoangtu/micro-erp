@@ -8,6 +8,7 @@ export interface JobPositionItem {
   code: string;
   name: string;
   dept: string;
+  branch?: string;
   quota: number;
   current: number;
   salaryRange: string;
@@ -32,22 +33,45 @@ export function JobPositionManager({
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'VACANT' | 'FULL'>('ALL');
   const [selectedDept, setSelectedDept] = useState('ALL');
+  const [selectedBranch, setSelectedBranch] = useState('ALL');
 
-  const departments = ['ALL', 'Khối Bác Sĩ & Điều Trị', 'Khối Kỹ Thuật Viên Spa', 'Phòng Tư Vấn CSKH', 'Phòng Kế Toán POS', 'Kho Dược Mỹ Phẩm'];
+  const branches = [
+    'ALL',
+    'Toàn Hệ Thống',
+    'Cơ sở Hoàn Kiếm',
+    'Chi Nhánh Quận 1',
+    'Chi Nhánh Đà Nẵng',
+    'Kho Tổng Hà Nội'
+  ];
+
+  const departments = [
+    'ALL',
+    'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Hoàn Kiếm)',
+    'Khối Kỹ Thuật Viên & Trị Liệu Spa (Hoàn Kiếm)',
+    'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Hoàn Kiếm)',
+    'Phòng Kế Toán — Quầy Thu Ngân POS (Hoàn Kiếm)',
+    'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Quận 1)',
+    'Khối Kỹ Thuật Viên & Trị Liệu Spa (Quận 1)',
+    'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Quận 1)',
+    'Khối Kinh Doanh & Tiếp Thị Toàn Chuỗi (HQ)',
+    'Phòng Kho Dược Mỹ Phẩm & Thiết Bị Y Tế'
+  ];
 
   const filteredPositions = jobPositions.filter(p => {
     const isFull = p.current >= p.quota;
     const matchSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.dept.toLowerCase().includes(searchQuery.toLowerCase());
+      p.dept.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.branch && p.branch.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchStatus =
       filterStatus === 'ALL' ||
       (filterStatus === 'VACANT' && !isFull) ||
       (filterStatus === 'FULL' && isFull);
     const matchDept = selectedDept === 'ALL' || p.dept === selectedDept;
+    const matchBranch = selectedBranch === 'ALL' || p.branch === selectedBranch;
 
-    return matchSearch && matchStatus && matchDept;
+    return matchSearch && matchStatus && matchDept && matchBranch;
   });
 
   return (
@@ -65,6 +89,17 @@ export function JobPositionManager({
               className="w-full bg-white border border-slate-200/90 pl-9 pr-4 py-2.5 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-[#dc0037]/20 shadow-2xs transition"
             />
           </div>
+
+          <select
+            value={selectedBranch}
+            onChange={e => setSelectedBranch(e.target.value)}
+            className="bg-white border border-slate-200/90 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-800 shadow-2xs focus:outline-hidden"
+          >
+            <option value="ALL">Mọi Cơ Sở / Chi Nhánh</option>
+            {branches.filter(b => b !== 'ALL').map(b => (
+              <option key={b} value={b}>{b}</option>
+            ))}
+          </select>
 
           <select
             value={filterStatus}
@@ -106,6 +141,7 @@ export function JobPositionManager({
               <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
                 <th className="py-3 px-4">Mã Vị Trí</th>
                 <th className="py-3 px-4">Tên Vị Trí Công Việc</th>
+                <th className="py-3 px-4">Cơ Sở / Chi Nhánh</th>
                 <th className="py-3 px-4">Thuộc Khoa / Phòng</th>
                 <th className="py-3 px-4">Định Biên (Thực Tế / Tiêu Chuẩn)</th>
                 <th className="py-3 px-4">Dải Lương Khung</th>
@@ -123,6 +159,11 @@ export function JobPositionManager({
                   <tr key={pos.id} className="hover:bg-slate-50/60 transition">
                     <td className="py-3.5 px-4 font-mono font-bold text-slate-700">{pos.code}</td>
                     <td className="py-3.5 px-4 font-bold text-slate-900">{pos.name}</td>
+                    <td className="py-3.5 px-4">
+                      <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                        {pos.branch || 'Toàn Hệ Thống'}
+                      </span>
+                    </td>
                     <td className="py-3.5 px-4 text-slate-600">{pos.dept}</td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">

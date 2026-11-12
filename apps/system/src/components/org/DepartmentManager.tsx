@@ -49,7 +49,7 @@ export function DepartmentManager({
   const [selectedLevel, setSelectedLevel] = useState('ALL');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
-  const branches = ['ALL', 'Toàn Hệ Thống', 'Cơ sở Hoàn Kiếm', 'Kho Tổng Hà Nội', 'Chi Nhánh Quận 1'];
+  const branches = ['ALL', 'Toàn Hệ Thống', 'Cơ sở Hoàn Kiếm', 'Chi Nhánh Quận 1', 'Chi Nhánh Đà Nẵng', 'Kho Tổng Hà Nội'];
   const levels = ['ALL', 'Khối Quản Trị', 'Khối Chuyên Môn', 'Khối Vận Hành', 'Khối Kinh Doanh', 'Khối Tài Chính', 'Khối Hậu Cần'];
 
   const filteredDepts = departments.filter(d => {
@@ -83,12 +83,12 @@ export function DepartmentManager({
           <select
             value={selectedBranch}
             onChange={e => setSelectedBranch(e.target.value)}
-            className="bg-white border border-slate-200/90 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-700 shadow-2xs focus:outline-hidden"
+            className="bg-white border border-slate-200/90 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-800 shadow-2xs focus:outline-hidden"
           >
             <option value="ALL">Mọi Cơ Sở / Chi Nhánh</option>
-            <option value="Toàn Hệ Thống">Toàn Hệ Thống</option>
-            <option value="Cơ sở Hoàn Kiếm">Cơ sở Hoàn Kiếm</option>
-            <option value="Kho Tổng Hà Nội">Kho Tổng Hà Nội</option>
+            {branches.filter(b => b !== 'ALL').map(b => (
+              <option key={b} value={b}>{b}</option>
+            ))}
           </select>
 
           {/* Level Filter */}

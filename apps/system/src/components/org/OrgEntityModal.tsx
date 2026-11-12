@@ -66,6 +66,7 @@ export function OrgEntityModal({
         setFormData({
           code: `POS-${Date.now().toString(36).slice(-3).toUpperCase()}`,
           name: '',
+          branch: branches[0]?.name || 'Cơ sở Hoàn Kiếm',
           dept: departments[0]?.name || 'Khối Bác Sĩ & Điều Trị',
           quota: 2,
           current: 0,
@@ -309,17 +310,34 @@ export function OrgEntityModal({
 
           {type === 'position' && (
             <>
-              <div>
-                <label className="text-[11px] font-bold text-slate-700 block mb-1">Thuộc Phòng Ban / Khối</label>
-                <select
-                  value={formData.dept || ''}
-                  onChange={e => setFormData({ ...formData, dept: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden"
-                >
-                  {departments.map(d => (
-                    <option key={d.id} value={d.name}>{d.name}</option>
-                  ))}
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Cơ Sở / Chi Nhánh Áp Dụng</label>
+                  <select
+                    value={formData.branch || 'Toàn Hệ Thống'}
+                    onChange={e => setFormData({ ...formData, branch: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden"
+                  >
+                    <option value="Toàn Hệ Thống">Toàn Hệ Thống (HQ)</option>
+                    <option value="Cơ sở Hoàn Kiếm">Cơ sở Hoàn Kiếm (HN)</option>
+                    <option value="Chi Nhánh Quận 1">Chi Nhánh Quận 1 (TP. HCM)</option>
+                    <option value="Chi Nhánh Đà Nẵng">Chi Nhánh Đà Nẵng</option>
+                    <option value="Kho Tổng Hà Nội">Kho Tổng Hà Nội</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Thuộc Phòng Ban / Khối</label>
+                  <select
+                    value={formData.dept || ''}
+                    onChange={e => setFormData({ ...formData, dept: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden"
+                  >
+                    {departments.map(d => (
+                      <option key={d.id} value={d.name}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

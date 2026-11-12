@@ -73,6 +73,7 @@ const INITIAL_BRANCHES = [
 ];
 
 const INITIAL_DEPARTMENTS = [
+  // 1. Trụ Sở & Điều Hành Toàn Hệ Thống (HQ)
   {
     id: 'd-1',
     code: 'DEPT-BOD',
@@ -84,55 +85,142 @@ const INITIAL_DEPARTMENTS = [
   },
   {
     id: 'd-2',
-    code: 'DEPT-CLINIC',
-    name: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu',
-    manager: 'BS. CKI Nguyễn Tuấn Anh',
-    branch: 'Cơ sở Hoàn Kiếm',
-    headcount: 6,
-    level: 'Khối Chuyên Môn'
-  },
-  {
-    id: 'd-3',
-    code: 'DEPT-SPA-THERAPY',
-    name: 'Khối Kỹ Thuật Viên & Trị Liệu Spa',
-    manager: 'Hoàng Mai Phương',
-    branch: 'Cơ sở Hoàn Kiếm',
-    headcount: 12,
-    level: 'Khối Vận Hành'
-  },
-  {
-    id: 'd-4',
-    code: 'DEPT-SALES-CSKH',
-    name: 'Phòng Tư Vấn Thẩm Mỹ & Chăm Sóc Khách Hàng (CRM)',
-    manager: 'Lê Thu Thảo',
+    code: 'DEPT-HQ-SALES',
+    name: 'Khối Kinh Doanh & Tiếp Thị Toàn Chuỗi (HQ)',
+    manager: 'Lê Thu Thảo (CCO)',
     branch: 'Toàn Hệ Thống',
-    headcount: 8,
+    headcount: 4,
     level: 'Khối Kinh Doanh'
   },
   {
-    id: 'd-5',
-    code: 'DEPT-FINANCE-POS',
-    name: 'Phòng Kế Toán — Thu Ngân POS',
-    manager: 'Nguyễn Thị Minh Hạnh',
-    branch: 'Toàn Hệ Thống',
-    headcount: 5,
-    level: 'Khối Tài Chính'
-  },
-  {
-    id: 'd-6',
+    id: 'd-3',
     code: 'DEPT-WAREHOUSE',
     name: 'Phòng Kho Dược Mỹ Phẩm & Thiết Bị Y Tế',
     manager: 'Trịnh Quốc Bảo',
     branch: 'Kho Tổng Hà Nội',
     headcount: 4,
     level: 'Khối Hậu Cần'
+  },
+
+  // 2. Chi Nhánh Trụ Sở Hoàn Kiếm (Hà Nội - Cơ sở 1)
+  {
+    id: 'd-4',
+    code: 'DEPT-HN-CLINIC',
+    name: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Hoàn Kiếm)',
+    manager: 'BS. CKI Nguyễn Tuấn Anh',
+    branch: 'Cơ sở Hoàn Kiếm',
+    headcount: 6,
+    level: 'Khối Chuyên Môn'
+  },
+  {
+    id: 'd-5',
+    code: 'DEPT-HN-SPA',
+    name: 'Khối Kỹ Thuật Viên & Trị Liệu Spa (Hoàn Kiếm)',
+    manager: 'Hoàng Mai Phương',
+    branch: 'Cơ sở Hoàn Kiếm',
+    headcount: 12,
+    level: 'Khối Vận Hành'
+  },
+  {
+    id: 'd-6',
+    code: 'DEPT-HN-SALES',
+    name: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Hoàn Kiếm)',
+    manager: 'Trần Hương Giang',
+    branch: 'Cơ sở Hoàn Kiếm',
+    headcount: 8,
+    level: 'Khối Kinh Doanh'
+  },
+  {
+    id: 'd-7',
+    code: 'DEPT-HN-FINANCE',
+    name: 'Phòng Kế Toán — Quầy Thu Ngân POS (Hoàn Kiếm)',
+    manager: 'Nguyễn Thị Minh Hạnh',
+    branch: 'Cơ sở Hoàn Kiếm',
+    headcount: 4,
+    level: 'Khối Tài Chính'
+  },
+
+  // 3. Chi Nhánh Quận 1 (TP. HCM - Cơ sở 2)
+  {
+    id: 'd-8',
+    code: 'DEPT-HCM-CLINIC',
+    name: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Quận 1)',
+    manager: 'BS. CKI Phan Thanh Hùng',
+    branch: 'Chi Nhánh Quận 1',
+    headcount: 5,
+    level: 'Khối Chuyên Môn'
+  },
+  {
+    id: 'd-9',
+    code: 'DEPT-HCM-SPA',
+    name: 'Khối Kỹ Thuật Viên & Trị Liệu Spa (Quận 1)',
+    manager: 'Trần Mỹ Duyên',
+    branch: 'Chi Nhánh Quận 1',
+    headcount: 8,
+    level: 'Khối Vận Hành'
+  },
+  {
+    id: 'd-10',
+    code: 'DEPT-HCM-SALES',
+    name: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Quận 1)',
+    manager: 'Võ Minh Quân',
+    branch: 'Chi Nhánh Quận 1',
+    headcount: 6,
+    level: 'Khối Kinh Doanh'
+  },
+  {
+    id: 'd-11',
+    code: 'DEPT-HCM-FINANCE',
+    name: 'Phòng Kế Toán — Quầy Thu Ngân POS (Quận 1)',
+    manager: 'Vũ Thị Ngọc Ánh',
+    branch: 'Chi Nhánh Quận 1',
+    headcount: 3,
+    level: 'Khối Tài Chính'
+  },
+
+  // 4. Chi Nhánh Hải Châu (Đà Nẵng - Cơ sở 3)
+  {
+    id: 'd-12',
+    code: 'DEPT-DN-CLINIC',
+    name: 'Khối Bác Sĩ & Trị Liệu Da (Đà Nẵng)',
+    manager: 'BS. Lê Minh Trí',
+    branch: 'Chi Nhánh Đà Nẵng',
+    headcount: 3,
+    level: 'Khối Chuyên Môn'
+  },
+  {
+    id: 'd-13',
+    code: 'DEPT-DN-SPA',
+    name: 'Khối Kỹ Thuật Viên Spa (Đà Nẵng)',
+    manager: 'Nguyễn Bích Loan',
+    branch: 'Chi Nhánh Đà Nẵng',
+    headcount: 5,
+    level: 'Khối Vận Hành'
+  },
+  {
+    id: 'd-14',
+    code: 'DEPT-DN-SALES',
+    name: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Đà Nẵng)',
+    manager: 'Đặng Thảo Vy',
+    branch: 'Chi Nhánh Đà Nẵng',
+    headcount: 4,
+    level: 'Khối Kinh Doanh'
+  },
+  {
+    id: 'd-15',
+    code: 'DEPT-DN-FINANCE',
+    name: 'Quầy Thu Ngân POS & Kế Toán (Đà Nẵng)',
+    manager: 'Phạm Thu Trang',
+    branch: 'Chi Nhánh Đà Nẵng',
+    headcount: 2,
+    level: 'Khối Tài Chính'
   }
 ];
 
 const INITIAL_JOB_POSTS = [
   { id: 'p-1', code: 'POST-BOD', name: 'Tổng Giám Đốc (CEO / C-Level)', level: 1, allowance: '20.000.000 đ', desc: 'Lãnh đạo chiến lược tối cao và phân quyền' },
   { id: 'p-2', code: 'POST-BRANCH-DIR', name: 'Giám Đốc Chi Nhánh / Quản Lý Cơ Sở', level: 2, allowance: '10.000.000 đ', desc: 'Chịu trách nhiệm toàn diện doanh số và vận hành cơ sở' },
-  { id: 'p-3', code: 'POST-DEPT-HEAD', name: 'Trưởng Phòng Chuyên Môn', level: 3, allowance: '5.000.000 đ', desc: 'Phụ trách chuyên môn phòng ban và phân ca' },
+  { id: 'p-3', code: 'POST-DEPT-HEAD', name: 'Trưởng Phòng Chuyên Môn Cơ Sở', level: 3, allowance: '5.000.000 đ', desc: 'Phụ trách chuyên môn phòng ban và phân ca' },
   { id: 'p-4', code: 'POST-TEAM-LEAD', name: 'Phó Phòng / Trưởng Nhóm (Team Leader / Shift Leader)', level: 4, allowance: '2.500.000 đ', desc: 'Giám sát trực tiếp ca trị liệu và hỗ trợ giải quyết sự cố' },
   { id: 'p-5', code: 'POST-STAFF', name: 'Chuyên Viên / Nhân Viên Thực Thi', level: 5, allowance: '0 đ', desc: 'Nhân sự thực thi ca dịch vụ hoặc nghiệp vụ' }
 ];
@@ -145,11 +233,26 @@ const INITIAL_JOB_TITLES = [
   { id: 't-5', code: 'TITLE-LEAD-CASHIER', name: 'Thu Ngân Trưởng & Kế Toán Quầy POS', field: 'Tài Chính & Kế Toán', cert: 'Bằng Kế toán, nghiệp vụ VietQR NAPAS 247' }
 ];
 
-const INITIAL_JOB_POSITIONS = [
-  { id: 'pos-1', code: 'POS-DOC-LEAD', name: 'Bác Sĩ Trưởng Ca Trị Liệu Da Liễu', dept: 'Khối Bác Sĩ & Điều Trị', quota: 2, current: 2, salaryRange: '30M - 60M đ' },
-  { id: 'pos-2', code: 'POS-LASER-SPEC', name: 'Chuyên Viên Vận Hành Laser Pico & HIFU', dept: 'Khối Kỹ Thuật Viên Spa', quota: 6, current: 4, salaryRange: '15M - 25M đ' },
-  { id: 'pos-3', code: 'POS-CONSULTANT', name: 'Chuyên Viên Tư Vấn & Chăm Sóc Hội Viên Ruby', dept: 'Phòng Tư Vấn CSKH', quota: 8, current: 6, salaryRange: '10M - 35M đ' },
-  { id: 'pos-4', code: 'POS-CASHIER-MAIN', name: 'Thu Ngân Quầy POS Trưởng Ca Sáng', dept: 'Phòng Kế Toán POS', quota: 4, current: 3, salaryRange: '8M - 14M đ' }
+const INITIAL_JOB_POSITIONS: JobPositionItem[] = [
+  // Cơ sở Hoàn Kiếm
+  { id: 'pos-1', code: 'POS-DOC-HN', name: 'Bác Sĩ Trưởng Ca Trị Liệu Da Liễu', dept: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Hoàn Kiếm)', branch: 'Cơ sở Hoàn Kiếm', quota: 2, current: 2, salaryRange: '30M - 60M đ' },
+  { id: 'pos-2', code: 'POS-LASER-HN', name: 'Chuyên Viên Vận Hành Laser Pico & HIFU', dept: 'Khối Kỹ Thuật Viên & Trị Liệu Spa (Hoàn Kiếm)', branch: 'Cơ sở Hoàn Kiếm', quota: 6, current: 4, salaryRange: '15M - 25M đ' },
+  { id: 'pos-3', code: 'POS-SALE-HN', name: 'Chuyên Viên Tư Vấn & Chăm Sóc Hội Viên Ruby', dept: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Hoàn Kiếm)', branch: 'Cơ sở Hoàn Kiếm', quota: 8, current: 6, salaryRange: '10M - 35M đ' },
+  { id: 'pos-4', code: 'POS-CASH-HN', name: 'Thu Ngân Quầy POS Trưởng Ca Sáng', dept: 'Phòng Kế Toán — Quầy Thu Ngân POS (Hoàn Kiếm)', branch: 'Cơ sở Hoàn Kiếm', quota: 4, current: 3, salaryRange: '8M - 14M đ' },
+
+  // Chi Nhánh Quận 1 (TP. HCM)
+  { id: 'pos-5', code: 'POS-DOC-HCM', name: 'Bác Sĩ Da Liễu Chuyên Trách HCM', dept: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Quận 1)', branch: 'Chi Nhánh Quận 1', quota: 3, current: 2, salaryRange: '35M - 65M đ' },
+  { id: 'pos-6', code: 'POS-SALE-HCM', name: 'Chuyên Viên Tư Vấn Thẩm Mỹ VIP HCM', dept: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Quận 1)', branch: 'Chi Nhánh Quận 1', quota: 6, current: 5, salaryRange: '12M - 40M đ' },
+  { id: 'pos-7', code: 'POS-SPA-HCM', name: 'Kỹ Thuật Viên Spa & Chăm Sóc Da HCM', dept: 'Khối Kỹ Thuật Viên & Trị Liệu Spa (Quận 1)', branch: 'Chi Nhánh Quận 1', quota: 8, current: 6, salaryRange: '12M - 22M đ' },
+  { id: 'pos-8', code: 'POS-CASH-HCM', name: 'Thu Ngân & Kế Toán Quầy POS HCM', dept: 'Phòng Kế Toán — Quầy Thu Ngân POS (Quận 1)', branch: 'Chi Nhánh Quận 1', quota: 3, current: 2, salaryRange: '9M - 15M đ' },
+
+  // Chi Nhánh Hải Châu (Đà Nẵng)
+  { id: 'pos-9', code: 'POS-SALE-DN', name: 'Chuyên Viên Tư Vấn & Bán Dịch Vụ Đà Nẵng', dept: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Đà Nẵng)', branch: 'Chi Nhánh Đà Nẵng', quota: 4, current: 3, salaryRange: '9M - 28M đ' },
+  { id: 'pos-10', code: 'POS-SPA-DN', name: 'Kỹ Thuật Viên Trị Liệu Spa Đà Nẵng', dept: 'Khối Kỹ Thuật Viên Spa (Đà Nẵng)', branch: 'Chi Nhánh Đà Nẵng', quota: 5, current: 4, salaryRange: '10M - 18M đ' },
+
+  // Trụ Sở Toàn Hệ Thống (HQ)
+  { id: 'pos-11', code: 'POS-LEAD-MKT', name: 'Trưởng Nhóm Tiếp Thị & Telesales Toàn Chuỗi', dept: 'Khối Kinh Doanh & Tiếp Thị Toàn Chuỗi (HQ)', branch: 'Toàn Hệ Thống', quota: 2, current: 2, salaryRange: '25M - 45M đ' },
+  { id: 'pos-12', code: 'POS-WAREHOUSE-MGR', name: 'Quản Lý Kho Dược & Vật Tư Y Tế Tổng', dept: 'Phòng Kho Dược Mỹ Phẩm & Thiết Bị Y Tế', branch: 'Kho Tổng Hà Nội', quota: 3, current: 3, salaryRange: '12M - 20M đ' }
 ];
 
 const INITIAL_EMPLOYMENT_TYPES = [
