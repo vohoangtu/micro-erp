@@ -380,7 +380,7 @@ export default function SystemControlTowerPage() {
   const { parent: breadcrumbParent, current: currentTitle } = getPageTitleAndBreadcrumb();
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] text-slate-800 flex flex-col antialiased w-full overflow-x-hidden">
+    <div className="h-screen w-full flex flex-col overflow-hidden bg-[#faf8f5] text-slate-800 antialiased">
       {/* Topbar chung: Chuyển đổi giữa các phân hệ ERP qua 9-dots App Switcher & Home Launcher */}
       <UniversalTopbar
         currentZoneName="Hệ Thống & Tháp Điều Khiển (Zone 8)"
@@ -397,7 +397,7 @@ export default function SystemControlTowerPage() {
       )}
 
       {/* Main SaaS Layout: Left Sidebar + Right Content Area */}
-      <div className="flex flex-1 w-full relative">
+      <div className="flex flex-1 min-h-0 w-full overflow-hidden">
         {/* Left Sidebar Điều Hướng Phân Hệ Chuẩn SaaS */}
         <Sidebar
           appName="Hệ Thống & Tháp Điều Khiển"
@@ -413,8 +413,8 @@ export default function SystemControlTowerPage() {
         />
 
         {/* Right Content Area: Giao diện SaaS nghiệp vụ chi tiết */}
-        <main className="flex-1 min-w-0 p-6 md:p-8 overflow-y-auto w-full">
-          <div className="max-w-7xl mx-auto w-full space-y-6">
+        <main className="flex-1 min-w-0 h-full overflow-y-auto p-6 md:p-8">
+          <div className="max-w-7xl mx-auto w-full space-y-6 pb-12">
             {/* Breadcrumb & Section Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>

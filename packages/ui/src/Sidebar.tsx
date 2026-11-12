@@ -77,7 +77,7 @@ export function Sidebar({
   };
 
   const renderNavItems = () => (
-    <nav className="space-y-1 px-3 py-3 flex-1 overflow-y-auto">
+    <nav className="space-y-1 px-3 py-3 flex-1 min-h-0 overflow-y-auto">
       <div className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
         {!isCollapsed ? 'Phân Hệ Nghiệp Vụ' : '•'}
       </div>
@@ -287,12 +287,12 @@ export function Sidebar({
 
       {/* Desktop Persistent Sidebar */}
       <aside
-        className={`hidden md:flex flex-col justify-between bg-white border-r border-slate-200/90 h-[calc(100vh-3.5rem)] sticky top-14 shrink-0 transition-all duration-200 select-none ${
+        className={`hidden md:flex flex-col justify-between bg-white border-r border-slate-200/90 h-full max-h-full md:h-[calc(100vh-3.5rem)] sticky top-14 shrink-0 transition-all duration-200 select-none ${
           isCollapsed ? 'w-16' : 'w-64'
         }`}
       >
         {/* Top Header of App */}
-        <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 overflow-hidden">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-2xs shrink-0"
@@ -323,7 +323,7 @@ export function Sidebar({
         {renderNavItems()}
 
         {/* Bottom Shortcut to Launcher */}
-        <div className="p-3 border-t border-slate-100 space-y-2">
+        <div className="p-3 border-t border-slate-100 space-y-2 shrink-0">
           <a
             href="/"
             className="flex items-center justify-center gap-2 p-2 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 text-slate-700 text-xs font-semibold transition group"
