@@ -49,38 +49,38 @@ interface OrgBlock {
 
 const BRANCH_INFO: Record<string, { title: string; subtitle: string; manager: string; levelBadge: string; quota: string }> = {
   'Cơ sở Hoàn Kiếm': {
-    title: 'BHN Clinic & Spa — Trụ Sở Hoàn Kiếm (Hà Nội)',
-    subtitle: 'Cơ Sở 1 • Trung Tâm Thẩm Mỹ & Spa Công Nghệ Cao',
+    title: 'Viet Travel Corp — Trụ Sở Hoàn Kiếm (Hà Nội)',
+    subtitle: 'Cơ Sở 1 • Trung Tâm Điều Hành Tour Miền Bắc & Outbound',
     manager: 'Trần Hương Giang — Giám Đốc Chi Nhánh',
     levelBadge: 'CƠ SỞ 1 • CHI NHÁNH HÀ NỘI',
-    quota: '30 Nhân sự • 4 Phòng ban'
+    quota: '26 Nhân sự • 4 Phòng ban chuyên môn'
   },
   'Chi Nhánh Quận 1': {
-    title: 'BHN Wellness Center — Chi Nhánh Quận 1 (TP. HCM)',
-    subtitle: 'Cơ Sở 2 • Viện Thẩm Mỹ & Trị Liệu Da Chuyên Sâu',
+    title: 'Viet Travel Group — Chi Nhánh Quận 1 (TP. HCM)',
+    subtitle: 'Cơ Sở 2 • Trung Tâm Lữ Hành Miền Nam & Tour Quốc Tế M.I.C.E',
     manager: 'Võ Minh Quân — Giám Đốc Chi Nhánh',
     levelBadge: 'CƠ SỞ 2 • CHI NHÁNH TP. HCM',
-    quota: '22 Nhân sự • 4 Phòng ban'
+    quota: '24 Nhân sự • 4 Phòng ban chuyên môn'
   },
   'Chi Nhánh Đà Nẵng': {
-    title: 'BHN Aesthetic Clinic — Chi Nhánh Hải Châu (Đà Nẵng)',
-    subtitle: 'Cơ Sở 3 • Phòng Khám Da Liễu Miền Trung',
+    title: 'Viet Travel Group — Chi Nhánh Hải Châu (Đà Nẵng)',
+    subtitle: 'Cơ Sở 3 • Trung Tâm Tour Di Sản & Khách Quốc Tế Inbound',
     manager: 'Đặng Thảo Vy — Giám Đốc Chi Nhánh',
     levelBadge: 'CƠ SỞ 3 • CHI NHÁNH ĐÀ NẴNG',
-    quota: '14 Nhân sự • 4 Phòng ban'
+    quota: '16 Nhân sự • 4 Phòng ban chuyên môn'
   },
   'Toàn Hệ Thống': {
-    title: 'Ban Giám Đốc & Điều Hành Chiến Lược',
+    title: 'Ban Giám Đốc & Hội Đồng Quản Trị Lữ Hành',
     subtitle: 'Trụ Sở Trung Ương • Tổng Giám Đốc (CEO) & C-Level',
-    manager: 'Hội Đồng Quản Trị & Ban Điều Hành',
+    manager: 'Hội Đồng Quản Trị & Ban Điều Hành Toàn Chuỗi',
     levelBadge: 'TRỤ SỞ TỔNG • CẤP QUẢN TRỊ',
-    quota: '7 Nhân sự • 2 Khối trực thuộc'
+    quota: '18 Nhân sự • 4 Khối trực thuộc'
   },
   'Kho Tổng Hà Nội': {
-    title: 'Phòng Kho Dược Mỹ Phẩm & Thiết Bị Y Tế',
-    subtitle: 'Trung Tâm Phân Phối Dược Mỹ Phẩm & Vật Tư Y Tế',
-    manager: 'Trịnh Quốc Bảo — Quản Lý Kho Tổng',
-    levelBadge: 'KHO TỔNG • HẬU CẦN',
+    title: 'Trung Tâm Quản Lý Xe Du Lịch & Hậu Cần Vật Tư',
+    subtitle: 'Đội Xe Du Lịch 16-45 Chỗ & Kho Vật Tư Lữ Hành Toàn Quốc',
+    manager: 'Trịnh Quốc Bảo — Trưởng Trung Tâm Hậu Cần',
+    levelBadge: 'HẬU CẦN & ĐỘI XE',
     quota: '4 Nhân sự'
   }
 };
@@ -92,7 +92,7 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
   const [collapsedNodes, setCollapsedNodes] = useState<Record<string, boolean>>({});
   const [searchHighlight, setSearchHighlight] = useState('');
 
-  // 6 Functional Blocks of the Enterprise
+  // 6 Functional Blocks of the Enterprise (Travel & Tourism)
   const blocks: OrgBlock[] = [
     {
       id: 'block-bod',
@@ -105,54 +105,54 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
       levelKey: 'Khối Quản Trị'
     },
     {
-      id: 'block-clinic',
-      name: 'Khối Chuyên Môn & Y Khoa Thẩm Mỹ',
-      shortName: 'Y Khoa & Bác Sĩ',
+      id: 'block-ops',
+      name: 'Khối Thiết Kế & Điều Hành Tour (Operations)',
+      shortName: 'Sản Phẩm & Điều Hành',
       category: 'core',
       color: 'border-blue-200 bg-blue-50/70 text-blue-800',
       badgeColor: '#0ea5e9',
-      icon: Building2,
-      levelKey: 'Khối Chuyên Môn'
+      icon: Compass,
+      levelKey: 'Khối Điều Hành Tour'
     },
     {
-      id: 'block-spa',
-      name: 'Khối Vận Hành & Trị Liệu Spa',
-      shortName: 'Vận Hành Spa',
+      id: 'block-guides',
+      name: 'Khối Hướng Dẫn Viên & Vận Chuyển Du Lịch',
+      shortName: 'Hướng Dẫn Viên & Xe',
       category: 'core',
       color: 'border-rose-200 bg-rose-50/70 text-rose-800',
       badgeColor: '#dc0037',
-      icon: Layers,
-      levelKey: 'Khối Vận Hành'
+      icon: Users,
+      levelKey: 'Khối Hướng Dẫn Viên'
     },
     {
-      id: 'block-crm',
-      name: 'Khối Kinh Doanh & Chăm Sóc Khách Hàng (CRM)',
-      shortName: 'Kinh Doanh & CRM',
+      id: 'block-sales',
+      name: 'Khối Kinh Doanh, Đại Lý & M.I.C.E (CRM)',
+      shortName: 'Kinh Doanh & M.I.C.E',
       category: 'support',
       color: 'border-emerald-200 bg-emerald-50/70 text-emerald-800',
       badgeColor: '#10b981',
-      icon: Users,
-      levelKey: 'Khối Kinh Doanh'
+      icon: Briefcase,
+      levelKey: 'Khối Kinh Doanh & MICE'
     },
     {
       id: 'block-finance',
-      name: 'Khối Tài Chính & Thu Ngân POS',
-      shortName: 'Tài Chính & POS',
+      name: 'Khối Tài Chính, Thanh Toán Quốc Tế & Vé',
+      shortName: 'Tài Chính & Vé',
       category: 'support',
       color: 'border-amber-200 bg-amber-50/70 text-amber-800',
       badgeColor: '#f59e0b',
       icon: Building2,
-      levelKey: 'Khối Tài Chính'
+      levelKey: 'Khối Tài Chính & Vé'
     },
     {
-      id: 'block-warehouse',
-      name: 'Khối Hậu Cần & Kho Dược Mỹ Phẩm',
-      shortName: 'Hậu Cần & Kho',
+      id: 'block-logistics',
+      name: 'Khối Visa, CSKH & Đội Xe Du Lịch',
+      shortName: 'Visa & Hậu Cần Xe',
       category: 'support',
       color: 'border-slate-300 bg-slate-100/70 text-slate-800',
       badgeColor: '#64748b',
-      icon: Building2,
-      levelKey: 'Khối Hậu Cần'
+      icon: Building,
+      levelKey: 'Khối Visa & Hậu Cần'
     }
   ];
 
@@ -191,13 +191,16 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
       if (normPosDept === normDept) return true;
       if (normPosDept.includes(normDept) || normDept.includes(normPosDept)) return true;
 
-      // Match by keyword in Model 1
-      if (deptCode.includes('CLINIC') && (normPosName.includes('bác sĩ') || normPosDept.includes('bác sĩ'))) return true;
-      if (deptCode.includes('SPA') && (normPosName.includes('spa') || normPosName.includes('laser') || normPosDept.includes('spa'))) return true;
-      if (deptCode.includes('SALES') && (normPosName.includes('tư vấn') || normPosDept.includes('kinh doanh') || normPosName.includes('sale'))) return true;
-      if (deptCode.includes('FINANCE') && (normPosName.includes('thu ngân') || normPosDept.includes('kế toán'))) return true;
-      if (deptCode.includes('WAREHOUSE') && (normPosName.includes('kho') || normPosDept.includes('kho'))) return true;
-      if (deptCode.includes('BOD') && (normPosName.includes('giám đốc') || normPosDept.includes('giám đốc'))) return true;
+      // Match by travel domain keywords in Model 1
+      if (deptCode.includes('OUTBOUND') && (normPosName.includes('outbound') || normPosDept.includes('outbound') || normPosName.includes('châu âu') || normPosName.includes('nhật bản') || normPosName.includes('điều hành'))) return true;
+      if (deptCode.includes('INBOUND') && (normPosName.includes('inbound') || normPosDept.includes('inbound') || normPosName.includes('di sản'))) return true;
+      if (deptCode.includes('PRODUCT') && (normPosName.includes('gds') || normPosName.includes('hàng không') || normPosDept.includes('hàng không') || normPosName.includes('sản phẩm'))) return true;
+      if (deptCode.includes('GUIDES') && (normPosName.includes('hướng dẫn') || normPosDept.includes('hướng dẫn') || normPosName.includes('guide'))) return true;
+      if (deptCode.includes('SALES') && (normPosName.includes('tư vấn') || normPosName.includes('kinh doanh') || normPosName.includes('mice') || normPosName.includes('bán tour') || normPosName.includes('khách đoàn'))) return true;
+      if (deptCode.includes('COMMERCIAL') && (normPosName.includes('b2b') || normPosName.includes('tiếp thị') || normPosName.includes('telesales'))) return true;
+      if (deptCode.includes('FINANCE') && (normPosName.includes('thu ngân') || normPosName.includes('kế toán') || normPosName.includes('vé') || normPosName.includes('pos'))) return true;
+      if ((deptCode.includes('LOGISTICS') || deptCode.includes('FLEET') || deptCode.includes('WAREHOUSE')) && (normPosName.includes('xe') || normPosName.includes('kho') || normPosName.includes('vật tư') || normPosName.includes('hậu cần'))) return true;
+      if (deptCode.includes('BOD') && (normPosName.includes('giám đốc') || normPosName.includes('ceo'))) return true;
 
       return false;
     });

@@ -35,39 +35,39 @@ import { EmploymentTypeManager, EmploymentTypeItem } from '../components/org/Emp
 import { OrgTreeChart } from '../components/org/OrgTreeChart';
 import { OrgEntityModal, OrgEntityType } from '../components/org/OrgEntityModal';
 
-// Mock Data for Initial State (Synced with Database Seed)
+// Mock Data for Initial State (Travel Enterprise - Multi-Branch Architecture)
 const INITIAL_BRANCHES = [
   {
     id: 'br-1',
     code: 'BR-HN-01',
-    name: 'BHN Clinic & Spa — Trụ Sở Hoàn Kiếm (Hà Nội)',
+    name: 'Viet Travel Corp — Trụ Sở Hoàn Kiếm (Hà Nội)',
     phone: '024 3828 2026',
-    address: 'Số 68 Phố Tràng Thi, Hàng Trống, Hoàn Kiếm, Hà Nội',
+    address: 'Tòa nhà Hanoi Opera Center, Số 68 Tràng Thi, Hoàn Kiếm, Hà Nội',
     managerName: 'Trần Hương Giang',
-    headcount: 24,
-    revenueToday: '84.500.000 đ',
+    headcount: 28,
+    revenueToday: '185.000.000 đ',
     isActive: true
   },
   {
     id: 'br-2',
     code: 'BR-HCM-01',
-    name: 'BHN Wellness Center — Chi Nhánh Quận 1 (TP. HCM)',
+    name: 'Viet Travel Group — Chi Nhánh Quận 1 (TP. HCM)',
     phone: '028 3910 2026',
-    address: 'Số 120 Đường Lê Duẩn, Bến Nghé, Quận 1, TP. HCM',
+    address: 'Tòa nhà Saigon Tower, Số 120 Đường Lê Duẩn, Bến Nghé, Quận 1, TP. HCM',
     managerName: 'Võ Minh Quân',
-    headcount: 18,
-    revenueToday: '62.000.000 đ',
+    headcount: 24,
+    revenueToday: '240.000.000 đ',
     isActive: true
   },
   {
     id: 'br-3',
     code: 'BR-DN-01',
-    name: 'BHN Aesthetic Clinic — Chi Nhánh Hải Châu (Đà Nẵng)',
+    name: 'Viet Travel Group — Chi Nhánh Hải Châu (Đà Nẵng)',
     phone: '0236 3848 2026',
-    address: 'Số 86 Đường Bạch Đằng, Hải Châu 1, Đà Nẵng',
+    address: 'Số 86 Đường Bạch Đằng, Phường Hải Châu 1, Hải Châu, Đà Nẵng',
     managerName: 'Đặng Thảo Vy',
-    headcount: 12,
-    revenueToday: '38.200.000 đ',
+    headcount: 16,
+    revenueToday: '115.000.000 đ',
     isActive: true
   }
 ];
@@ -77,198 +77,208 @@ const INITIAL_DEPARTMENTS = [
   {
     id: 'd-1',
     code: 'DEPT-BOD',
-    name: 'Ban Giám Đốc & Điều Hành Chiến Lược',
-    manager: 'Tổng Giám Đốc',
+    name: 'Ban Giám Đốc & Hội Đồng Quản Trị Lữ Hành',
+    manager: 'Tổng Giám Đốc (CEO)',
     branch: 'Toàn Hệ Thống',
     headcount: 3,
     level: 'Khối Quản Trị'
   },
   {
     id: 'd-2',
-    code: 'DEPT-HQ-SALES',
-    name: 'Khối Kinh Doanh & Tiếp Thị Toàn Chuỗi (HQ)',
-    manager: 'Lê Thu Thảo (CCO)',
+    code: 'DEPT-HQ-PRODUCT',
+    name: 'Khối Thiết Kế Sản Phẩm Tour & Hàng Không (GDS)',
+    manager: 'Nguyễn Tuấn Anh (COO)',
     branch: 'Toàn Hệ Thống',
-    headcount: 4,
-    level: 'Khối Kinh Doanh'
+    headcount: 5,
+    level: 'Khối Điều Hành Tour'
   },
   {
     id: 'd-3',
-    code: 'DEPT-WAREHOUSE',
-    name: 'Phòng Kho Dược Mỹ Phẩm & Thiết Bị Y Tế',
+    code: 'DEPT-HQ-COMMERCIAL',
+    name: 'Khối Kinh Doanh M.I.C.E & Đại Lý B2B Toàn Quốc',
+    manager: 'Lê Thu Thảo (CCO)',
+    branch: 'Toàn Hệ Thống',
+    headcount: 6,
+    level: 'Khối Kinh Doanh & MICE'
+  },
+  {
+    id: 'd-4',
+    code: 'DEPT-FLEET-LOGISTICS',
+    name: 'Trung Tâm Quản Lý Xe Du Lịch & Hậu Cần Vật Tư',
     manager: 'Trịnh Quốc Bảo',
     branch: 'Kho Tổng Hà Nội',
     headcount: 4,
-    level: 'Khối Hậu Cần'
+    level: 'Khối Visa & Hậu Cần'
   },
 
   // 2. Chi Nhánh Trụ Sở Hoàn Kiếm (Hà Nội - Cơ sở 1)
   {
-    id: 'd-4',
-    code: 'DEPT-HN-CLINIC',
-    name: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Hoàn Kiếm)',
-    manager: 'BS. CKI Nguyễn Tuấn Anh',
-    branch: 'Cơ sở Hoàn Kiếm',
-    headcount: 6,
-    level: 'Khối Chuyên Môn'
-  },
-  {
     id: 'd-5',
-    code: 'DEPT-HN-SPA',
-    name: 'Khối Kỹ Thuật Viên & Trị Liệu Spa (Hoàn Kiếm)',
+    code: 'DEPT-HN-OUTBOUND',
+    name: 'Phòng Điều Hành Tour Outbound (Châu Âu, Mỹ, Úc)',
     manager: 'Hoàng Mai Phương',
     branch: 'Cơ sở Hoàn Kiếm',
-    headcount: 12,
-    level: 'Khối Vận Hành'
+    headcount: 8,
+    level: 'Khối Điều Hành Tour'
   },
   {
     id: 'd-6',
-    code: 'DEPT-HN-SALES',
-    name: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Hoàn Kiếm)',
-    manager: 'Trần Hương Giang',
+    code: 'DEPT-HN-GUIDES',
+    name: 'Đội Ngũ Hướng Dẫn Viên Quốc Tế Miền Bắc',
+    manager: 'Phan Thanh Hùng',
     branch: 'Cơ sở Hoàn Kiếm',
-    headcount: 8,
-    level: 'Khối Kinh Doanh'
+    headcount: 14,
+    level: 'Khối Hướng Dẫn Viên'
   },
   {
     id: 'd-7',
+    code: 'DEPT-HN-SALES',
+    name: 'Phòng Kinh Doanh Tour Khách Đoàn & Bán Lẻ (Hà Nội)',
+    manager: 'Trần Hương Giang',
+    branch: 'Cơ sở Hoàn Kiếm',
+    headcount: 9,
+    level: 'Khối Kinh Doanh & MICE'
+  },
+  {
+    id: 'd-8',
     code: 'DEPT-HN-FINANCE',
-    name: 'Phòng Kế Toán — Quầy Thu Ngân POS (Hoàn Kiếm)',
+    name: 'Phòng Kế Toán Vé Máy Bay & Quầy Thu Ngân POS (HN)',
     manager: 'Nguyễn Thị Minh Hạnh',
     branch: 'Cơ sở Hoàn Kiếm',
-    headcount: 4,
-    level: 'Khối Tài Chính'
+    headcount: 5,
+    level: 'Khối Tài Chính & Vé'
   },
 
   // 3. Chi Nhánh Quận 1 (TP. HCM - Cơ sở 2)
   {
-    id: 'd-8',
-    code: 'DEPT-HCM-CLINIC',
-    name: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Quận 1)',
-    manager: 'BS. CKI Phan Thanh Hùng',
-    branch: 'Chi Nhánh Quận 1',
-    headcount: 5,
-    level: 'Khối Chuyên Môn'
-  },
-  {
     id: 'd-9',
-    code: 'DEPT-HCM-SPA',
-    name: 'Khối Kỹ Thuật Viên & Trị Liệu Spa (Quận 1)',
+    code: 'DEPT-HCM-OUTBOUND',
+    name: 'Phòng Điều Hành Tour Đông Bắc Á & Đông Nam Á (HCM)',
     manager: 'Trần Mỹ Duyên',
     branch: 'Chi Nhánh Quận 1',
-    headcount: 8,
-    level: 'Khối Vận Hành'
+    headcount: 7,
+    level: 'Khối Điều Hành Tour'
   },
   {
     id: 'd-10',
-    code: 'DEPT-HCM-SALES',
-    name: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Quận 1)',
-    manager: 'Võ Minh Quân',
+    code: 'DEPT-HCM-GUIDES',
+    name: 'Đội Ngũ Hướng Dẫn Viên Du Lịch Miền Nam',
+    manager: 'Lê Minh Trí',
     branch: 'Chi Nhánh Quận 1',
-    headcount: 6,
-    level: 'Khối Kinh Doanh'
+    headcount: 12,
+    level: 'Khối Hướng Dẫn Viên'
   },
   {
     id: 'd-11',
+    code: 'DEPT-HCM-SALES',
+    name: 'Phòng Kinh Doanh Tour M.I.C.E & Khách VIP (TP. HCM)',
+    manager: 'Võ Minh Quân',
+    branch: 'Chi Nhánh Quận 1',
+    headcount: 8,
+    level: 'Khối Kinh Doanh & MICE'
+  },
+  {
+    id: 'd-12',
     code: 'DEPT-HCM-FINANCE',
-    name: 'Phòng Kế Toán — Quầy Thu Ngân POS (Quận 1)',
+    name: 'Phòng Kế Toán Thanh Toán Quốc Tế & Quầy POS (HCM)',
     manager: 'Vũ Thị Ngọc Ánh',
     branch: 'Chi Nhánh Quận 1',
-    headcount: 3,
-    level: 'Khối Tài Chính'
+    headcount: 4,
+    level: 'Khối Tài Chính & Vé'
   },
 
   // 4. Chi Nhánh Hải Châu (Đà Nẵng - Cơ sở 3)
   {
-    id: 'd-12',
-    code: 'DEPT-DN-CLINIC',
-    name: 'Khối Bác Sĩ & Trị Liệu Da (Đà Nẵng)',
-    manager: 'BS. Lê Minh Trí',
-    branch: 'Chi Nhánh Đà Nẵng',
-    headcount: 3,
-    level: 'Khối Chuyên Môn'
-  },
-  {
     id: 'd-13',
-    code: 'DEPT-DN-SPA',
-    name: 'Khối Kỹ Thuật Viên Spa (Đà Nẵng)',
+    code: 'DEPT-DN-INBOUND',
+    name: 'Phòng Điều Hành Tour Di Sản & Khách Quốc Tế Inbound',
     manager: 'Nguyễn Bích Loan',
     branch: 'Chi Nhánh Đà Nẵng',
     headcount: 5,
-    level: 'Khối Vận Hành'
+    level: 'Khối Điều Hành Tour'
   },
   {
     id: 'd-14',
-    code: 'DEPT-DN-SALES',
-    name: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Đà Nẵng)',
-    manager: 'Đặng Thảo Vy',
+    code: 'DEPT-DN-GUIDES',
+    name: 'Đội Hướng Dẫn Viên Tuyến Miền Trung & Di Sản',
+    manager: 'Trần Quốc Huy',
     branch: 'Chi Nhánh Đà Nẵng',
-    headcount: 4,
-    level: 'Khối Kinh Doanh'
+    headcount: 8,
+    level: 'Khối Hướng Dẫn Viên'
   },
   {
     id: 'd-15',
+    code: 'DEPT-DN-SALES',
+    name: 'Phòng Kinh Doanh Tour Biển Đảo & Khách Lẻ (Đà Nẵng)',
+    manager: 'Đặng Thảo Vy',
+    branch: 'Chi Nhánh Đà Nẵng',
+    headcount: 5,
+    level: 'Khối Kinh Doanh & MICE'
+  },
+  {
+    id: 'd-16',
     code: 'DEPT-DN-FINANCE',
-    name: 'Quầy Thu Ngân POS & Kế Toán (Đà Nẵng)',
+    name: 'Quầy Thu Ngân POS & Kế Toán Tour Chi Nhánh Đà Nẵng',
     manager: 'Phạm Thu Trang',
     branch: 'Chi Nhánh Đà Nẵng',
-    headcount: 2,
-    level: 'Khối Tài Chính'
+    headcount: 3,
+    level: 'Khối Tài Chính & Vé'
   }
 ];
 
 const INITIAL_JOB_POSTS = [
-  { id: 'p-1', code: 'POST-BOD', name: 'Tổng Giám Đốc (CEO / C-Level)', level: 1, allowance: '20.000.000 đ', desc: 'Lãnh đạo chiến lược tối cao và phân quyền' },
-  { id: 'p-2', code: 'POST-BRANCH-DIR', name: 'Giám Đốc Chi Nhánh / Quản Lý Cơ Sở', level: 2, allowance: '10.000.000 đ', desc: 'Chịu trách nhiệm toàn diện doanh số và vận hành cơ sở' },
-  { id: 'p-3', code: 'POST-DEPT-HEAD', name: 'Trưởng Phòng Chuyên Môn Cơ Sở', level: 3, allowance: '5.000.000 đ', desc: 'Phụ trách chuyên môn phòng ban và phân ca' },
-  { id: 'p-4', code: 'POST-TEAM-LEAD', name: 'Phó Phòng / Trưởng Nhóm (Team Leader / Shift Leader)', level: 4, allowance: '2.500.000 đ', desc: 'Giám sát trực tiếp ca trị liệu và hỗ trợ giải quyết sự cố' },
-  { id: 'p-5', code: 'POST-STAFF', name: 'Chuyên Viên / Nhân Viên Thực Thi', level: 5, allowance: '0 đ', desc: 'Nhân sự thực thi ca dịch vụ hoặc nghiệp vụ' }
+  { id: 'p-1', code: 'POST-BOD', name: 'Tổng Giám Đốc Lữ Hành (CEO / C-Level)', level: 1, allowance: '25.000.000 đ', desc: 'Chỉ đạo chiến lược kinh doanh lữ hành quốc tế, đối tác hàng không toàn cầu' },
+  { id: 'p-2', code: 'POST-BRANCH-DIR', name: 'Giám Đốc Chi Nhánh / Trưởng Văn Phòng Đại Diện', level: 2, allowance: '12.000.000 đ', desc: 'Chịu trách nhiệm toàn diện doanh số, thị trường địa bàn và điều hành tour cơ sở' },
+  { id: 'p-3', code: 'POST-DEPT-HEAD', name: 'Trưởng Phòng Điều Hành / Trưởng Phòng Kinh Doanh Tour', level: 3, allowance: '6.000.000 đ', desc: 'Phụ trách tuyến điểm, điều phối landtour, phân tour và giám sát doanh số' },
+  { id: 'p-4', code: 'POST-TEAM-LEAD', name: 'Trưởng Nhóm Sản Phẩm / Tour Leader Trưởng', level: 4, allowance: '3.000.000 đ', desc: 'Phụ trách đoàn tour thực tế, xử lý sự cố phát sinh tại nước ngoài và nội địa' },
+  { id: 'p-5', code: 'POST-STAFF', name: 'Chuyên Viên Điều Hành / Tư Vấn Bán Tour / Hướng Dẫn Viên', level: 5, allowance: '0 đ', desc: 'Tác nghiệp đặt booking, tư vấn bán tour, hướng dẫn đoàn khách' }
 ];
 
 const INITIAL_JOB_TITLES = [
-  { id: 't-1', code: 'TITLE-DERMA-DOC', name: 'Bác Sĩ Chuyên Khoa Da Liễu CKI', field: 'Da Liễu & Y Khoa Thẩm Mỹ', cert: 'CCHN Bác sĩ Da liễu, >= 5 năm Laser' },
-  { id: 't-2', code: 'TITLE-SENIOR-THERAPIST', name: 'Chuyên Viên Vận Hành Máy Laser Công Nghệ Cao', field: 'Laser & Thiết Bị Y Tế', cert: 'Chứng chỉ an toàn bức xạ Laser Picosecond' },
-  { id: 't-3', code: 'TITLE-SPA-THERAPIST', name: 'Kỹ Thuật Viên Spa & Chăm Sóc Da Trưởng', field: 'Spa & Chăm Sóc Sắc Đẹp', cert: 'Chứng chỉ nghề Thẩm mỹ, Massage bấm huyệt' },
-  { id: 't-4', code: 'TITLE-BEAUTY-CONSULTANT', name: 'Chuyên Viên Tư Vấn Thẩm Mỹ Cao Cấp', field: 'Tư Vấn & Kinh Doanh', cert: 'Kỹ năng phác đồ dược mỹ phẩm cao cấp' },
-  { id: 't-5', code: 'TITLE-LEAD-CASHIER', name: 'Thu Ngân Trưởng & Kế Toán Quầy POS', field: 'Tài Chính & Kế Toán', cert: 'Bằng Kế toán, nghiệp vụ VietQR NAPAS 247' }
+  { id: 't-1', code: 'TITLE-TOUR-GUIDE-INT', name: 'Hướng Dẫn Viên Du Lịch Quốc Tế', field: 'Hướng Dẫn Đoàn Quốc Tế', cert: 'Thẻ Hướng Dẫn Viên Quốc Tế (Cục Du Lịch Quốc Gia), Ngoại ngữ C1' },
+  { id: 't-2', code: 'TITLE-AIR-TICKETING', name: 'Chuyên Viên Đặt Giữ Chỗ Hàng Không & Xuất Vé GDS', field: 'Vé Máy Bay & Hàng Không', cert: 'Chứng chỉ IATA, Amadeus, Sabre, Galileo, BSP Vietnam' },
+  { id: 't-3', code: 'TITLE-TOUR-OPERATOR', name: 'Chuyên Viên Thiết Kế & Điều Hành Tour Trọn Gói', field: 'Sản Phẩm & Điều Hành Lữ Hành', cert: 'Chứng chỉ Nghiệp vụ Điều hành Du lịch Quốc tế' },
+  { id: 't-4', code: 'TITLE-MICE-CONSULTANT', name: 'Chuyên Viên Tư Vấn Tour Khách Đoàn Doanh Nghiệp (M.I.C.E)', field: 'Kinh Doanh Doanh Nghiệp (B2B)', cert: 'Kỹ năng đàm phán hợp đồng lữ hành doanh nghiệp, đấu thầu tour' },
+  { id: 't-5', code: 'TITLE-VISA-SPECIALIST', name: 'Chuyên Viên Xử Lý Hồ Sơ Visa & Lãnh Sự Quán', field: 'Thủ Tục Xuất Nhập Cảnh & Visa', cert: 'Kinh nghiệm hồ sơ Visa Châu Âu Schengen, Mỹ, Canada, Nhật Bản, Hàn Quốc' }
 ];
 
 const INITIAL_JOB_POSITIONS: JobPositionItem[] = [
-  // Cơ sở Hoàn Kiếm
-  { id: 'pos-1', code: 'POS-DOC-HN', name: 'Bác Sĩ Trưởng Ca Trị Liệu Da Liễu', dept: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Hoàn Kiếm)', branch: 'Cơ sở Hoàn Kiếm', quota: 2, current: 2, salaryRange: '30M - 60M đ' },
-  { id: 'pos-2', code: 'POS-LASER-HN', name: 'Chuyên Viên Vận Hành Laser Pico & HIFU', dept: 'Khối Kỹ Thuật Viên & Trị Liệu Spa (Hoàn Kiếm)', branch: 'Cơ sở Hoàn Kiếm', quota: 6, current: 4, salaryRange: '15M - 25M đ' },
-  { id: 'pos-3', code: 'POS-SALE-HN', name: 'Chuyên Viên Tư Vấn & Chăm Sóc Hội Viên Ruby', dept: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Hoàn Kiếm)', branch: 'Cơ sở Hoàn Kiếm', quota: 8, current: 6, salaryRange: '10M - 35M đ' },
-  { id: 'pos-4', code: 'POS-CASH-HN', name: 'Thu Ngân Quầy POS Trưởng Ca Sáng', dept: 'Phòng Kế Toán — Quầy Thu Ngân POS (Hoàn Kiếm)', branch: 'Cơ sở Hoàn Kiếm', quota: 4, current: 3, salaryRange: '8M - 14M đ' },
+  // Cơ sở Hoàn Kiếm (HN)
+  { id: 'pos-1', code: 'POS-TOUR-OP-HN', name: 'Chuyên Viên Điều Hành Tour Châu Âu & Mỹ (Outbound)', dept: 'Phòng Điều Hành Tour Outbound (Châu Âu, Mỹ, Úc)', branch: 'Cơ sở Hoàn Kiếm', quota: 4, current: 4, salaryRange: '18M - 35M đ' },
+  { id: 'pos-2', code: 'POS-GUIDE-HN', name: 'Hướng Dẫn Viên Quốc Tế Tiếng Anh / Pháp / Đức', dept: 'Đội Ngũ Hướng Dẫn Viên Quốc Tế Miền Bắc', branch: 'Cơ sở Hoàn Kiếm', quota: 10, current: 8, salaryRange: '15M - 45M đ' },
+  { id: 'pos-3', code: 'POS-MICE-HN', name: 'Chuyên Viên Tư Vấn Tour Khách Đoàn M.I.C.E (Hà Nội)', dept: 'Phòng Kinh Doanh Tour Khách Đoàn & Bán Lẻ (Hà Nội)', branch: 'Cơ sở Hoàn Kiếm', quota: 8, current: 6, salaryRange: '12M - 40M đ' },
+  { id: 'pos-4', code: 'POS-TICKET-HN', name: 'Kế Toán Xuất Vé Hàng Không & Quầy Thu Ngân POS', dept: 'Phòng Kế Toán Vé Máy Bay & Quầy Thu Ngân POS (HN)', branch: 'Cơ sở Hoàn Kiếm', quota: 4, current: 3, salaryRange: '10M - 18M đ' },
 
   // Chi Nhánh Quận 1 (TP. HCM)
-  { id: 'pos-5', code: 'POS-DOC-HCM', name: 'Bác Sĩ Da Liễu Chuyên Trách HCM', dept: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Quận 1)', branch: 'Chi Nhánh Quận 1', quota: 3, current: 2, salaryRange: '35M - 65M đ' },
-  { id: 'pos-6', code: 'POS-SALE-HCM', name: 'Chuyên Viên Tư Vấn Thẩm Mỹ VIP HCM', dept: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Quận 1)', branch: 'Chi Nhánh Quận 1', quota: 6, current: 5, salaryRange: '12M - 40M đ' },
-  { id: 'pos-7', code: 'POS-SPA-HCM', name: 'Kỹ Thuật Viên Spa & Chăm Sóc Da HCM', dept: 'Khối Kỹ Thuật Viên & Trị Liệu Spa (Quận 1)', branch: 'Chi Nhánh Quận 1', quota: 8, current: 6, salaryRange: '12M - 22M đ' },
-  { id: 'pos-8', code: 'POS-CASH-HCM', name: 'Thu Ngân & Kế Toán Quầy POS HCM', dept: 'Phòng Kế Toán — Quầy Thu Ngân POS (Quận 1)', branch: 'Chi Nhánh Quận 1', quota: 3, current: 2, salaryRange: '9M - 15M đ' },
+  { id: 'pos-5', code: 'POS-TOUR-OP-HCM', name: 'Chuyên Viên Điều Hành Tour Nhật Bản & Hàn Quốc (HCM)', dept: 'Phòng Điều Hành Tour Đông Bắc Á & Đông Nam Á (HCM)', branch: 'Chi Nhánh Quận 1', quota: 5, current: 4, salaryRange: '16M - 32M đ' },
+  { id: 'pos-6', code: 'POS-GUIDE-HCM', name: 'Hướng Dẫn Viên Du Lịch Tiếng Nhật / Hàn / Trung', dept: 'Đội Ngũ Hướng Dẫn Viên Du Lịch Miền Nam', branch: 'Chi Nhánh Quận 1', quota: 8, current: 6, salaryRange: '15M - 40M đ' },
+  { id: 'pos-7', code: 'POS-MICE-HCM', name: 'Chuyên Viên Kinh Doanh Tour Doanh Nghiệp VIP (HCM)', dept: 'Phòng Kinh Doanh Tour M.I.C.E & Khách VIP (TP. HCM)', branch: 'Chi Nhánh Quận 1', quota: 8, current: 7, salaryRange: '15M - 45M đ' },
+  { id: 'pos-8', code: 'POS-CASH-HCM', name: 'Thu Ngân Quầy POS & Kế Toán Công Nợ Tour (HCM)', dept: 'Phòng Kế Toán Thanh Toán Quốc Tế & Quầy POS (HCM)', branch: 'Chi Nhánh Quận 1', quota: 3, current: 3, salaryRange: '10M - 18M đ' },
 
   // Chi Nhánh Hải Châu (Đà Nẵng)
-  { id: 'pos-9', code: 'POS-SALE-DN', name: 'Chuyên Viên Tư Vấn & Bán Dịch Vụ Đà Nẵng', dept: 'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Đà Nẵng)', branch: 'Chi Nhánh Đà Nẵng', quota: 4, current: 3, salaryRange: '9M - 28M đ' },
-  { id: 'pos-10', code: 'POS-SPA-DN', name: 'Kỹ Thuật Viên Trị Liệu Spa Đà Nẵng', dept: 'Khối Kỹ Thuật Viên Spa (Đà Nẵng)', branch: 'Chi Nhánh Đà Nẵng', quota: 5, current: 4, salaryRange: '10M - 18M đ' },
+  { id: 'pos-9', code: 'POS-INBOUND-DN', name: 'Chuyên Viên Điều Hành Tour Khách Quốc Tế Inbound (Đà Nẵng)', dept: 'Phòng Điều Hành Tour Di Sản & Khách Quốc Tế Inbound', branch: 'Chi Nhánh Đà Nẵng', quota: 4, current: 3, salaryRange: '14M - 26M đ' },
+  { id: 'pos-10', code: 'POS-GUIDE-DN', name: 'Hướng Dẫn Viên Du Lịch Tuyến Miền Trung (Huế - Hội An)', dept: 'Đội Hướng Dẫn Viên Tuyến Miền Trung & Di Sản', branch: 'Chi Nhánh Đà Nẵng', quota: 6, current: 5, salaryRange: '12M - 30M đ' },
+  { id: 'pos-11', code: 'POS-SALE-DN', name: 'Chuyên Viên Bán Tour Biển Đảo & Khách Lẻ (Đà Nẵng)', dept: 'Phòng Kinh Doanh Tour Biển Đảo & Khách Lẻ (Đà Nẵng)', branch: 'Chi Nhánh Đà Nẵng', quota: 4, current: 3, salaryRange: '10M - 25M đ' },
 
   // Trụ Sở Toàn Hệ Thống (HQ)
-  { id: 'pos-11', code: 'POS-LEAD-MKT', name: 'Trưởng Nhóm Tiếp Thị & Telesales Toàn Chuỗi', dept: 'Khối Kinh Doanh & Tiếp Thị Toàn Chuỗi (HQ)', branch: 'Toàn Hệ Thống', quota: 2, current: 2, salaryRange: '25M - 45M đ' },
-  { id: 'pos-12', code: 'POS-WAREHOUSE-MGR', name: 'Quản Lý Kho Dược & Vật Tư Y Tế Tổng', dept: 'Phòng Kho Dược Mỹ Phẩm & Thiết Bị Y Tế', branch: 'Kho Tổng Hà Nội', quota: 3, current: 3, salaryRange: '12M - 20M đ' }
+  { id: 'pos-12', code: 'POS-GDS-HQ', name: 'Trưởng Nhóm Booking Vé Máy Bay & Đại Lý Hàng Không GDS', dept: 'Khối Thiết Kế Sản Phẩm Tour & Hàng Không (GDS)', branch: 'Toàn Hệ Thống', quota: 3, current: 3, salaryRange: '22M - 40M đ' },
+  { id: 'pos-13', code: 'POS-FLEET-HQ', name: 'Quản Lý Điều Đội Xe Du Lịch & Kho Vật Tư Lữ Hành', dept: 'Trung Tâm Quản Lý Xe Du Lịch & Hậu Cần Vật Tư', branch: 'Kho Tổng Hà Nội', quota: 3, current: 3, salaryRange: '14M - 22M đ' }
 ];
 
 const INITIAL_EMPLOYMENT_TYPES = [
-  { id: 'et-1', code: 'EMP-FULLTIME', name: 'Toàn Thời Gian Cố Định (Full-Time)', hours: 44, insurance: true, leave: 12, desc: 'HĐLĐ chính thức không xác định thời hạn, đóng BHXH/BHYT đầy đủ' },
-  { id: 'et-2', code: 'EMP-PARTTIME', name: 'Bán Thời Gian / Ca Gãy (Part-Time)', hours: 24, insurance: false, leave: 0, desc: 'Linh động theo ca khách đặt, thanh toán theo giờ + hoa hồng ca' },
-  { id: 'et-3', code: 'EMP-PROBATION', name: 'Thử Việc (Probation - 60 Ngày)', hours: 44, insurance: false, leave: 0, desc: 'Hưởng 85% lương cơ bản theo quy định, đánh giá sau 2 tháng' },
-  { id: 'et-4', code: 'EMP-CONTRACTOR-DOC', name: 'Bác Sĩ Hợp Đồng Chuyên Gia (Contractor)', hours: 16, insurance: false, leave: 0, desc: 'Thù lao chi trả trực tiếp theo từng ca phẫu thuật phức tạp' },
-  { id: 'et-5', code: 'EMP-SEASONAL', name: 'Thời Vụ / Mùa Lễ Tết (Seasonal)', hours: 48, insurance: false, leave: 0, desc: 'Tăng cường mùa cận Tết, phụ cấp ca đêm và thưởng năng suất' }
+  { id: 'et-1', code: 'EMP-FULLTIME', name: 'Toàn Thời Gian Cố Định (Văn Phòng Lữ Hành)', hours: 44, insurance: true, leave: 12, desc: 'HĐLĐ chính thức không xác định thời hạn, đóng BHXH/BHYT đầy đủ' },
+  { id: 'et-2', code: 'EMP-TOUR-LEADER', name: 'Hướng Dẫn Viên Theo Đoàn (Tour Leader / Freelancer)', hours: 30, insurance: false, leave: 0, desc: 'Tính theo ngày công tác dẫn tour + công tác phí nước ngoài / nội địa' },
+  { id: 'et-3', code: 'EMP-PROBATION', name: 'Thử Việc Chuyên Viên Điều Hành (Probation - 60 Ngày)', hours: 44, insurance: false, leave: 0, desc: 'Hưởng 85% lương cơ bản theo quy định, đánh giá nghiệm thu sau 2 tháng' },
+  { id: 'et-4', code: 'EMP-SEASONAL', name: 'Hướng Dẫn Viên Mùa Cao Điểm Lễ Tết / Hè (Seasonal Guide)', hours: 48, insurance: false, leave: 0, desc: 'Tăng cường mùa cao điểm du lịch hè và Tết, phụ cấp công tác đặc biệt' },
+  { id: 'et-5', code: 'EMP-B2B-AGENT', name: 'Cộng Tác Viên Kinh Doanh Tour (Sales Partner / Affiliate)', hours: 15, insurance: false, leave: 0, desc: 'Thù lao chi trả trực tiếp theo hoa hồng doanh số vé và tour chốt thành công' }
 ];
 
 const INITIAL_USERS = [
-  { id: 'u-1', name: 'BHN System Administrator', email: 'admin@bhn.vn', role: 'SUPER_ADMIN', branch: 'Toàn Hệ Thống', dept: 'Ban Giám Đốc', status: 'ACTIVE' },
-  { id: 'u-2', name: 'Trần Hương Giang', email: 'manager@bhn.vn', role: 'BRANCH_MANAGER', branch: 'Cơ sở Hoàn Kiếm', dept: 'Quản Lý Cơ Sở', status: 'ACTIVE' },
-  { id: 'u-3', name: 'Lê Thu Trang', email: 'cashier@bhn.vn', role: 'CASHIER_POS', branch: 'Cơ sở Hoàn Kiếm', dept: 'Thu Ngân POS', status: 'ACTIVE' },
-  { id: 'u-4', name: 'BS. CKI Nguyễn Tuấn Anh', email: 'doctor@bhn.vn', role: 'DOCTOR_THERAPIST', branch: 'Cơ sở Hoàn Kiếm', dept: 'Khối Bác Sĩ', status: 'ACTIVE' },
-  { id: 'u-5', name: 'Võ Minh Quân', email: 'quan.vo@bhn.vn', role: 'BRANCH_MANAGER', branch: 'Cơ sở Quận 1 (HCM)', dept: 'Quản Lý Cơ Sở', status: 'ACTIVE' }
+  { id: 'u-1', name: 'Viet Travel Administrator', email: 'admin@viettravel.vn', role: 'SUPER_ADMIN', branch: 'Toàn Hệ Thống', dept: 'Ban Giám Đốc', status: 'ACTIVE' },
+  { id: 'u-2', name: 'Trần Hương Giang', email: 'giang.tran@viettravel.vn', role: 'BRANCH_MANAGER', branch: 'Cơ sở Hoàn Kiếm', dept: 'Giám Đốc Chi Nhánh HN', status: 'ACTIVE' },
+  { id: 'u-3', name: 'Lê Thu Trang', email: 'trang.le@viettravel.vn', role: 'TICKETING_POS', branch: 'Cơ sở Hoàn Kiếm', dept: 'Vé & Thu Ngân POS', status: 'ACTIVE' },
+  { id: 'u-4', name: 'Nguyễn Tuấn Anh', email: 'anh.nguyen@viettravel.vn', role: 'PRODUCT_DIRECTOR', branch: 'Toàn Hệ Thống', dept: 'Khối Sản Phẩm Tour', status: 'ACTIVE' },
+  { id: 'u-5', name: 'Võ Minh Quân', email: 'quan.vo@viettravel.vn', role: 'BRANCH_MANAGER', branch: 'Chi Nhánh Quận 1', dept: 'Giám Đốc Chi Nhánh HCM', status: 'ACTIVE' }
 ];
 
 const RBAC_MODULES = [
@@ -307,10 +317,10 @@ export default function SystemControlTowerPage() {
 
   // VietQR Config State
   const [bankAccount, setBankAccount] = useState({
-    bank: 'MB Bank (Ngân hàng Quân Đội)',
-    accountNumber: '999988882026',
-    accountHolder: 'CTY CP THAM MY VIEN BHN INTERNATIONAL',
-    memoPrefix: 'BHN'
+    bank: 'Vietcombank (Ngân hàng Ngoại Thương Việt Nam)',
+    accountNumber: '102688889999',
+    accountHolder: 'CONG TY CO PHAN TAP DOAN DU LICH VIET TRAVEL GROUP',
+    memoPrefix: 'TOUR'
   });
 
   // Zalo ZNS Config State
@@ -912,9 +922,9 @@ export default function SystemControlTowerPage() {
                 <h4 className="font-bold text-slate-900 text-sm mb-3">Tài Liệu Tri Thức Doanh Nghiệp (PostgreSQL 17 HNSW Index)</h4>
                 <div className="space-y-2.5 text-xs">
                   {[
-                    { title: 'Chính sách Tích lũy Điểm thưởng & Nâng hạng Hội viên BHN Privilege 2026', chunks: 14, category: 'Hội Viên' },
-                    { title: 'Quy trình Điều phối Phòng Dịch vụ & Xử lý Hủy lịch hẹn', chunks: 8, category: 'Vận Hành' },
-                    { title: 'Chính sách Chi trả Hoa hồng & Thưởng Hiệu suất Nhân sự (HR & Commission)', chunks: 19, category: 'Nhân Sự' }
+                    { title: 'Chính sách Tích lũy Dặm thưởng & Nâng hạng Hội viên Viet Travel Passport 2026', chunks: 14, category: 'Hội Viên' },
+                    { title: 'Quy trình Điều phối Booking Khách sạn, Vé máy bay & Hủy phạt Tour', chunks: 8, category: 'Vận Hành' },
+                    { title: 'Chính sách Chi trả Hoa hồng Bán Tour & Thưởng Doanh số Đoàn M.I.C.E', chunks: 19, category: 'Nhân Sự' }
                   ].map((doc, idx) => (
                     <div key={idx} className="p-3.5 rounded-xl border border-slate-200 bg-white flex items-center justify-between">
                       <div>
@@ -996,10 +1006,10 @@ export default function SystemControlTowerPage() {
 
               <div className="divide-y divide-slate-100 text-xs">
                 {[
-                  { user: 'BHN System Administrator', action: 'DATABASE_BACKUP_SNAPSHOT', resource: 'POSTGRESQL_17', time: '10 phút trước', ip: '127.0.0.1' },
+                  { user: 'Viet Travel Administrator', action: 'DATABASE_BACKUP_SNAPSHOT', resource: 'POSTGRESQL_17', time: '10 phút trước', ip: '127.0.0.1' },
                   { user: 'Trần Hương Giang', action: 'PAYROLL_CALCULATE', resource: 'PAYROLL_2026_11', time: '2 giờ trước', ip: '192.168.1.105' },
-                  { user: 'BHN System Administrator', action: 'ORGANIZATION_UPDATE', resource: 'DEPT_SPA_THERAPY', time: 'Hôm qua', ip: '127.0.0.1' },
-                  { user: 'Lê Thu Trang', action: 'ORDER_CHECKOUT_VIETQR', resource: 'ORDER_BHN_8820', time: 'Hôm qua', ip: '192.168.1.108' }
+                  { user: 'Viet Travel Administrator', action: 'ORGANIZATION_UPDATE', resource: 'DEPT_HN_OUTBOUND', time: 'Hôm qua', ip: '127.0.0.1' },
+                  { user: 'Lê Thu Trang', action: 'ORDER_CHECKOUT_VIETQR', resource: 'BOOKING_TOUR_8820', time: 'Hôm qua', ip: '192.168.1.108' }
                 ].map((log, idx) => (
                   <div key={idx} className="p-4 flex items-center justify-between hover:bg-slate-50/50">
                     <div>
@@ -1022,19 +1032,19 @@ export default function SystemControlTowerPage() {
           {activeSubpageId === 'branding' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
               <h3 className="font-bold text-slate-900 text-base mb-1">Cấu Hình Thương Hiệu White-Label</h3>
-              <p className="text-xs text-slate-500 mb-4">Tùy biến tên doanh nghiệp, logo và tông màu chủ đạo hiển thị toàn chuỗi</p>
+              <p className="text-xs text-slate-500 mb-4">Tùy biến tên doanh nghiệp lữ hành, logo và tông màu chủ đạo hiển thị toàn chuỗi</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div>
-                  <label className="block text-slate-600 font-semibold mb-1">Tên Chuỗi / Thương Hiệu</label>
+                  <label className="block text-slate-600 font-semibold mb-1">Tên Chuỗi / Thương Hiệu Lữ Hành</label>
                   <input
                     type="text"
-                    defaultValue="BHN International Wellness & Clinic"
+                    defaultValue="Viet Travel Enterprise Group — International Tour Operator"
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg font-semibold text-slate-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-600 font-semibold mb-1">Hotline CSKH Toàn Quốc</label>
+                  <label className="block text-slate-600 font-semibold mb-1">Hotline Đặt Tour & CSKH Toàn Quốc</label>
                   <input
                     type="text"
                     defaultValue="1900 882026"

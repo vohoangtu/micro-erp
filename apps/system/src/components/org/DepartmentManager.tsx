@@ -50,7 +50,7 @@ export function DepartmentManager({
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
   const branches = ['ALL', 'Toàn Hệ Thống', 'Cơ sở Hoàn Kiếm', 'Chi Nhánh Quận 1', 'Chi Nhánh Đà Nẵng', 'Kho Tổng Hà Nội'];
-  const levels = ['ALL', 'Khối Quản Trị', 'Khối Chuyên Môn', 'Khối Vận Hành', 'Khối Kinh Doanh', 'Khối Tài Chính', 'Khối Hậu Cần'];
+  const levels = ['ALL', 'Khối Quản Trị', 'Khối Điều Hành Tour', 'Khối Hướng Dẫn Viên', 'Khối Kinh Doanh & MICE', 'Khối Tài Chính & Vé', 'Khối Visa & Hậu Cần'];
 
   const filteredDepts = departments.filter(d => {
     const matchSearch =

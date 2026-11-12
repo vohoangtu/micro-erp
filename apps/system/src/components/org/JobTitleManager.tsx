@@ -30,7 +30,15 @@ export function JobTitleManager({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedField, setSelectedField] = useState('ALL');
 
-  const fields = ['ALL', 'Da Liễu & Y Khoa Thẩm Mỹ', 'Laser & Thiết Bị Y Tế', 'Spa & Chăm Sóc Sắc Đẹp', 'Tư Vấn & Kinh Doanh', 'Tài Chính & Kế Toán'];
+  const fields = [
+    'ALL',
+    'Hướng Dẫn Đoàn Quốc Tế',
+    'Vé Máy Bay & Hàng Không',
+    'Sản Phẩm & Điều Hành Lữ Hành',
+    'Kinh Doanh Doanh Nghiệp (B2B)',
+    'Thủ Tục Xuất Nhập Cảnh & Visa',
+    'Tài Chính & Kế Toán'
+  ];
 
   const filteredTitles = jobTitles.filter(t => {
     const matchSearch =

@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Hệ Thống & Tháp Điều Khiển — BHN CORE Zone 8',
-  description: 'Quản trị cơ cấu tổ chức, người dùng, phân quyền RBAC, tích hợp và giám sát VPS'
+  title: 'Hệ Thống & Tháp Điều Khiển — Viet Travel Enterprise Group (Zone 8)',
+  description: 'Quản trị cơ cấu tổ chức công ty du lịch lữ hành đa chi nhánh, nhân sự, phân quyền RBAC và hệ thống'
 };
 
 export default function RootLayout({

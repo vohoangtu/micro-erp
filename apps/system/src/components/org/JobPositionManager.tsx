@@ -46,15 +46,17 @@ export function JobPositionManager({
 
   const departments = [
     'ALL',
-    'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Hoàn Kiếm)',
-    'Khối Kỹ Thuật Viên & Trị Liệu Spa (Hoàn Kiếm)',
-    'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Hoàn Kiếm)',
-    'Phòng Kế Toán — Quầy Thu Ngân POS (Hoàn Kiếm)',
-    'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu (Quận 1)',
-    'Khối Kỹ Thuật Viên & Trị Liệu Spa (Quận 1)',
-    'Phòng Kinh Doanh & Tư Vấn Khách Hàng (Quận 1)',
-    'Khối Kinh Doanh & Tiếp Thị Toàn Chuỗi (HQ)',
-    'Phòng Kho Dược Mỹ Phẩm & Thiết Bị Y Tế'
+    'Phòng Điều Hành Tour Outbound (Châu Âu, Mỹ, Úc)',
+    'Đội Ngũ Hướng Dẫn Viên Quốc Tế Miền Bắc',
+    'Phòng Kinh Doanh Tour Khách Đoàn & Bán Lẻ (Hà Nội)',
+    'Phòng Kế Toán Vé Máy Bay & Quầy Thu Ngân POS (HN)',
+    'Phòng Điều Hành Tour Đông Bắc Á & Đông Nam Á (HCM)',
+    'Đội Ngũ Hướng Dẫn Viên Du Lịch Miền Nam',
+    'Phòng Kinh Doanh Tour M.I.C.E & Khách VIP (TP. HCM)',
+    'Phòng Điều Hành Tour Di Sản & Khách Quốc Tế Inbound',
+    'Đội Hướng Dẫn Viên Tuyến Miền Trung & Di Sản',
+    'Khối Thiết Kế Sản Phẩm Tour & Hàng Không (GDS)',
+    'Trung Tâm Quản Lý Xe Du Lịch & Hậu Cần Vật Tư'
   ];
 
   const filteredPositions = jobPositions.filter(p => {

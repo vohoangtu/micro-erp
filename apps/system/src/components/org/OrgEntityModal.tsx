@@ -44,7 +44,7 @@ export function OrgEntityModal({
           name: '',
           manager: '',
           branch: branches[0]?.name || 'Toàn Hệ Thống',
-          level: 'Khối Vận Hành',
+          level: 'Khối Điều Hành Tour',
           headcount: 0
         });
       } else if (type === 'post') {
@@ -52,14 +52,14 @@ export function OrgEntityModal({
           code: `POST-${Date.now().toString(36).slice(-3).toUpperCase()}`,
           name: '',
           level: 4,
-          allowance: '2.500.000 đ',
+          allowance: '3.000.000 đ',
           desc: ''
         });
       } else if (type === 'title') {
         setFormData({
           code: `TITLE-${Date.now().toString(36).slice(-3).toUpperCase()}`,
           name: '',
-          field: 'Da Liễu & Y Khoa Thẩm Mỹ',
+          field: 'Hướng Dẫn Đoàn Quốc Tế',
           cert: ''
         });
       } else if (type === 'position') {
@@ -67,10 +67,10 @@ export function OrgEntityModal({
           code: `POS-${Date.now().toString(36).slice(-3).toUpperCase()}`,
           name: '',
           branch: branches[0]?.name || 'Cơ sở Hoàn Kiếm',
-          dept: departments[0]?.name || 'Khối Bác Sĩ & Điều Trị',
-          quota: 2,
+          dept: departments[0]?.name || 'Phòng Điều Hành Tour Outbound',
+          quota: 4,
           current: 0,
-          salaryRange: '12M - 20M đ'
+          salaryRange: '15M - 25M đ'
         });
       } else if (type === 'type') {
         setFormData({
@@ -200,16 +200,16 @@ export function OrgEntityModal({
                 <div>
                   <label className="text-[11px] font-bold text-slate-700 block mb-1">Trực Thuộc Khối</label>
                   <select
-                    value={formData.level || 'Khối Vận Hành'}
+                    value={formData.level || 'Khối Điều Hành Tour'}
                     onChange={e => setFormData({ ...formData, level: e.target.value })}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden"
                   >
-                    <option value="Khối Quản Trị">Khối Quản Trị (BOD)</option>
-                    <option value="Khối Chuyên Môn">Khối Chuyên Môn & Y Khoa</option>
-                    <option value="Khối Vận Hành">Khối Vận Hành & Spa</option>
-                    <option value="Khối Kinh Doanh">Khối Kinh Doanh & CRM</option>
-                    <option value="Khối Tài Chính">Khối Tài Chính — POS</option>
-                    <option value="Khối Hậu Cần">Khối Hậu Cần & Kho Vận</option>
+                    <option value="Khối Quản Trị">Khối Quản Trị & Chiến Lược</option>
+                    <option value="Khối Điều Hành Tour">Khối Thiết Kế & Điều Hành Tour</option>
+                    <option value="Khối Hướng Dẫn Viên">Khối Hướng Dẫn Viên & Vận Chuyển</option>
+                    <option value="Khối Kinh Doanh & MICE">Khối Kinh Doanh, B2B & M.I.C.E</option>
+                    <option value="Khối Tài Chính & Vé">Khối Tài Chính, Thanh Toán & Vé</option>
+                    <option value="Khối Visa & Hậu Cần">Khối Visa, CSKH & Xe Du Lịch</option>
                   </select>
                 </div>
 
@@ -234,7 +234,7 @@ export function OrgEntityModal({
                   type="text"
                   value={formData.manager || ''}
                   onChange={e => setFormData({ ...formData, manager: e.target.value })}
-                  placeholder="VD: BS. CKI Nguyễn Tuấn Anh"
+                  placeholder="VD: Hoàng Mai Phương (Trưởng phòng Điều hành)"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden"
                 />
               </div>
@@ -290,7 +290,7 @@ export function OrgEntityModal({
                   type="text"
                   value={formData.field || ''}
                   onChange={e => setFormData({ ...formData, field: e.target.value })}
-                  placeholder="VD: Laser & Thiết Bị Y Tế Thẩm Mỹ"
+                  placeholder="VD: Hướng Dẫn Đoàn Quốc Tế (Inbound / Outbound)"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden"
                 />
               </div>
@@ -301,7 +301,7 @@ export function OrgEntityModal({
                   rows={2}
                   value={formData.cert || ''}
                   onChange={e => setFormData({ ...formData, cert: e.target.value })}
-                  placeholder="VD: CCHN Bác sĩ Da liễu, >= 3 năm kinh nghiệm Laser công nghệ cao"
+                  placeholder="VD: Thẻ Hướng Dẫn Viên Quốc Tế (Cục Du Lịch), C1 Tiếng Anh / Pháp / Nhật"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-hidden"
                 />
               </div>
