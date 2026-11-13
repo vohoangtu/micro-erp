@@ -525,9 +525,9 @@ export default function SystemControlTowerPage() {
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         />
 
-        {/* Right Content Area: Giao diện SaaS nghiệp vụ chi tiết */}
-        <main className="flex-1 min-w-0 h-full overflow-y-auto p-6 md:p-8">
-          <div className="max-w-7xl mx-auto w-full space-y-6 pb-12">
+        {/* Right Content Area: Giao diện SaaS nghiệp vụ chi tiết (Full-Width) */}
+        <main className="flex-1 min-w-0 h-full overflow-y-auto p-4 sm:p-6 lg:p-8 w-full">
+          <div className="w-full space-y-6 pb-12">
             {/* Breadcrumb & Section Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>

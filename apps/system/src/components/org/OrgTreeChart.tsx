@@ -672,7 +672,7 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
       {/* VIEW MODE 2: PHÂN CẤP 2 TẦNG (2-TIER CLUSTERED GRID) */}
       {viewMode === 'grid2' && (
         <div className="bg-[#faf9f6] border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs overflow-x-auto w-full">
-          <div className="max-w-5xl mx-auto flex flex-col items-center">
+          <div className="w-full flex flex-col items-center">
             {/* ROOT NODE */}
             <div className="flex flex-col items-center">
               <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-lg border border-slate-700 w-84 text-center relative select-none">
@@ -691,17 +691,16 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
                 </div>
               </div>
 
-              <div className="w-0.5 h-8 bg-slate-300" />
+              {/* Seamless vertical connector line to Tier 1 */}
+              <div className="w-0.5 h-6 bg-slate-300" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-white px-3.5 py-1 rounded-full border border-slate-200 shadow-2xs z-10">
+                Tầng 1 • Khối Điều Hành Tour & Hướng Dẫn Viên Quốc Tế
+              </span>
+              <div className="w-0.5 h-6 bg-slate-300" />
             </div>
 
             {/* TIER 1: CORE BLOCKS */}
             <div className="w-full">
-              <div className="text-center mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">
-                  Tầng 1 • Khối Nghiệp Vụ Trọng Tâm & Y Khoa
-                </span>
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-0">
                 {blocks.slice(0, 3).map((block, idx) => {
                   const isFirst = idx === 0;
@@ -730,21 +729,15 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
 
             {/* Central Vertical Connector Spine to Tier 2 */}
             <div className="flex flex-col items-center my-6">
-              <div className="w-0.5 h-8 bg-slate-300" />
-              <div className="px-3.5 py-1 rounded-full bg-white border border-slate-200/90 text-[10px] font-bold text-slate-500 shadow-2xs">
-                Trục Hỗ Trợ Vận Hành & Hậu Cần Kinh Doanh
+              <div className="w-0.5 h-6 bg-slate-300" />
+              <div className="px-3.5 py-1 rounded-full bg-white border border-slate-200/90 text-[10px] font-bold text-slate-500 shadow-2xs z-10">
+                Tầng 2 • Khối Kinh Doanh M.I.C.E, Kế Toán Vé Máy Bay & Đội Xe
               </div>
-              <div className="w-0.5 h-8 bg-slate-300" />
+              <div className="w-0.5 h-6 bg-slate-300" />
             </div>
 
             {/* TIER 2: SUPPORT BLOCKS */}
             <div className="w-full">
-              <div className="text-center mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">
-                  Tầng 2 • Khối Kinh Doanh, Tài Chính & Kho Vận
-                </span>
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-0">
                 {blocks.slice(3, 6).map((block, idx) => {
                   const isFirst = idx === 0;
