@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Check, AlertCircle, Building2, Award, Briefcase, Layers, Clock } from 'lucide-react';
 
-export type OrgEntityType = 'department' | 'post' | 'title' | 'position' | 'type';
+export type OrgEntityType = 'department' | 'post' | 'title' | 'position' | 'type' | 'branch' | 'division';
 
 export interface OrgEntityModalProps {
   isOpen: boolean;
@@ -11,6 +11,7 @@ export interface OrgEntityModalProps {
   initialData?: any;
   branches: Array<{ id: string; name: string }>;
   departments: Array<{ id: string; name: string }>;
+  divisions?: Array<{ id: string; name: string }>;
   jobPosts: Array<{ id: string; name: string; level: number }>;
   jobTitles: Array<{ id: string; name: string }>;
   themeColorHex: string;
@@ -24,6 +25,7 @@ export function OrgEntityModal({
   initialData,
   branches,
   departments,
+  divisions,
   jobPosts,
   jobTitles,
   themeColorHex,
@@ -81,18 +83,42 @@ export function OrgEntityModal({
           leave: 12,
           desc: ''
         });
+      } else if (type === 'branch') {
+        setFormData({
+          code: `BR-${Date.now().toString(36).slice(-3).toUpperCase()}`,
+          name: '',
+          phone: '',
+          email: '',
+          address: '',
+          city: 'Hà Nội',
+          managerName: '',
+          headcount: 20
+        });
+      } else if (type === 'division') {
+        setFormData({
+          code: `BLOCK-${Date.now().toString(36).slice(-3).toUpperCase()}`,
+          name: '',
+          shortName: '',
+          leaderName: '',
+          description: '',
+          color: '#0ea5e9'
+        });
       }
     }
     setErrors({});
-  }, [isOpen, type, initialData, branches, departments]);
+  }, [isOpen, type, initialData, branches, departments, divisions]);
 
   if (!isOpen) return null;
 
   const getTitle = () => {
     const isEdit = !!initialData?.id;
     switch (type) {
+      case 'branch':
+        return isEdit ? 'Chỉnh Sửa Cơ Sở / Chi Nhánh' : 'Thêm Mới Cơ Sở / Chi Nhánh';
+      case 'division':
+        return isEdit ? 'Chỉnh Sửa Khối Trực Thuộc' : 'Thêm Mới Khối Trực Thuộc';
       case 'department':
-        return isEdit ? 'Chỉnh Sửa Phòng Ban / Khối' : 'Thêm Mới Phòng Ban / Khối';
+        return isEdit ? 'Chỉnh Sửa Phòng Ban' : 'Thêm Mới Phòng Ban';
       case 'post':
         return isEdit ? 'Chỉnh Sửa Chức Vụ Hành Chính' : 'Thêm Mới Chức Vụ Cấp 1-5';
       case 'title':
@@ -106,6 +132,10 @@ export function OrgEntityModal({
 
   const getIcon = () => {
     switch (type) {
+      case 'branch':
+        return Building2;
+      case 'division':
+        return Layers;
       case 'department':
         return Building2;
       case 'post':
@@ -194,22 +224,158 @@ export function OrgEntityModal({
           </div>
 
           {/* Conditional Fields based on Entity Type */}
+          {type === 'branch' && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Giám Đốc Cơ Sở / Đại Diện</label>
+                  <input
+                    type="text"
+                    value={formData.managerName || ''}
+                    onChange={e => setFormData({ ...formData, managerName: e.target.value })}
+                    placeholder="VD: Nguyễn Văn Hùng"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Hotline / Số Điện Thoại</label>
+                  <input
+                    type="text"
+                    value={formData.phone || ''}
+                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="VD: 024.3828.9999"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Email Cơ Sở</label>
+                  <input
+                    type="email"
+                    value={formData.email || ''}
+                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="VD: hanoi.branch@viettravel.vn"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Tỉnh / Thành Phố</label>
+                  <input
+                    type="text"
+                    value={formData.city || ''}
+                    onChange={e => setFormData({ ...formData, city: e.target.value })}
+                    placeholder="VD: Hà Nội"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">Địa Chỉ Chi Tiết</label>
+                <input
+                  type="text"
+                  value={formData.address || ''}
+                  onChange={e => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="VD: 54 Tràng Thi, P. Hàng Bông, Q. Hoàn Kiếm, Hà Nội"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">Quy Mô Nhân Sự Dự Kiến (Headcount)</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={formData.headcount || 20}
+                  onChange={e => setFormData({ ...formData, headcount: Number(e.target.value) })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 focus:outline-hidden"
+                />
+              </div>
+            </>
+          )}
+
+          {type === 'division' && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Tên Viết Tắt / Short Name</label>
+                  <input
+                    type="text"
+                    value={formData.shortName || ''}
+                    onChange={e => setFormData({ ...formData, shortName: e.target.value.toUpperCase() })}
+                    placeholder="VD: OPS, GUIDES, FIN"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono font-bold text-slate-800 focus:outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">Mã Màu Nhận Diện</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={formData.color || '#0ea5e9'}
+                      onChange={e => setFormData({ ...formData, color: e.target.value })}
+                      className="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer p-0.5 bg-white"
+                    />
+                    <input
+                      type="text"
+                      value={formData.color || '#0ea5e9'}
+                      onChange={e => setFormData({ ...formData, color: e.target.value })}
+                      className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 focus:outline-hidden"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">Lãnh Đạo Phụ Trách (C-Level / Ban Giám Đốc)</label>
+                <input
+                  type="text"
+                  value={formData.leaderName || ''}
+                  onChange={e => setFormData({ ...formData, leaderName: e.target.value })}
+                  placeholder="VD: Lê Minh Sơn (Giám đốc Điều hành - COO)"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">Mô Tả Chức Năng & Quyền Hạn Khối</label>
+                <textarea
+                  rows={2}
+                  value={formData.description || ''}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="VD: Chịu trách nhiệm thiết kế tour, đặt dịch vụ đối tác hàng không, khách sạn, landtour toàn quốc..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-hidden"
+                />
+              </div>
+            </>
+          )}
+
           {type === 'department' && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-[11px] font-bold text-slate-700 block mb-1">Trực Thuộc Khối</label>
                   <select
-                    value={formData.level || 'Khối Điều Hành Tour'}
+                    value={formData.level || (divisions && divisions.length > 0 ? divisions[0].name : 'Khối Điều Hành Tour')}
                     onChange={e => setFormData({ ...formData, level: e.target.value })}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-hidden"
                   >
-                    <option value="Khối Quản Trị">Khối Quản Trị & Chiến Lược</option>
-                    <option value="Khối Điều Hành Tour">Khối Thiết Kế & Điều Hành Tour</option>
-                    <option value="Khối Hướng Dẫn Viên">Khối Hướng Dẫn Viên & Vận Chuyển</option>
-                    <option value="Khối Kinh Doanh & MICE">Khối Kinh Doanh, B2B & M.I.C.E</option>
-                    <option value="Khối Tài Chính & Vé">Khối Tài Chính, Thanh Toán & Vé</option>
-                    <option value="Khối Visa & Hậu Cần">Khối Visa, CSKH & Xe Du Lịch</option>
+                    {divisions && divisions.length > 0 ? (
+                      divisions.map(d => (
+                        <option key={d.id} value={d.name}>{d.name}</option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="Khối Quản Trị">Khối Quản Trị & Chiến Lược</option>
+                        <option value="Khối Điều Hành Tour">Khối Thiết Kế & Điều Hành Tour</option>
+                        <option value="Khối Hướng Dẫn Viên">Khối Hướng Dẫn Viên & Vận Chuyển</option>
+                        <option value="Khối Kinh Doanh & MICE">Khối Kinh Doanh, B2B & M.I.C.E</option>
+                        <option value="Khối Tài Chính & Vé">Khối Tài Chính, Thanh Toán & Vé</option>
+                        <option value="Khối Visa & Hậu Cần">Khối Visa, CSKH & Xe Du Lịch</option>
+                      </>
+                    )}
                   </select>
                 </div>
 

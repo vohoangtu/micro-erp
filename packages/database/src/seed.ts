@@ -232,42 +232,125 @@ export async function runSeed() {
     const [brDN] = await db.select().from(schema.branches).where(sql`code = 'BR-DN-01'`).limit(1);
     const [brWH] = await db.select().from(schema.branches).where(sql`code = 'BR-WH-01'`).limit(1);
 
-    // 6. Seed Departments (Phòng Ban Đa Phân Hệ Theo Cơ Sở - Model 1)
+    // 6. Seed Divisions (Khối Trực Thuộc Doanh Nghiệp)
+    const divisionsData = [
+      {
+        tenantId: tenant.id,
+        code: 'BLOCK-BOD',
+        name: 'Khối Quản Trị & Chiến Lược (BOD)',
+        shortName: 'BOD & Quản Trị',
+        leaderName: 'Tổng Giám Đốc (CEO)',
+        description: 'Chỉ đạo toàn diện hoạt động vận hành, hoạch định chiến lược kinh doanh và tài chính toàn chuỗi',
+        color: '#8b5cf6',
+        orderIndex: 1
+      },
+      {
+        tenantId: tenant.id,
+        code: 'BLOCK-OPS',
+        name: 'Khối Thiết Kế & Điều Hành Tour (Operations)',
+        shortName: 'Sản Phẩm & Điều Hành',
+        leaderName: 'Nguyễn Tuấn Anh (COO)',
+        description: 'Thiết kế tuyến điểm mới, đàm phán hàng không và điều hành dịch vụ mặt đất land-tour toàn cầu',
+        color: '#0ea5e9',
+        orderIndex: 2
+      },
+      {
+        tenantId: tenant.id,
+        code: 'BLOCK-GUIDES',
+        name: 'Khối Hướng Dẫn Viên & Vận Chuyển Du Lịch',
+        shortName: 'Hướng Dẫn Viên & Xe',
+        leaderName: 'Phan Thanh Hùng (Giám Đốc Khối HDV)',
+        description: 'Đội ngũ tour leader quốc tế, hướng dẫn viên di sản và đội xe du lịch tiêu chuẩn 5 sao',
+        color: '#10b981',
+        orderIndex: 3
+      },
+      {
+        tenantId: tenant.id,
+        code: 'BLOCK-COMMERCIAL',
+        name: 'Khối Kinh Doanh, B2B & Tour M.I.C.E',
+        shortName: 'Kinh Doanh & M.I.C.E',
+        leaderName: 'Lê Thu Thảo (CCO)',
+        description: 'Phát triển khách hàng doanh nghiệp, đại lý bán vé B2B và tổ chức tour sự kiện đoàn lớn',
+        color: '#f59e0b',
+        orderIndex: 4
+      },
+      {
+        tenantId: tenant.id,
+        code: 'BLOCK-FINANCE',
+        name: 'Khối Tài Chính, Thanh Toán & Vé Máy Bay',
+        shortName: 'Tài Chính & Vé Máy Bay',
+        leaderName: 'Nguyễn Thị Minh Hạnh (CFO)',
+        description: 'Quản lý doanh thu POS, cổng VietQR, đại lý hàng không IATA/BSP và dòng tiền chuỗi',
+        color: '#ec4899',
+        orderIndex: 5
+      },
+      {
+        tenantId: tenant.id,
+        code: 'BLOCK-LOGISTICS',
+        name: 'Khối Visa, CSKH & Hậu Cần Xe Du Lịch',
+        shortName: 'Visa & Hậu Cần',
+        leaderName: 'Trịnh Quốc Bảo (Trưởng Khối Hậu Cần)',
+        description: 'Xử lý hồ sơ thị thực xuất nhập cảnh, quản lý trung tâm xe và chăm sóc du khách sau tour',
+        color: '#6366f1',
+        orderIndex: 6
+      }
+    ];
+
+    for (const div of divisionsData) {
+      const [existing] = await db.select().from(schema.divisions).where(sql`code = ${div.code}`).limit(1);
+      if (!existing) {
+        await db.insert(schema.divisions).values(div);
+      }
+    }
+    console.log('✅ Seeded Divisions (6 Khối Chức Năng Trực Thuộc)');
+
+    const [divBOD] = await db.select().from(schema.divisions).where(sql`code = 'BLOCK-BOD'`).limit(1);
+    const [divOps] = await db.select().from(schema.divisions).where(sql`code = 'BLOCK-OPS'`).limit(1);
+    const [divGuides] = await db.select().from(schema.divisions).where(sql`code = 'BLOCK-GUIDES'`).limit(1);
+    const [divComm] = await db.select().from(schema.divisions).where(sql`code = 'BLOCK-COMMERCIAL'`).limit(1);
+    const [divFin] = await db.select().from(schema.divisions).where(sql`code = 'BLOCK-FINANCE'`).limit(1);
+    const [divLog] = await db.select().from(schema.divisions).where(sql`code = 'BLOCK-LOGISTICS'`).limit(1);
+
+    // 7. Seed Departments (Phòng Ban Đa Phân Hệ Theo Cơ Sở - Model 1)
     const departmentsData = [
       // Trụ sở trung ương
       {
         tenantId: tenant.id,
         branchId: null,
+        divisionId: divBOD?.id,
         code: 'DEPT-BOD',
         name: 'Ban Giám Đốc & Hội Đồng Quản Trị Lữ Hành',
-        description: 'Chỉ đạo toàn diện hoạt động vận hành, hoạch định chiến lược kinh doanh và tài chính toàn chuỗi',
+        description: 'Khối Quản Trị',
         managerName: 'Tổng Giám Đốc (CEO)',
         orderIndex: 1
       },
       {
         tenantId: tenant.id,
         branchId: null,
+        divisionId: divOps?.id,
         code: 'DEPT-HQ-PRODUCT',
         name: 'Khối Thiết Kế Sản Phẩm Tour & Hàng Không (GDS)',
-        description: 'Thiết kế tuyến điểm mới, đàm phán hợp đồng hàng không Amadeus/Sabre và giá phòng khách sạn toàn cầu',
+        description: 'Khối Điều Hành Tour',
         managerName: 'Nguyễn Tuấn Anh (COO)',
         orderIndex: 2
       },
       {
         tenantId: tenant.id,
         branchId: null,
+        divisionId: divComm?.id,
         code: 'DEPT-HQ-COMMERCIAL',
         name: 'Khối Kinh Doanh M.I.C.E & Đại Lý B2B Toàn Quốc',
-        description: 'Phát triển mạng lưới đại lý du lịch cấp 1, đấu thầu tour đoàn công ty và hội nghị quốc tế',
+        description: 'Khối Kinh Doanh & MICE',
         managerName: 'Lê Thu Thảo (CCO)',
         orderIndex: 3
       },
       {
         tenantId: tenant.id,
         branchId: brWH?.id,
+        divisionId: divLog?.id,
         code: 'DEPT-FLEET-LOGISTICS',
         name: 'Trung Tâm Quản Lý Xe Du Lịch & Hậu Cần Vật Tư',
-        description: 'Điều phối đội xe du lịch 16-45 chỗ, cấp phát đồng phục, quà tặng, vali và ấn phẩm lữ hành',
+        description: 'Khối Visa & Hậu Cần',
         managerName: 'Trịnh Quốc Bảo',
         orderIndex: 4
       },
@@ -276,36 +359,40 @@ export async function runSeed() {
       {
         tenantId: tenant.id,
         branchId: brHN?.id,
+        divisionId: divOps?.id,
         code: 'DEPT-HN-OUTBOUND',
         name: 'Phòng Điều Hành Tour Outbound (Châu Âu, Mỹ, Úc)',
-        description: 'Điều hành tour quốc tế dài ngày, đặt dịch vụ mặt đất land-tour và điều phối tour leader',
+        description: 'Khối Điều Hành Tour',
         managerName: 'Hoàng Mai Phương',
         orderIndex: 5
       },
       {
         tenantId: tenant.id,
         branchId: brHN?.id,
+        divisionId: divGuides?.id,
         code: 'DEPT-HN-GUIDES',
         name: 'Đội Ngũ Hướng Dẫn Viên Quốc Tế Miền Bắc',
-        description: 'Đội ngũ hướng dẫn viên thẻ quốc tế chuyên tuyến Châu Âu, Nhật Bản, Hàn Quốc và Đài Loan',
+        description: 'Khối Hướng Dẫn Viên',
         managerName: 'Phan Thanh Hùng',
         orderIndex: 6
       },
       {
         tenantId: tenant.id,
         branchId: brHN?.id,
+        divisionId: divComm?.id,
         code: 'DEPT-HN-SALES',
         name: 'Phòng Kinh Doanh Tour Khách Đoàn & Bán Lẻ (Hà Nội)',
-        description: 'Tư vấn bán tour trực tiếp tại quầy, chốt hợp đồng khách lẻ và đoàn cơ quan miền Bắc',
+        description: 'Khối Kinh Doanh & MICE',
         managerName: 'Trần Hương Giang',
         orderIndex: 7
       },
       {
         tenantId: tenant.id,
         branchId: brHN?.id,
+        divisionId: divFin?.id,
         code: 'DEPT-HN-FINANCE',
         name: 'Phòng Kế Toán Vé Máy Bay & Quầy Thu Ngân POS (HN)',
-        description: 'Xuất vé máy bay GDS BSP, quét VietQR, thu ngân POS và đối soát công nợ land tour',
+        description: 'Khối Tài Chính & Vé',
         managerName: 'Nguyễn Thị Minh Hạnh',
         orderIndex: 8
       },
@@ -314,27 +401,30 @@ export async function runSeed() {
       {
         tenantId: tenant.id,
         branchId: brHCM?.id,
+        divisionId: divOps?.id,
         code: 'DEPT-HCM-OUTBOUND',
         name: 'Phòng Điều Hành Tour Đông Bắc Á & Đông Nam Á (HCM)',
-        description: 'Điều hành các tuyến Thái Lan, Singapore - Malaysia, Bali, Hàn Quốc và Nhật Bản',
+        description: 'Khối Điều Hành Tour',
         managerName: 'Trần Mỹ Duyên',
         orderIndex: 9
       },
       {
         tenantId: tenant.id,
         branchId: brHCM?.id,
+        divisionId: divGuides?.id,
         code: 'DEPT-HCM-GUIDES',
         name: 'Đội Ngũ Hướng Dẫn Viên Du Lịch Miền Nam',
-        description: 'Đội ngũ tour leader dày dặn kinh nghiệm, chuyên phục vụ đoàn khách cao cấp thị trường phía Nam',
+        description: 'Khối Hướng Dẫn Viên',
         managerName: 'Lê Hải Đăng',
         orderIndex: 10
       },
       {
         tenantId: tenant.id,
         branchId: brHCM?.id,
+        divisionId: divComm?.id,
         code: 'DEPT-HCM-MICE',
         name: 'Phòng Kinh Doanh Tour M.I.C.E & Khách VIP (TP. HCM)',
-        description: 'Chuyên trách tour hội thảo, teambuilding và sự kiện gala dinner cho doanh nghiệp FDI',
+        description: 'Khối Kinh Doanh & MICE',
         managerName: 'Võ Minh Quân',
         orderIndex: 11
       },
@@ -343,18 +433,20 @@ export async function runSeed() {
       {
         tenantId: tenant.id,
         branchId: brDN?.id,
+        divisionId: divOps?.id,
         code: 'DEPT-DN-INBOUND',
         name: 'Phòng Điều Hành Tour Di Sản & Khách Quốc Tế Inbound',
-        description: 'Đón tiếp và phục vụ du khách quốc tế tham quan con đường di sản miền Trung (Huế - Hội An - Mỹ Sơn)',
+        description: 'Khối Điều Hành Tour',
         managerName: 'Đặng Thảo Vy',
         orderIndex: 12
       },
       {
         tenantId: tenant.id,
         branchId: brDN?.id,
+        divisionId: divGuides?.id,
         code: 'DEPT-DN-GUIDES',
         name: 'Đội Hướng Dẫn Viên Tuyến Miền Trung & Di Sản',
-        description: 'Hướng dẫn viên đa ngôn ngữ (Anh, Pháp, Hàn, Trung) phục vụ khách quốc tế và nội địa',
+        description: 'Khối Hướng Dẫn Viên',
         managerName: 'Nguyễn Hoàng Nam',
         orderIndex: 13
       }
@@ -364,6 +456,8 @@ export async function runSeed() {
       const [existing] = await db.select().from(schema.departments).where(sql`code = ${d.code}`).limit(1);
       if (!existing) {
         await db.insert(schema.departments).values(d);
+      } else {
+        await db.update(schema.departments).set({ divisionId: d.divisionId, branchId: d.branchId }).where(sql`id = ${existing.id}`);
       }
     }
     console.log('✅ Seeded Departments (Phòng Ban Đa Phân Hệ Theo Chi Nhánh)');

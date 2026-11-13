@@ -8,6 +8,8 @@ import {
   Edit2,
   Trash2,
   Building2,
+  Building,
+  Layers,
   Users,
   CheckCircle2,
   XCircle,
@@ -35,6 +37,9 @@ interface DepartmentManagerProps {
   onEdit: (dept: DepartmentItem) => void;
   onDelete: (id: string) => void;
   onToggleActive: (id: string) => void;
+  onNavigateToTab?: (tabId: string) => void;
+  divisionsCount?: number;
+  branchesCount?: number;
 }
 
 export function DepartmentManager({
@@ -43,7 +48,10 @@ export function DepartmentManager({
   onAdd,
   onEdit,
   onDelete,
-  onToggleActive
+  onToggleActive,
+  onNavigateToTab,
+  divisionsCount = 6,
+  branchesCount = 4
 }: DepartmentManagerProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBranch, setSelectedBranch] = useState('ALL');
@@ -88,6 +96,35 @@ export function DepartmentManager({
 
   return (
     <div className="space-y-4">
+      {/* Hierarchy Level Switcher Pills */}
+      {onNavigateToTab && (
+        <div className="flex flex-wrap items-center gap-2 pb-1">
+          <button
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold text-white shadow-xs"
+            style={{ backgroundColor: themeColorHex }}
+          >
+            <Network className="w-3.5 h-3.5" />
+            <span>Phòng Ban Trực Thuộc ({departments.length})</span>
+          </button>
+
+          <button
+            onClick={() => onNavigateToTab('org-divisions')}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-2xs"
+          >
+            <Layers className="w-3.5 h-3.5 text-blue-600" />
+            <span>Quản Lý Khối Trực Thuộc ({divisionsCount || 6})</span>
+          </button>
+
+          <button
+            onClick={() => onNavigateToTab('org-branches')}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-2xs"
+          >
+            <Building2 className="w-3.5 h-3.5 text-rose-600" />
+            <span>Quản Lý Cơ Sở Trực Thuộc ({branchesCount || 4})</span>
+          </button>
+        </div>
+      )}
+
       {/* Control Bar: Search + Filters + Actions */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="flex flex-1 flex-col sm:flex-row gap-2">

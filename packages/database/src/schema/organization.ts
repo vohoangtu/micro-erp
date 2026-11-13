@@ -16,10 +16,26 @@ export const branches = pgTable('branches', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 });
 
+export const divisions = pgTable('divisions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
+  code: varchar('code', { length: 50 }).notNull().unique(),
+  name: varchar('name', { length: 255 }).notNull(),
+  shortName: varchar('short_name', { length: 100 }),
+  leaderName: varchar('leader_name', { length: 255 }),
+  description: text('description'),
+  color: varchar('color', { length: 50 }).default('#0ea5e9'),
+  orderIndex: integer('order_index').default(0).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+});
+
 export const departments = pgTable('departments', {
   id: uuid('id').defaultRandom().primaryKey(),
   tenantId: uuid('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }).notNull(),
   branchId: uuid('branch_id').references(() => branches.id, { onDelete: 'set null' }),
+  divisionId: uuid('division_id').references(() => divisions.id, { onDelete: 'set null' }),
   parentId: uuid('parent_id'),
   code: varchar('code', { length: 50 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),

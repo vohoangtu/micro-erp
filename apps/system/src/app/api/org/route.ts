@@ -7,6 +7,7 @@ export async function GET() {
   try {
     const [
       branchesList,
+      divisionsList,
       departmentsList,
       jobPostsList,
       jobTitlesList,
@@ -16,6 +17,7 @@ export async function GET() {
       auditLogsList
     ] = await Promise.all([
       db.select().from(schema.branches).orderBy(schema.branches.code),
+      db.select().from(schema.divisions).orderBy(schema.divisions.orderIndex),
       db.select().from(schema.departments).orderBy(schema.departments.orderIndex),
       db.select().from(schema.jobPosts).orderBy(schema.jobPosts.level),
       db.select().from(schema.jobTitles).orderBy(schema.jobTitles.name),
@@ -27,18 +29,24 @@ export async function GET() {
 
     // Map departments to frontend format
     const branchMap = new Map(branchesList.map(b => [b.id, b.name]));
+    const divisionMap = new Map(divisionsList.map(div => [div.id, div.name]));
     const deptMap = new Map(departmentsList.map(d => [d.id, d.name]));
 
-    const formattedDepts = departmentsList.map(d => ({
-      id: d.id,
-      code: d.code,
-      name: d.name,
-      manager: d.managerName || 'Chưa bổ nhiệm',
-      branch: d.branchId ? (branchMap.get(d.branchId) || 'Cơ sở trực thuộc') : 'Toàn Hệ Thống',
-      headcount: 0, // calculated from positions
-      level: d.description || 'Khối Điều Hành Tour',
-      isActive: d.isActive
-    }));
+    const formattedDepts = departmentsList.map(d => {
+      const divisionName = d.divisionId ? divisionMap.get(d.divisionId) : undefined;
+      return {
+        id: d.id,
+        code: d.code,
+        name: d.name,
+        manager: d.managerName || 'Chưa bổ nhiệm',
+        branch: d.branchId ? (branchMap.get(d.branchId) || 'Cơ sở trực thuộc') : 'Toàn Hệ Thống',
+        branchId: d.branchId,
+        divisionId: d.divisionId,
+        headcount: 0, // calculated from positions
+        level: divisionName || d.description || 'Khối Điều Hành Tour',
+        isActive: d.isActive
+      };
+    });
 
     // Map positions to frontend format
     const formattedPositions = jobPositionsList.map(p => {
@@ -104,17 +112,33 @@ export async function GET() {
       code: b.code,
       name: b.name,
       phone: b.phone,
+      email: b.email || '',
       address: b.address,
+      city: b.city || (b.name.includes('Hà Nội') ? 'Hà Nội' : b.name.includes('HCM') ? 'TP. HCM' : 'Đà Nẵng'),
       managerName: b.managerName || 'Chưa bổ nhiệm',
       headcount: 20,
       revenueToday: '84.500.000 đ',
       isActive: b.isActive
     }));
 
+    // Map divisions
+    const formattedDivisions = divisionsList.map(div => ({
+      id: div.id,
+      code: div.code,
+      name: div.name,
+      shortName: div.shortName || '',
+      leaderName: div.leaderName || 'Chưa bổ nhiệm',
+      description: div.description || '',
+      color: div.color || '#0ea5e9',
+      orderIndex: div.orderIndex || 0,
+      isActive: div.isActive
+    }));
+
     return NextResponse.json({
       success: true,
       data: {
         branches: formattedBranches,
+        divisions: formattedDivisions,
         departments: formattedDepts,
         jobPosts: formattedPosts,
         jobTitles: formattedTitles,
@@ -175,9 +199,89 @@ export async function POST(request: Request) {
     };
 
     if (action === 'CREATE' || action === 'UPDATE') {
+      if (type === 'branch') {
+        if (action === 'CREATE' || !data.id || data.id.startsWith('br-')) {
+          const [created] = await db
+            .insert(schema.branches)
+            .values({
+              tenantId: tenant.id,
+              code: data.code,
+              name: data.name,
+              phone: data.phone || '024.3828.9999',
+              email: data.email || null,
+              address: data.address || '',
+              city: data.city || 'Hà Nội',
+              managerName: data.managerName || null,
+              isActive: true
+            })
+            .returning();
+          await logAudit('ORG_BRANCH_CREATED', 'BRANCH', created.id, data);
+          return NextResponse.json({ success: true, data: created });
+        } else {
+          const [updated] = await db
+            .update(schema.branches)
+            .set({
+              code: data.code,
+              name: data.name,
+              phone: data.phone,
+              email: data.email || null,
+              address: data.address,
+              city: data.city,
+              managerName: data.managerName,
+              updatedAt: new Date()
+            })
+            .where(eq(schema.branches.id, data.id))
+            .returning();
+          await logAudit('ORG_BRANCH_UPDATED', 'BRANCH', data.id, data);
+          return NextResponse.json({ success: true, data: updated });
+        }
+      }
+
+      if (type === 'division') {
+        if (action === 'CREATE' || !data.id || data.id.startsWith('div-') || data.id.startsWith('block-')) {
+          const [created] = await db
+            .insert(schema.divisions)
+            .values({
+              tenantId: tenant.id,
+              code: data.code,
+              name: data.name,
+              shortName: data.shortName || null,
+              leaderName: data.leaderName || null,
+              description: data.description || null,
+              color: data.color || '#0ea5e9',
+              orderIndex: Number(data.orderIndex) || 0,
+              isActive: true
+            })
+            .returning();
+          await logAudit('ORG_DIVISION_CREATED', 'DIVISION', created.id, data);
+          return NextResponse.json({ success: true, data: created });
+        } else {
+          const [updated] = await db
+            .update(schema.divisions)
+            .set({
+              code: data.code,
+              name: data.name,
+              shortName: data.shortName || null,
+              leaderName: data.leaderName || null,
+              description: data.description || null,
+              color: data.color || '#0ea5e9',
+              orderIndex: Number(data.orderIndex) || 0,
+              updatedAt: new Date()
+            })
+            .where(eq(schema.divisions.id, data.id))
+            .returning();
+          await logAudit('ORG_DIVISION_UPDATED', 'DIVISION', data.id, data);
+          return NextResponse.json({ success: true, data: updated });
+        }
+      }
+
       if (type === 'department') {
-        const branches = await db.select().from(schema.branches);
+        const [branches, divisions] = await Promise.all([
+          db.select().from(schema.branches),
+          db.select().from(schema.divisions)
+        ]);
         const branchMatch = branches.find(b => b.name === data.branch);
+        const divisionMatch = divisions.find(d => d.name === data.level || d.code === data.level);
 
         if (action === 'CREATE' || !data.id || data.id.startsWith('dept-')) {
           const [created] = await db
@@ -185,6 +289,7 @@ export async function POST(request: Request) {
             .values({
               tenantId: tenant.id,
               branchId: branchMatch ? branchMatch.id : null,
+              divisionId: divisionMatch ? divisionMatch.id : null,
               code: data.code,
               name: data.name,
               managerName: data.manager,
@@ -199,6 +304,7 @@ export async function POST(request: Request) {
             .update(schema.departments)
             .set({
               branchId: branchMatch ? branchMatch.id : null,
+              divisionId: divisionMatch ? divisionMatch.id : null,
               code: data.code,
               name: data.name,
               managerName: data.manager,
@@ -362,6 +468,48 @@ export async function POST(request: Request) {
 
     if (action === 'DELETE') {
       const { id } = data;
+      if (type === 'branch') {
+        const deptsInBranch = await db
+          .select()
+          .from(schema.departments)
+          .where(eq(schema.departments.branchId, id));
+
+        if (deptsInBranch.length > 0) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: `Không thể xóa cơ sở này vì đang có ${deptsInBranch.length} phòng ban trực thuộc. Vui lòng chuyển các phòng ban sang cơ sở khác trước!`
+            },
+            { status: 400 }
+          );
+        }
+
+        await db.delete(schema.branches).where(eq(schema.branches.id, id));
+        await logAudit('ORG_BRANCH_DELETED', 'BRANCH', id, { id });
+        return NextResponse.json({ success: true });
+      }
+
+      if (type === 'division') {
+        const deptsInDiv = await db
+          .select()
+          .from(schema.departments)
+          .where(eq(schema.departments.divisionId, id));
+
+        if (deptsInDiv.length > 0) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: `Không thể xóa khối này vì đang có ${deptsInDiv.length} phòng ban trực thuộc. Vui lòng chuyển các phòng ban sang khối khác trước!`
+            },
+            { status: 400 }
+          );
+        }
+
+        await db.delete(schema.divisions).where(eq(schema.divisions.id, id));
+        await logAudit('ORG_DIVISION_DELETED', 'DIVISION', id, { id });
+        return NextResponse.json({ success: true });
+      }
+
       if (type === 'department') {
         // Safe Delete Check: check if positions exist under this department
         const positions = await db
@@ -411,6 +559,32 @@ export async function POST(request: Request) {
 
     if (action === 'TOGGLE_ACTIVE') {
       const { id } = data;
+      if (type === 'branch') {
+        const [b] = await db.select().from(schema.branches).where(eq(schema.branches.id, id)).limit(1);
+        if (b) {
+          const nextActive = !b.isActive;
+          await db
+            .update(schema.branches)
+            .set({ isActive: nextActive, updatedAt: new Date() })
+            .where(eq(schema.branches.id, id));
+          await logAudit('ORG_BRANCH_TOGGLE_ACTIVE', 'BRANCH', id, { isActive: nextActive });
+          return NextResponse.json({ success: true, isActive: nextActive });
+        }
+      }
+
+      if (type === 'division') {
+        const [div] = await db.select().from(schema.divisions).where(eq(schema.divisions.id, id)).limit(1);
+        if (div) {
+          const nextActive = !div.isActive;
+          await db
+            .update(schema.divisions)
+            .set({ isActive: nextActive, updatedAt: new Date() })
+            .where(eq(schema.divisions.id, id));
+          await logAudit('ORG_DIVISION_TOGGLE_ACTIVE', 'DIVISION', id, { isActive: nextActive });
+          return NextResponse.json({ success: true, isActive: nextActive });
+        }
+      }
+
       if (type === 'department') {
         const [dept] = await db.select().from(schema.departments).where(eq(schema.departments.id, id)).limit(1);
         if (dept) {

@@ -28,6 +28,8 @@ import {
 import { UniversalTopbar, Sidebar, SubpageItem } from '@erp/ui';
 import { OrgMetricRibbon } from '../components/org/OrgMetricRibbon';
 import { DepartmentManager, DepartmentItem } from '../components/org/DepartmentManager';
+import { BranchManager, BranchItem } from '../components/org/BranchManager';
+import { DivisionManager, DivisionItem } from '../components/org/DivisionManager';
 import { JobPostManager, JobPostItem } from '../components/org/JobPostManager';
 import { JobTitleManager, JobTitleItem } from '../components/org/JobTitleManager';
 import { JobPositionManager, JobPositionItem } from '../components/org/JobPositionManager';
@@ -68,6 +70,75 @@ const INITIAL_BRANCHES = [
     managerName: 'Đặng Thảo Vy',
     headcount: 16,
     revenueToday: '115.000.000 đ',
+    isActive: true
+  }
+];
+
+const INITIAL_DIVISIONS: DivisionItem[] = [
+  {
+    id: 'div-1',
+    code: 'BLOCK-BOD',
+    name: 'Khối Quản Trị & Chiến Lược',
+    shortName: 'BOD',
+    leaderName: 'Lê Minh Sơn (COO)',
+    color: '#4f46e5',
+    orderIndex: 1,
+    description: 'Định hướng chiến lược kinh doanh lữ hành toàn cầu, đối ngoại, chuyển đổi số & quản trị doanh nghiệp',
+    isActive: true
+  },
+  {
+    id: 'div-2',
+    code: 'BLOCK-OPS',
+    name: 'Khối Thiết Kế & Điều Hành Tour',
+    shortName: 'OPS',
+    leaderName: 'Nguyễn Tuấn Anh (COO)',
+    color: '#0284c7',
+    orderIndex: 2,
+    description: 'Thiết kế sản phẩm tour Inbound, Outbound, nội địa và đặt giữ chỗ hàng không GDS toàn cầu',
+    isActive: true
+  },
+  {
+    id: 'div-3',
+    code: 'BLOCK-GUIDES',
+    name: 'Khối Hướng Dẫn Viên & Vận Chuyển',
+    shortName: 'GUIDES',
+    leaderName: 'Phan Thanh Hùng (Director)',
+    color: '#16a34a',
+    orderIndex: 3,
+    description: 'Quản lý đội ngũ hướng dẫn viên quốc tế đa ngôn ngữ và điều phối xe du lịch toàn tuyến',
+    isActive: true
+  },
+  {
+    id: 'div-4',
+    code: 'BLOCK-COMMERCIAL',
+    name: 'Khối Kinh Doanh, B2B & M.I.C.E',
+    shortName: 'MICE',
+    leaderName: 'Lê Thu Thảo (CCO)',
+    color: '#d97706',
+    orderIndex: 4,
+    description: 'Phát triển khách hàng doanh nghiệp M.I.C.E, chuỗi đại lý lữ hành B2B và bán lẻ toàn quốc',
+    isActive: true
+  },
+  {
+    id: 'div-5',
+    code: 'BLOCK-FINANCE',
+    name: 'Khối Tài Chính, Thanh Toán & Vé',
+    shortName: 'FIN',
+    leaderName: 'Nguyễn Thị Minh Hạnh (CFO)',
+    color: '#9333ea',
+    orderIndex: 5,
+    description: 'Quản lý dòng tiền vé máy bay, bảo lãnh thanh toán quốc tế và hệ thống thu ngân POS đa cơ sở',
+    isActive: true
+  },
+  {
+    id: 'div-6',
+    code: 'BLOCK-LOGISTICS',
+    name: 'Khối Visa, CSKH & Xe Du Lịch',
+    shortName: 'LOG',
+    leaderName: 'Trịnh Quốc Bảo (Director)',
+    color: '#dc2626',
+    orderIndex: 6,
+    description: 'Xử lý thủ tục thị thực visa các nước, chăm sóc khách hàng VIP và hậu cần vận tải',
     isActive: true
   }
 ];
@@ -297,7 +368,8 @@ export default function SystemControlTowerPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Interactive State for Organization Structure
-  const [branches, setBranches] = useState(INITIAL_BRANCHES);
+  const [branches, setBranches] = useState<any[]>(INITIAL_BRANCHES);
+  const [divisions, setDivisions] = useState<DivisionItem[]>(INITIAL_DIVISIONS);
   const [departments, setDepartments] = useState<DepartmentItem[]>(INITIAL_DEPARTMENTS);
   const [jobPosts, setJobPosts] = useState<JobPostItem[]>(INITIAL_JOB_POSTS);
   const [jobTitles, setJobTitles] = useState<JobTitleItem[]>(INITIAL_JOB_TITLES);
@@ -348,6 +420,7 @@ export default function SystemControlTowerPage() {
         const json = await res.json();
         if (json.success && json.data) {
           if (json.data.departments?.length) setDepartments(json.data.departments);
+          if (json.data.divisions?.length) setDivisions(json.data.divisions);
           if (json.data.jobPosts?.length) setJobPosts(json.data.jobPosts);
           if (json.data.jobTitles?.length) setJobTitles(json.data.jobTitles);
           if (json.data.jobPositions?.length) setJobPositions(json.data.jobPositions);
@@ -375,7 +448,31 @@ export default function SystemControlTowerPage() {
   };
 
   const handleSaveEntity = (type: OrgEntityType, data: any) => {
-    if (type === 'department') {
+    if (type === 'branch') {
+      if (data.id) {
+        setBranches(prev => prev.map(b => (b.id === data.id ? { ...b, ...data } : b)));
+        showToast(`✅ Đã cập nhật cơ sở: ${data.name}`);
+      } else {
+        const newBranch = {
+          ...data,
+          id: `br-${Date.now()}`
+        };
+        setBranches(prev => [newBranch, ...prev]);
+        showToast(`✅ Đã thêm mới cơ sở: ${data.name}`);
+      }
+    } else if (type === 'division') {
+      if (data.id) {
+        setDivisions(prev => prev.map(div => (div.id === data.id ? { ...div, ...data } : div)));
+        showToast(`✅ Đã cập nhật khối trực thuộc: ${data.name}`);
+      } else {
+        const newDiv: DivisionItem = {
+          ...data,
+          id: `div-${Date.now()}`
+        };
+        setDivisions(prev => [newDiv, ...prev]);
+        showToast(`✅ Đã thêm mới khối trực thuộc: ${data.name}`);
+      }
+    } else if (type === 'department') {
       if (data.id) {
         setDepartments(prev => prev.map(d => (d.id === data.id ? { ...d, ...data } : d)));
         showToast(`✅ Đã cập nhật phòng ban: ${data.name}`);
@@ -467,12 +564,38 @@ export default function SystemControlTowerPage() {
       // Offline fallback
     }
 
+    if (type === 'branch') setBranches(prev => prev.filter(b => b.id !== id));
+    if (type === 'division') setDivisions(prev => prev.filter(d => d.id !== id));
     if (type === 'department') setDepartments(prev => prev.filter(d => d.id !== id));
     if (type === 'post') setJobPosts(prev => prev.filter(p => p.id !== id));
     if (type === 'title') setJobTitles(prev => prev.filter(t => t.id !== id));
     if (type === 'position') setJobPositions(prev => prev.filter(p => p.id !== id));
     if (type === 'type') setEmploymentTypes(prev => prev.filter(t => t.id !== id));
     showToast(`🗑️ Đã xóa "${name || 'mục này'}" thành công!`);
+  };
+
+  const handleToggleActiveBranch = (id: string) => {
+    setBranches(prev =>
+      prev.map(b => (b.id === id ? { ...b, isActive: b.isActive === false ? true : false } : b))
+    );
+    fetch('/system/api/org', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'TOGGLE_ACTIVE', type: 'branch', data: { id } })
+    }).catch(err => console.error('Toggle active sync error:', err));
+    showToast('Đã chuyển đổi trạng thái cơ sở.');
+  };
+
+  const handleToggleActiveDivision = (id: string) => {
+    setDivisions(prev =>
+      prev.map(div => (div.id === id ? { ...div, isActive: div.isActive === false ? true : false } : div))
+    );
+    fetch('/system/api/org', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'TOGGLE_ACTIVE', type: 'division', data: { id } })
+    }).catch(err => console.error('Toggle active sync error:', err));
+    showToast('Đã chuyển đổi trạng thái khối trực thuộc.');
   };
 
   const handleToggleActiveDept = (id: string) => {
@@ -507,6 +630,8 @@ export default function SystemControlTowerPage() {
       label: 'Cơ Cấu Tổ Chức',
       icon: Network,
       children: [
+        { id: 'org-branches', label: 'Cơ Sở Trực Thuộc', icon: Building2 },
+        { id: 'org-divisions', label: 'Khối Trực Thuộc', icon: Layers },
         { id: 'org-depts', label: 'Phòng Ban (Org Units)', icon: Network },
         { id: 'org-posts', label: 'Chức Vụ Hành Chính', icon: Award },
         { id: 'org-titles', label: 'Chức Danh Chuyên Môn', icon: Briefcase },
@@ -616,6 +741,49 @@ export default function SystemControlTowerPage() {
                   themeColorHex={primaryColorHex}
                 />
 
+                {/* Sub-menu 0A: Quản Lý Cơ Sở Trực Thuộc */}
+                {activeSubpageId === 'org-branches' && (
+                  <BranchManager
+                    branches={branches}
+                    departmentCounts={departments.reduce((acc, d) => {
+                      if (d.branch) acc[d.branch] = (acc[d.branch] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>)}
+                    themeColorHex={primaryColorHex}
+                    onAdd={() => openAddModal('branch')}
+                    onEdit={(b) => openEditModal('branch', b)}
+                    onDelete={(id) => {
+                      const b = branches.find(item => item.id === id);
+                      handleDeleteEntity('branch', id, b?.name);
+                    }}
+                    onToggleActive={handleToggleActiveBranch}
+                    onSelectBranchContext={(name) => showToast(`Chuyển ngữ cảnh quản trị sang: ${name}`)}
+                  />
+                )}
+
+                {/* Sub-menu 0B: Quản Lý Khối Trực Thuộc */}
+                {activeSubpageId === 'org-divisions' && (
+                  <DivisionManager
+                    divisions={divisions}
+                    departmentCounts={departments.reduce((acc, d) => {
+                      if (d.level) acc[d.level] = (acc[d.level] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>)}
+                    headcountCounts={departments.reduce((acc, d) => {
+                      if (d.level) acc[d.level] = (acc[d.level] || 0) + (d.headcount || 0);
+                      return acc;
+                    }, {} as Record<string, number>)}
+                    themeColorHex={primaryColorHex}
+                    onAdd={() => openAddModal('division')}
+                    onEdit={(div) => openEditModal('division', div)}
+                    onDelete={(id) => {
+                      const div = divisions.find(item => item.id === id);
+                      handleDeleteEntity('division', id, div?.name);
+                    }}
+                    onToggleActive={handleToggleActiveDivision}
+                  />
+                )}
+
                 {/* Sub-menu 1: Phòng Ban */}
                 {(activeSubpageId === 'org-depts' || activeSubpageId === 'org') && (
                   <DepartmentManager
@@ -628,6 +796,9 @@ export default function SystemControlTowerPage() {
                       handleDeleteEntity('department', id, d?.name);
                     }}
                     onToggleActive={handleToggleActiveDept}
+                    onNavigateToTab={(tabId) => setActiveSubpageId(tabId)}
+                    divisionsCount={divisions.length}
+                    branchesCount={branches.length}
                   />
                 )}
 
@@ -1144,6 +1315,7 @@ export default function SystemControlTowerPage() {
         initialData={modalConfig.initialData}
         branches={branches}
         departments={departments}
+        divisions={divisions}
         jobPosts={jobPosts}
         jobTitles={jobTitles}
         themeColorHex={primaryColorHex}
