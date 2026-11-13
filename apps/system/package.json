@@ -9,6 +9,7 @@
     "start": "next start --port 3008"
   },
   "dependencies": {
+    "@erp/database": "workspace:*",
     "@erp/shared-types": "workspace:*",
     "@erp/ui": "workspace:*",
     "clsx": "^2.1.1",

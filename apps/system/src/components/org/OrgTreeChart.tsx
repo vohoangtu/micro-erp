@@ -529,8 +529,16 @@ export function OrgTreeChart({ departments, positions, themeColorHex }: OrgTreeC
             </div>
           )}
 
-          {/* Expand / Collapse All */}
+          {/* Expand / Collapse All & Print */}
           <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => window.print()}
+              className="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition flex items-center gap-1"
+              title="In hoặc xuất PDF sơ đồ cây tổ chức"
+            >
+              <Printer className="w-3.5 h-3.5 text-slate-600" />
+              <span className="hidden sm:inline">In Sơ Đồ</span>
+            </button>
             <button
               onClick={expandAll}
               className="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition flex items-center gap-1"

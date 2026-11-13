@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Layers, Plus, Edit2, Trash2, Search, CheckCircle2, AlertCircle, Users, DollarSign } from 'lucide-react';
+import { Layers, Plus, Edit2, Trash2, Search, CheckCircle2, AlertCircle, Users, DollarSign, Download } from 'lucide-react';
 
 export interface JobPositionItem {
   id: string;
@@ -76,6 +76,35 @@ export function JobPositionManager({
     return matchSearch && matchStatus && matchDept && matchBranch;
   });
 
+  const handleExportExcel = () => {
+    const headers = ['Mã Vị Trí', 'Tên Vị Trí', 'Cơ Sở / Chi Nhánh', 'Thuộc Phòng Ban', 'Định Biên Tiêu Chuẩn', 'Thực Tế Hiện Có', 'Tỷ Lệ Lấp Đầy', 'Dải Lương Khung', 'Tình Trạng Tuyển Dụng'];
+    const rows = filteredPositions.map(p => {
+      const isFull = p.current >= p.quota;
+      const fillPct = p.quota > 0 ? Math.round((p.current / p.quota) * 100) : 100;
+      return [
+        p.code,
+        p.name,
+        p.branch || 'Toàn Hệ Thống',
+        p.dept,
+        p.quota,
+        p.current,
+        `${fillPct}%`,
+        p.salaryRange,
+        isFull ? 'Đủ Định Biên' : `Cần Tuyển Thêm ${p.quota - p.current} Người`
+      ];
+    });
+    const bom = '\uFEFF';
+    const csvContent = bom + [headers.join(','), ...rows.map(e => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Bao_Cao_Dinh_Bien_Nhan_Su_VietTravel_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-4">
       {/* Search & Actions Bar */}
@@ -125,14 +154,25 @@ export function JobPositionManager({
           </select>
         </div>
 
-        <button
-          onClick={onAdd}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-xs transition hover:opacity-90 active:scale-95 whitespace-nowrap"
-          style={{ backgroundColor: themeColorHex }}
-        >
-          <Plus className="w-4 h-4" />
-          <span>Thêm Vị Trí & Định Biên</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportExcel}
+            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition whitespace-nowrap"
+            title="Xuất báo cáo định biên nhân sự ra file Excel (CSV UTF-8)"
+          >
+            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="hidden sm:inline">Xuất Excel</span>
+          </button>
+
+          <button
+            onClick={onAdd}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white shadow-xs transition hover:opacity-90 active:scale-95 whitespace-nowrap"
+            style={{ backgroundColor: themeColorHex }}
+          >
+            <Plus className="w-4 h-4" />
+            <span>Thêm Vị Trí & Định Biên</span>
+          </button>
+        </div>
       </div>
 
       {/* Positions Table */}
@@ -157,7 +197,36 @@ export function JobPositionManager({
                 const fillPct = pos.quota > 0 ? Math.round((pos.current / pos.quota) * 100) : 100;
                 const needMore = Math.max(0, pos.quota - pos.current);
 
-                return (
+                const handleExportExcel = () => {
+    const headers = ['Mã Vị Trí', 'Tên Vị Trí', 'Cơ Sở / Chi Nhánh', 'Thuộc Phòng Ban', 'Định Biên Tiêu Chuẩn', 'Thực Tế Hiện Có', 'Tỷ Lệ Lấp Đầy', 'Dải Lương Khung', 'Tình Trạng Tuyển Dụng'];
+    const rows = filteredPositions.map(p => {
+      const isFull = p.current >= p.quota;
+      const fillPct = p.quota > 0 ? Math.round((p.current / p.quota) * 100) : 100;
+      return [
+        p.code,
+        p.name,
+        p.branch || 'Toàn Hệ Thống',
+        p.dept,
+        p.quota,
+        p.current,
+        `${fillPct}%`,
+        p.salaryRange,
+        isFull ? 'Đủ Định Biên' : `Cần Tuyển Thêm ${p.quota - p.current} Người`
+      ];
+    });
+    const bom = '\uFEFF';
+    const csvContent = bom + [headers.join(','), ...rows.map(e => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Bao_Cao_Dinh_Bien_Nhan_Su_VietTravel_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
                   <tr key={pos.id} className="hover:bg-slate-50/60 transition">
                     <td className="py-3.5 px-4 font-mono font-bold text-slate-700">{pos.code}</td>
                     <td className="py-3.5 px-4 font-bold text-slate-900">{pos.name}</td>

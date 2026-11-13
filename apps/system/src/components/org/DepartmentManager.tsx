@@ -13,7 +13,8 @@ import {
   XCircle,
   LayoutGrid,
   List,
-  Filter
+  Filter,
+  Download
 } from 'lucide-react';
 
 export interface DepartmentItem {
@@ -61,6 +62,29 @@ export function DepartmentManager({
     const matchLevel = selectedLevel === 'ALL' || d.level === selectedLevel;
     return matchSearch && matchBranch && matchLevel;
   });
+
+  const handleExportExcel = () => {
+    const headers = ['Mã Đơn Vị', 'Tên Phòng Ban', 'Khối Chức Năng', 'Trưởng Đơn Vị', 'Cơ Sở Phụ Trách', 'Nhân Sự Thực Tế', 'Trạng Thái'];
+    const rows = filteredDepts.map(d => [
+      d.code,
+      d.name,
+      d.level,
+      d.manager || 'Chưa bổ nhiệm',
+      d.branch,
+      d.headcount,
+      d.isActive === false ? 'Tạm ngưng' : 'Hoạt động'
+    ]);
+    const bom = '\uFEFF';
+    const csvContent = bom + [headers.join(','), ...rows.map(e => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Bao_Cao_Phong_Ban_VietTravel_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="space-y-4">
@@ -129,6 +153,15 @@ export function DepartmentManager({
               <List className="w-4 h-4" />
             </button>
           </div>
+
+          <button
+            onClick={handleExportExcel}
+            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 shadow-2xs transition whitespace-nowrap"
+            title="Xuất danh sách phòng ban ra file Excel (CSV UTF-8)"
+          >
+            <Download className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="hidden sm:inline">Xuất Excel</span>
+          </button>
 
           <button
             onClick={onAdd}

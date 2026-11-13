@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '../../.env' });
 
 export async function runSeed() {
-  console.log('🌱 Starting database seed for BHN CORE ERP (2026 Edition)...');
+  console.log('🌱 Starting database seed for Viet Travel Enterprise Group (2026 Edition)...');
 
   try {
     // 1. Create or get default Tenant
@@ -12,36 +12,56 @@ export async function runSeed() {
       [tenant] = await db
         .insert(schema.tenants)
         .values({
-          name: 'BHN International Wellness & Clinic',
-          slug: 'bhn-core',
+          name: 'Viet Travel Enterprise Group',
+          slug: 'viettravel-group',
           plan: 'enterprise',
           isActive: true
         })
         .returning();
       console.log('✅ Created Tenant:', tenant.name);
+    } else {
+      await db
+        .update(schema.tenants)
+        .set({ name: 'Viet Travel Enterprise Group', slug: 'viettravel-group' })
+        .where(sql`id = ${tenant.id}`);
+      console.log('✅ Updated Tenant to:', 'Viet Travel Enterprise Group');
     }
 
     // 2. Seed Users
     const usersData = [
       {
         tenantId: tenant.id,
-        email: 'admin@bhn.vn',
+        email: 'admin@viettravel.vn',
         passwordHash: 'Admin@2026',
-        fullName: 'BHN System Administrator',
+        fullName: 'Viet Travel Administrator',
         role: 'SUPER_ADMIN'
       },
       {
         tenantId: tenant.id,
-        email: 'manager@bhn.vn',
+        email: 'giang.th@viettravel.vn',
         passwordHash: 'Admin@2026',
-        fullName: 'Trần Hương Giang (Quản Lý Chi Nhánh)',
+        fullName: 'Trần Hương Giang (Giám Đốc CN Hà Nội)',
         role: 'MANAGER'
       },
       {
         tenantId: tenant.id,
-        email: 'cashier@bhn.vn',
+        email: 'quan.vm@viettravel.vn',
         passwordHash: 'Admin@2026',
-        fullName: 'Lê Thu Trang (Thu Ngân POS)',
+        fullName: 'Võ Minh Quân (Giám Đốc CN Quận 1)',
+        role: 'MANAGER'
+      },
+      {
+        tenantId: tenant.id,
+        email: 'vy.dt@viettravel.vn',
+        passwordHash: 'Admin@2026',
+        fullName: 'Đặng Thảo Vy (Giám Đốc CN Đà Nẵng)',
+        role: 'MANAGER'
+      },
+      {
+        tenantId: tenant.id,
+        email: 'cashier@viettravel.vn',
+        passwordHash: 'Admin@2026',
+        fullName: 'Nguyễn Thị Minh Hạnh (Thu Ngân Vé POS)',
         role: 'CASHIER'
       }
     ];
@@ -52,49 +72,49 @@ export async function runSeed() {
         await db.insert(schema.users).values(u);
       }
     }
-    console.log('✅ Seeded Users (admin@bhn.vn / Admin@2026)');
+    console.log('✅ Seeded Users (admin@viettravel.vn / Admin@2026)');
 
-    // 3. Seed Products & Services
+    // 3. Seed Products & Tours
     const productsData = [
       {
         tenantId: tenant.id,
-        sku: 'SRV-FACIAL-01',
-        name: 'Gói Chăm Sóc Da Mặt Cao Cấp Bio-Cell',
-        category: 'Dịch vụ Spa',
-        unitPrice: '450000',
-        stockQuantity: 999
+        sku: 'TOUR-EU-01',
+        name: 'Tour Khám Phá Tây Âu 5 Nước (Pháp - Thụy Sĩ - Ý - Vatican - Monaco)',
+        category: 'Tour Outbound',
+        unitPrice: '68500000',
+        stockQuantity: 40
       },
       {
         tenantId: tenant.id,
-        sku: 'SRV-MASSAGE-02',
-        name: 'Massage Body Đá Nóng Himalaya 90 phút',
-        category: 'Trị Liệu Thư Giãn',
-        unitPrice: '550000',
-        stockQuantity: 999
+        sku: 'TOUR-US-02',
+        name: 'Tour Bờ Tây Nước Mỹ Siêu Hấp Dẫn (Los Angeles - Las Vegas - San Francisco)',
+        category: 'Tour Outbound',
+        unitPrice: '89900000',
+        stockQuantity: 30
       },
       {
         tenantId: tenant.id,
-        sku: 'SRV-COMBO-03',
-        name: 'Combo Trị Liệu Trẻ Hóa Công Nghệ Cao HIFU',
-        category: 'Trị Liệu Công Nghệ Cao',
-        unitPrice: '2400000',
-        stockQuantity: 999
+        sku: 'TOUR-JP-03',
+        name: 'Tour Cung Đường Vàng Nhật Bản Mùa Hoa Anh Đào (Tokyo - Fuji - Kyoto - Osaka)',
+        category: 'Tour Châu Á',
+        unitPrice: '38900000',
+        stockQuantity: 60
       },
       {
         tenantId: tenant.id,
-        sku: 'PRD-SERUM-04',
-        name: 'Serum Dưỡng Ẩm Phục Hồi Chuyên Sâu B5 50ml',
-        category: 'Mỹ phẩm',
-        unitPrice: '620000',
-        stockQuantity: 85
+        sku: 'TOUR-MICE-04',
+        name: 'Gói Tour Hội Nghị & Teambuilding Doanh Nghiệp M.I.C.E (Đà Nẵng - Hội An)',
+        category: 'Tour M.I.C.E',
+        unitPrice: '8500000',
+        stockQuantity: 200
       },
       {
         tenantId: tenant.id,
-        sku: 'PRD-SUNSCREEN-05',
-        name: 'Kem Chống Nắng Phổ Rộng Bảo Vệ Toàn Diện SPF50+',
-        category: 'Mỹ phẩm',
-        unitPrice: '480000',
-        stockQuantity: 120
+        sku: 'TICKET-IATA-05',
+        name: 'Vé Máy Bay Quốc Tế Hạng Thương Gia Khứ Hồi Vietnam Airlines / Emirates',
+        category: 'Vé Máy Bay',
+        unitPrice: '24500000',
+        stockQuantity: 150
       }
     ];
 
@@ -104,7 +124,7 @@ export async function runSeed() {
         await db.insert(schema.products).values(p);
       }
     }
-    console.log('✅ Seeded Products & Services');
+    console.log('✅ Seeded Tours & Travel Services');
 
     // 4. Seed CRM Customers
     const customersData = [
@@ -112,41 +132,31 @@ export async function runSeed() {
         tenantId: tenant.id,
         phoneNumber: '0903123456',
         fullName: 'Nguyễn Thị Mai Lan',
-        email: 'mailan.nguyen@gmail.com',
+        email: 'mailan.nguyen@vietcorp.vn',
         tier: 'PLATINUM',
-        loyaltyPoints: 640,
-        totalSpent: '18500000',
-        notes: 'Khách hàng VIP, dị ứng cồn mỹ phẩm nhẹ'
+        loyaltyPoints: 1200,
+        totalSpent: '185000000',
+        notes: 'Khách hàng VIP hay đặt tour Outbound Châu Âu, yêu cầu phòng đơn'
       },
       {
         tenantId: tenant.id,
         phoneNumber: '0912888999',
         fullName: 'Trần Văn Hoàng',
-        email: 'hoang.tran@gmail.com',
-        tier: 'GOLD',
-        loyaltyPoints: 320,
-        totalSpent: '9200000',
-        notes: 'Thường xuyên đặt ca tối 18h-20h'
+        email: 'hoang.tran@globaltech.com',
+        tier: 'DIAMOND',
+        loyaltyPoints: 2450,
+        totalSpent: '420000000',
+        notes: 'Trưởng ban đối ngoại tập đoàn, thường xuyên book tour MICE đoàn 100 khách'
       },
       {
         tenantId: tenant.id,
         phoneNumber: '0988777666',
         fullName: 'Phạm Thu Hằng',
-        email: 'thuhang.pham@yahoo.com',
-        tier: 'SILVER',
-        loyaltyPoints: 80,
-        totalSpent: '2800000',
-        notes: 'Quan tâm dịch vụ trị mụn công nghệ cao'
-      },
-      {
-        tenantId: tenant.id,
-        phoneNumber: '0933445566',
-        fullName: 'Lê Minh Tuấn',
-        email: 'tuan.leminh@corp.vn',
-        tier: 'DIAMOND',
-        loyaltyPoints: 1250,
-        totalSpent: '35000000',
-        notes: 'Khách hàng Kim Cương, ưu tiên phòng VIP 1'
+        email: 'thuhang.pham@gmail.com',
+        tier: 'GOLD',
+        loyaltyPoints: 540,
+        totalSpent: '78000000',
+        notes: 'Đã hoàn tất visa Schengen và Nhật Bản'
       }
     ];
 
@@ -160,199 +170,14 @@ export async function runSeed() {
     }
     console.log('✅ Seeded CRM Customers');
 
-    // 5. Seed HR Employees
-    const employeesData = [
-      {
-        tenantId: tenant.id,
-        employeeCode: 'EMP-001',
-        fullName: 'Nguyễn Thị Mai',
-        email: 'mai.nguyen@bhn.vn',
-        phoneNumber: '0901234567',
-        department: 'Kỹ thuật viên Trị liệu',
-        baseSalary: '10000000',
-        commissionRate: '0.08'
-      },
-      {
-        tenantId: tenant.id,
-        employeeCode: 'EMP-002',
-        fullName: 'Trần Văn Hoàng',
-        email: 'hoang.tran@bhn.vn',
-        phoneNumber: '0912345678',
-        department: 'Tư vấn & Chăm sóc KH',
-        baseSalary: '9000000',
-        commissionRate: '0.05'
-      },
-      {
-        tenantId: tenant.id,
-        employeeCode: 'EMP-003',
-        fullName: 'Bác sĩ Lê Đình Trọng',
-        email: 'trong.le@bhn.vn',
-        phoneNumber: '0933112233',
-        department: 'Chuyên khoa Da liễu',
-        baseSalary: '25000000',
-        commissionRate: '0.10'
-      }
-    ];
-
-    let seededEmployees = [];
-    for (const e of employeesData) {
-      let [existing] = await db.select().from(schema.employees).where(sql`employee_code = ${e.employeeCode}`).limit(1);
-      if (!existing) {
-        [existing] = await db.insert(schema.employees).values(e).returning();
-      }
-      seededEmployees.push(existing);
-    }
-    console.log('✅ Seeded HR Employees');
-
-    // 6. Seed Bookings
-    const bookingsData = [
-      {
-        tenantId: tenant.id,
-        bookingCode: 'BK-TODAY-01',
-        customerId: seededCustomers[0].id,
-        customerName: seededCustomers[0].fullName,
-        customerPhone: seededCustomers[0].phoneNumber,
-        employeeId: seededEmployees[0].id,
-        serviceName: 'Gói Chăm Sóc Da Mặt Cao Cấp Bio-Cell',
-        appointmentTime: new Date(Date.now() + 2 * 60 * 60 * 1000), // in 2 hours
-        durationMinutes: 75,
-        status: 'CONFIRMED',
-        price: '450000',
-        notes: 'Xếp phòng VIP số 2'
-      },
-      {
-        tenantId: tenant.id,
-        bookingCode: 'BK-TODAY-02',
-        customerId: seededCustomers[1].id,
-        customerName: seededCustomers[1].fullName,
-        customerPhone: seededCustomers[1].phoneNumber,
-        employeeId: seededEmployees[1].id,
-        serviceName: 'Massage Body Đá Nóng Himalaya 90 phút',
-        appointmentTime: new Date(Date.now() + 4 * 60 * 60 * 1000), // in 4 hours
-        durationMinutes: 90,
-        status: 'IN_PROGRESS',
-        price: '550000',
-        notes: 'Khách yêu cầu kỹ thuật viên tay nghề cứng'
-      }
-    ];
-
-    for (const b of bookingsData) {
-      const [existing] = await db.select().from(schema.bookings).where(sql`booking_code = ${b.bookingCode}`).limit(1);
-      if (!existing) {
-        await db.insert(schema.bookings).values(b);
-      }
-    }
-    console.log('✅ Seeded Bookings');
-
-    // 7. Seed POS Orders
-    const ordersData = [
-      {
-        tenantId: tenant.id,
-        orderCode: 'ORD-K891',
-        customerId: seededCustomers[0].id,
-        customerName: seededCustomers[0].fullName,
-        cashierId: tenant.id,
-        subtotal: '1070000',
-        discount: '0',
-        totalAmount: '1070000',
-        status: 'PAID',
-        paymentMethod: 'VIETQR',
-        items: [
-          { productName: 'Gói Chăm Sóc Da Mặt Cao Cấp', quantity: 1, unitPrice: 450000 },
-          { productName: 'Serum Dưỡng Ẩm Phục Hồi B5', quantity: 1, unitPrice: 620000 }
-        ]
-      },
-      {
-        tenantId: tenant.id,
-        orderCode: 'ORD-K890',
-        customerId: seededCustomers[1].id,
-        customerName: seededCustomers[1].fullName,
-        cashierId: tenant.id,
-        subtotal: '550000',
-        discount: '0',
-        totalAmount: '550000',
-        status: 'PAID',
-        paymentMethod: 'CASH',
-        items: [{ productName: 'Massage Body Đá Nóng 90p', quantity: 1, unitPrice: 550000 }]
-      },
-      {
-        tenantId: tenant.id,
-        orderCode: 'ORD-K889',
-        customerId: seededCustomers[3].id,
-        customerName: seededCustomers[3].fullName,
-        cashierId: tenant.id,
-        subtotal: '2400000',
-        discount: '0',
-        totalAmount: '2400000',
-        status: 'PAID',
-        paymentMethod: 'CREDIT_CARD',
-        items: [{ productName: 'Combo Trị Liệu Trẻ Hóa Công Nghệ Cao HIFU', quantity: 1, unitPrice: 2400000 }]
-      }
-    ];
-
-    for (const o of ordersData) {
-      const [existing] = await db.select().from(schema.orders).where(sql`order_code = ${o.orderCode}`).limit(1);
-      if (!existing) {
-        await db.insert(schema.orders).values(o);
-      }
-    }
-    console.log('✅ Seeded POS Orders');
-
-    // 8. Seed AI Knowledge Base (RAG Documents for AI Copilot)
-    const aiDocsData = [
-      {
-        tenantId: tenant.id,
-        title: 'Chính sách Tích lũy Điểm thưởng & Nâng hạng Hội viên BHN Privilege 2026',
-        category: 'CHINH_SACH_HOI_VIEN',
-        content: `
-Mỗi 100.000 VNĐ thanh toán tại POS được tích lũy 1 điểm thưởng (points).
-Các phân hạng thành viên:
-1. Standard (0 - 49 điểm): Ưu đãi cơ bản.
-2. Silver (50 - 199 điểm): Giảm 5% hóa đơn dịch vụ, quà sinh nhật 200.000 VNĐ.
-3. Gold (200 - 499 điểm): Giảm 10% hóa đơn, miễn phí 1 buổi tư vấn chuyên khoa da liễu.
-4. Platinum (500 - 999 điểm): Giảm 15% hóa đơn, ưu tiên đặt lịch giờ cao điểm, miễn phí nâng cấp phòng VIP.
-5. Diamond (Từ 1.000 điểm trở lên): Giảm 20% toàn bộ dịch vụ & mỹ phẩm, chuyên viên riêng phục vụ 1-kèm-1.
-`
-      },
-      {
-        tenantId: tenant.id,
-        title: 'Quy trình Điều phối Phòng Dịch vụ & Xử lý Hủy lịch hẹn',
-        category: 'QUY_TRINH_VAN_HANH',
-        content: `
-1. Khách hàng cần thông báo dời/hủy lịch trước ít nhất 2 giờ so với giờ hẹn đã định.
-2. Trường hợp khách đến trễ quá 15 phút mà không thông báo, hệ thống tự động chuyển trạng thái NO_SHOW và điều phối kỹ thuật viên cho khách hàng vãng lai.
-3. Khung giờ cao điểm (Peak hours): 11h30 - 13h30 và 18h00 - 20h30 tất cả các ngày trong tuần. Luôn duy trì ít nhất 2 kỹ thuật viên dự phòng.
-`
-      },
-      {
-        tenantId: tenant.id,
-        title: 'Chính sách Chi trả Hoa hồng & Thưởng Hiệu suất Nhân sự (HR & Commission)',
-        category: 'CHINH_SACH_NHAN_SU',
-        content: `
-1. Kỹ thuật viên (Therapist): Hưởng 8% hoa hồng trên giá trị dịch vụ thực hiện trực tiếp.
-2. Chuyên viên Tư vấn (Consultant): Hưởng 5% hoa hồng trên tổng doanh thu đơn hàng mỹ phẩm & gói liệu trình tư vấn thành công.
-3. Bác sĩ chuyên khoa: Hưởng 10% hoa hồng trên các ca trị liệu công nghệ cao.
-4. Bảng lương và hoa hồng được hệ thống tính tự động vào ngày cuối cùng của tháng và chi trả qua ngân hàng vào ngày 05 hàng tháng.
-`
-      }
-    ];
-
-    for (const doc of aiDocsData) {
-      const [existing] = await db.select().from(schema.aiDocuments).where(sql`title = ${doc.title}`).limit(1);
-      if (!existing) {
-        await db.insert(schema.aiDocuments).values(doc);
-      }
-    }
-    console.log('✅ Seeded AI Knowledge Base (RAG Documents)');
-
-    // 9. Seed Branches (Cơ sở Chuỗi Thẩm mỹ viện & Clinic)
+    // 5. Seed Branches (Chuỗi Chi Nhánh Lữ Hành Toàn Quốc - Model 1)
     const branchesData = [
       {
         tenantId: tenant.id,
         code: 'BR-HN-01',
-        name: 'BHN Clinic & Spa — Trụ Sở Hoàn Kiếm (Hà Nội)',
+        name: 'Viet Travel Corp — Trụ Sở Hoàn Kiếm (Hà Nội)',
         phone: '024 3828 2026',
-        email: 'hoankiem@bhn.vn',
+        email: 'hoankiem@viettravel.vn',
         address: 'Số 68 Phố Tràng Thi, Phường Hàng Trống, Quận Hoàn Kiếm',
         city: 'Hà Nội',
         managerName: 'Trần Hương Giang',
@@ -361,9 +186,9 @@ Các phân hạng thành viên:
       {
         tenantId: tenant.id,
         code: 'BR-HCM-01',
-        name: 'BHN Wellness Center — Chi Nhánh Quận 1 (TP. HCM)',
+        name: 'Viet Travel Group — Chi Nhánh Quận 1 (TP. HCM)',
         phone: '028 3910 2026',
-        email: 'quan1@bhn.vn',
+        email: 'quan1@viettravel.vn',
         address: 'Số 120 Đường Lê Duẩn, Phường Bến Nghé, Quận 1',
         city: 'TP. Hồ Chí Minh',
         managerName: 'Võ Minh Quân',
@@ -372,12 +197,23 @@ Các phân hạng thành viên:
       {
         tenantId: tenant.id,
         code: 'BR-DN-01',
-        name: 'BHN Aesthetic Clinic — Chi Nhánh Hải Châu (Đà Nẵng)',
+        name: 'Viet Travel Group — Chi Nhánh Hải Châu (Đà Nẵng)',
         phone: '0236 3848 2026',
-        email: 'danang@bhn.vn',
+        email: 'danang@viettravel.vn',
         address: 'Số 86 Đường Bạch Đằng, Phường Hải Châu 1, Quận Hải Châu',
         city: 'Đà Nẵng',
         managerName: 'Đặng Thảo Vy',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        code: 'BR-WH-01',
+        name: 'Trung Tâm Quản Lý Xe Du Lịch & Hậu Cần Vật Tư',
+        phone: '024 3999 8888',
+        email: 'fleet@viettravel.vn',
+        address: 'Kho Tổng Số 18 Đường Phạm Văn Đồng, Cầu Giấy',
+        city: 'Hà Nội',
+        managerName: 'Trịnh Quốc Bảo',
         isActive: true
       }
     ];
@@ -388,66 +224,139 @@ Các phân hạng thành viên:
         await db.insert(schema.branches).values(b);
       }
     }
-    console.log('✅ Seeded Branches (Chuỗi Chi Nhánh HN - HCM - DN)');
+    console.log('✅ Seeded Branches (Chuỗi Chi Nhánh HN - HCM - DN - Kho Tổng)');
 
-    // 10. Seed Departments (Phòng Ban Đa Cấp)
-    const [branchHN] = await db.select().from(schema.branches).where(sql`code = 'BR-HN-01'`).limit(1);
-    const branchId = branchHN?.id;
+    // Lấy ID chi nhánh
+    const [brHN] = await db.select().from(schema.branches).where(sql`code = 'BR-HN-01'`).limit(1);
+    const [brHCM] = await db.select().from(schema.branches).where(sql`code = 'BR-HCM-01'`).limit(1);
+    const [brDN] = await db.select().from(schema.branches).where(sql`code = 'BR-DN-01'`).limit(1);
+    const [brWH] = await db.select().from(schema.branches).where(sql`code = 'BR-WH-01'`).limit(1);
 
+    // 6. Seed Departments (Phòng Ban Đa Phân Hệ Theo Cơ Sở - Model 1)
     const departmentsData = [
+      // Trụ sở trung ương
       {
         tenantId: tenant.id,
-        branchId: branchId,
+        branchId: null,
         code: 'DEPT-BOD',
-        name: 'Ban Giám Đốc & Điều Hành Chiến Lược',
-        description: 'Chỉ đạo toàn diện hoạt động vận hành và chiến lược kinh doanh',
-        managerName: 'Tổng Giám Đốc',
+        name: 'Ban Giám Đốc & Hội Đồng Quản Trị Lữ Hành',
+        description: 'Chỉ đạo toàn diện hoạt động vận hành, hoạch định chiến lược kinh doanh và tài chính toàn chuỗi',
+        managerName: 'Tổng Giám Đốc (CEO)',
         orderIndex: 1
       },
       {
         tenantId: tenant.id,
-        branchId: branchId,
-        code: 'DEPT-CLINIC',
-        name: 'Khối Bác Sĩ & Điều Trị Da Chuyên Sâu',
-        description: 'Khám, soi da vi điểm, lên phác đồ điều trị nám, mụn, trẻ hóa công nghệ cao',
-        managerName: 'BS. CKI Nguyễn Tuấn Anh',
+        branchId: null,
+        code: 'DEPT-HQ-PRODUCT',
+        name: 'Khối Thiết Kế Sản Phẩm Tour & Hàng Không (GDS)',
+        description: 'Thiết kế tuyến điểm mới, đàm phán hợp đồng hàng không Amadeus/Sabre và giá phòng khách sạn toàn cầu',
+        managerName: 'Nguyễn Tuấn Anh (COO)',
         orderIndex: 2
       },
       {
         tenantId: tenant.id,
-        branchId: branchId,
-        code: 'DEPT-SPA-THERAPY',
-        name: 'Khối Kỹ Thuật Viên & Trị Liệu Spa',
-        description: 'Thực hiện các gói chăm sóc da, massage bấm huyệt, tắm trắng sinh học',
-        managerName: 'Hoàng Mai Phương',
+        branchId: null,
+        code: 'DEPT-HQ-COMMERCIAL',
+        name: 'Khối Kinh Doanh M.I.C.E & Đại Lý B2B Toàn Quốc',
+        description: 'Phát triển mạng lưới đại lý du lịch cấp 1, đấu thầu tour đoàn công ty và hội nghị quốc tế',
+        managerName: 'Lê Thu Thảo (CCO)',
         orderIndex: 3
       },
       {
         tenantId: tenant.id,
-        branchId: branchId,
-        code: 'DEPT-SALES-CSKH',
-        name: 'Phòng Tư Vấn Thẩm Mỹ & Chăm Sóc Khách Hàng (CRM)',
-        description: 'Tư vấn liệu trình, chốt đơn mỹ phẩm, chăm sóc sau dịch vụ và giải quyết khiếu nại',
-        managerName: 'Lê Thu Thảo',
+        branchId: brWH?.id,
+        code: 'DEPT-FLEET-LOGISTICS',
+        name: 'Trung Tâm Quản Lý Xe Du Lịch & Hậu Cần Vật Tư',
+        description: 'Điều phối đội xe du lịch 16-45 chỗ, cấp phát đồng phục, quà tặng, vali và ấn phẩm lữ hành',
+        managerName: 'Trịnh Quốc Bảo',
         orderIndex: 4
       },
+
+      // Cơ sở Hoàn Kiếm (HN)
       {
         tenantId: tenant.id,
-        branchId: branchId,
-        code: 'DEPT-FINANCE-POS',
-        name: 'Phòng Kế Toán — Thu Ngân POS',
-        description: 'Thu tiền quầy POS, quét VietQR, quản lý sổ quỹ và đối soát doanh thu',
-        managerName: 'Nguyễn Thị Minh Hạnh',
+        branchId: brHN?.id,
+        code: 'DEPT-HN-OUTBOUND',
+        name: 'Phòng Điều Hành Tour Outbound (Châu Âu, Mỹ, Úc)',
+        description: 'Điều hành tour quốc tế dài ngày, đặt dịch vụ mặt đất land-tour và điều phối tour leader',
+        managerName: 'Hoàng Mai Phương',
         orderIndex: 5
       },
       {
         tenantId: tenant.id,
-        branchId: branchId,
-        code: 'DEPT-WAREHOUSE',
-        name: 'Phòng Kho Dược Mỹ Phẩm & Thiết Bị Y Tế',
-        description: 'Nhập xuất tồn kho dược mỹ phẩm cao cấp, bảo quản serum, máy laser',
-        managerName: 'Trịnh Quốc Bảo',
+        branchId: brHN?.id,
+        code: 'DEPT-HN-GUIDES',
+        name: 'Đội Ngũ Hướng Dẫn Viên Quốc Tế Miền Bắc',
+        description: 'Đội ngũ hướng dẫn viên thẻ quốc tế chuyên tuyến Châu Âu, Nhật Bản, Hàn Quốc và Đài Loan',
+        managerName: 'Phan Thanh Hùng',
         orderIndex: 6
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        code: 'DEPT-HN-SALES',
+        name: 'Phòng Kinh Doanh Tour Khách Đoàn & Bán Lẻ (Hà Nội)',
+        description: 'Tư vấn bán tour trực tiếp tại quầy, chốt hợp đồng khách lẻ và đoàn cơ quan miền Bắc',
+        managerName: 'Trần Hương Giang',
+        orderIndex: 7
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        code: 'DEPT-HN-FINANCE',
+        name: 'Phòng Kế Toán Vé Máy Bay & Quầy Thu Ngân POS (HN)',
+        description: 'Xuất vé máy bay GDS BSP, quét VietQR, thu ngân POS và đối soát công nợ land tour',
+        managerName: 'Nguyễn Thị Minh Hạnh',
+        orderIndex: 8
+      },
+
+      // Cơ sở Quận 1 (TP. HCM)
+      {
+        tenantId: tenant.id,
+        branchId: brHCM?.id,
+        code: 'DEPT-HCM-OUTBOUND',
+        name: 'Phòng Điều Hành Tour Đông Bắc Á & Đông Nam Á (HCM)',
+        description: 'Điều hành các tuyến Thái Lan, Singapore - Malaysia, Bali, Hàn Quốc và Nhật Bản',
+        managerName: 'Trần Mỹ Duyên',
+        orderIndex: 9
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHCM?.id,
+        code: 'DEPT-HCM-GUIDES',
+        name: 'Đội Ngũ Hướng Dẫn Viên Du Lịch Miền Nam',
+        description: 'Đội ngũ tour leader dày dặn kinh nghiệm, chuyên phục vụ đoàn khách cao cấp thị trường phía Nam',
+        managerName: 'Lê Hải Đăng',
+        orderIndex: 10
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHCM?.id,
+        code: 'DEPT-HCM-MICE',
+        name: 'Phòng Kinh Doanh Tour M.I.C.E & Khách VIP (TP. HCM)',
+        description: 'Chuyên trách tour hội thảo, teambuilding và sự kiện gala dinner cho doanh nghiệp FDI',
+        managerName: 'Võ Minh Quân',
+        orderIndex: 11
+      },
+
+      // Cơ sở Hải Châu (Đà Nẵng)
+      {
+        tenantId: tenant.id,
+        branchId: brDN?.id,
+        code: 'DEPT-DN-INBOUND',
+        name: 'Phòng Điều Hành Tour Di Sản & Khách Quốc Tế Inbound',
+        description: 'Đón tiếp và phục vụ du khách quốc tế tham quan con đường di sản miền Trung (Huế - Hội An - Mỹ Sơn)',
+        managerName: 'Đặng Thảo Vy',
+        orderIndex: 12
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brDN?.id,
+        code: 'DEPT-DN-GUIDES',
+        name: 'Đội Hướng Dẫn Viên Tuyến Miền Trung & Di Sản',
+        description: 'Hướng dẫn viên đa ngôn ngữ (Anh, Pháp, Hàn, Trung) phục vụ khách quốc tế và nội địa',
+        managerName: 'Nguyễn Hoàng Nam',
+        orderIndex: 13
       }
     ];
 
@@ -457,17 +366,17 @@ Các phân hạng thành viên:
         await db.insert(schema.departments).values(d);
       }
     }
-    console.log('✅ Seeded Departments (Phòng Ban Đa Phân Hệ)');
+    console.log('✅ Seeded Departments (Phòng Ban Đa Phân Hệ Theo Chi Nhánh)');
 
-    // 11. Seed Job Posts (Chức Vụ Hành Chính)
+    // 7. Seed Job Posts (Chức Vụ Hành Chính Level 1-5)
     const jobPostsData = [
       {
         tenantId: tenant.id,
         code: 'POST-BOD',
-        name: 'Tổng Giám Đốc (CEO / C-Level)',
+        name: 'Tổng Giám Đốc (CEO Lữ Hành)',
         level: 1,
         allowanceRate: '20000000.00',
-        description: 'Lãnh đạo tối cao, phê duyệt ngân sách và phân quyền toàn chuỗi'
+        description: 'Lãnh đạo chiến lược tối cao, ký kết hợp tác quốc tế và phân quyền toàn chuỗi'
       },
       {
         tenantId: tenant.id,
@@ -475,31 +384,31 @@ Các phân hạng thành viên:
         name: 'Giám Đốc Chi Nhánh / Quản Lý Cơ Sở',
         level: 2,
         allowanceRate: '10000000.00',
-        description: 'Chịu trách nhiệm P&L, KPI doanh số và vận hành tại cơ sở trực thuộc'
+        description: 'Chịu trách nhiệm toàn diện doanh số P&L và điều hành vận hành tại cơ sở'
       },
       {
         tenantId: tenant.id,
         code: 'POST-DEPT-HEAD',
-        name: 'Trưởng Phòng Chuyên Môn',
+        name: 'Trưởng Phòng Điều Hành / Kinh Doanh Tour',
         level: 3,
         allowanceRate: '5000000.00',
-        description: 'Quản lý chất lượng chuyên môn phòng ban, đào tạo nhân viên và phân ca'
+        description: 'Phụ trách chuyên môn tuyến tour, đàm phán dịch vụ và phân bổ tour leader'
       },
       {
         tenantId: tenant.id,
         code: 'POST-TEAM-LEAD',
-        name: 'Phó Phòng / Trưởng Nhóm (Team Leader / Shift Leader)',
+        name: 'Phó Phòng / Trưởng Nhóm Hướng Dẫn Viên (Lead Guide)',
         level: 4,
         allowanceRate: '2500000.00',
-        description: 'Giám sát ca làm việc, hỗ trợ xử lý sự cố tại quầy và phòng điều trị'
+        description: 'Giám sát nghiệp vụ dẫn tour, phân công ca trực sân bay và hỗ trợ giải quyết sự cố'
       },
       {
         tenantId: tenant.id,
         code: 'POST-STAFF',
-        name: 'Chuyên Viên / Nhân Viên Thực Thi',
+        name: 'Chuyên Viên / Hướng Dẫn Viên Thực Thi',
         level: 5,
         allowanceRate: '0.00',
-        description: 'Thực hiện trực tiếp các ca dịch vụ hoặc nhiệm vụ nghiệp vụ được giao'
+        description: 'Nhân sự thực thi dẫn tour, bán vé máy bay, tư vấn visa và chăm sóc du khách'
       }
     ];
 
@@ -511,42 +420,42 @@ Các phân hạng thành viên:
     }
     console.log('✅ Seeded Job Posts (Chức Vụ Cấp Bậc 1-5)');
 
-    // 12. Seed Job Titles (Chức Danh Chuyên Môn Nghề Nghiệp)
+    // 8. Seed Job Titles (Chức Danh Chuyên Môn Ngành Du Lịch)
     const jobTitlesData = [
       {
         tenantId: tenant.id,
-        code: 'TITLE-DERMA-DOC',
-        name: 'Bác Sĩ Chuyên Khoa Da Liễu CKI',
-        field: 'Dermatology & Aesthetic Medicine',
-        standardRequirements: 'Chứng chỉ hành nghề khám chữa bệnh Da liễu, >= 5 năm kinh nghiệm Laser thẩm mỹ'
+        code: 'TITLE-TOUR-LEADER',
+        name: 'Hướng Dẫn Viên Quốc Tế (Tour Leader Outbound)',
+        field: 'Hướng Dẫn Đoàn Quốc Tế',
+        standardRequirements: 'Thẻ Hướng Dẫn Viên Quốc Tế (Cục Du Lịch cấp), ngoại ngữ C1, >= 3 năm kinh nghiệm dẫn tuyến Âu/Mỹ'
       },
       {
         tenantId: tenant.id,
-        code: 'TITLE-SENIOR-THERAPIST',
-        name: 'Chuyên Viên Trị Liệu Công Nghệ Cao (High-Tech Laser Specialist)',
-        field: 'Laser & Technology',
-        standardRequirements: 'Chứng chỉ an toàn bức xạ Laser, đào tạo chuyển giao công nghệ Picosecond / HIFU'
+        code: 'TITLE-TICKETING-SPEC',
+        name: 'Chuyên Viên Booker Vé Máy Bay Quốc Tế (GDS Specialist)',
+        field: 'Vé Máy Bay & Hàng Không',
+        standardRequirements: 'Chứng chỉ IATA, thành thạo hệ thống đặt chỗ Amadeus, Sabre, Galileo và xuất vé BSP'
       },
       {
         tenantId: tenant.id,
-        code: 'TITLE-SPA-THERAPIST',
-        name: 'Kỹ Thuật Viên Spa & Chăm Sóc Da Trưởng',
-        field: 'Spa & Wellness',
-        standardRequirements: 'Chứng chỉ hành nghề Chăm sóc da chuyên nghiệp, kỹ năng massage trị liệu chuyên sâu'
+        code: 'TITLE-TOUR-OPERATOR',
+        name: 'Chuyên Viên Thiết Kế & Điều Hành Sản Phẩm Tour',
+        field: 'Sản Phẩm & Điều Hành Lữ Hành',
+        standardRequirements: 'Tốt nghiệp Đại học chuyên ngành Du lịch, am hiểu sâu thị trường land tour quốc tế'
       },
       {
         tenantId: tenant.id,
-        code: 'TITLE-BEAUTY-CONSULTANT',
-        name: 'Chuyên Viên Tư Vấn Thẩm Mỹ Cao Cấp',
-        field: 'Sales & Consulting',
-        standardRequirements: 'Kỹ năng giao tiếp xuất sắc, am hiểu tường tận thành phần dược mỹ phẩm và phác đồ'
+        code: 'TITLE-MICE-CONSULTANT',
+        name: 'Chuyên Viên Tư Vấn Tour Doanh Nghiệp & M.I.C.E',
+        field: 'Kinh Doanh Doanh Nghiệp (B2B)',
+        standardRequirements: 'Kỹ năng đàm phán B2B xuất sắc, kinh nghiệm tổ chức sự kiện và đấu thầu khách đoàn lớn'
       },
       {
         tenantId: tenant.id,
-        code: 'TITLE-LEAD-CASHIER',
-        name: 'Thu Ngân Trưởng & Kế Toán Quầy POS',
-        field: 'Cashier & Finance',
-        standardRequirements: 'Bằng Trung cấp/Cao đẳng Tài chính Kế toán, kỹ năng đối soát VietQR và tiền mặt'
+        code: 'TITLE-VISA-SPECIALIST',
+        name: 'Chuyên Viên Hồ Sơ & Thị Thực (Visa Specialist)',
+        field: 'Thủ Tục Xuất Nhập Cảnh & Visa',
+        standardRequirements: 'Nắm vững quy định Lãnh sự quán Schengen, Mỹ, Úc, Nhật Bản, tỷ lệ đậu visa >= 98%'
       }
     ];
 
@@ -556,57 +465,75 @@ Các phân hạng thành viên:
         await db.insert(schema.jobTitles).values(t);
       }
     }
-    console.log('✅ Seeded Job Titles (Chức Danh Chuyên Môn Y Tế / Spa)');
+    console.log('✅ Seeded Job Titles (Chức Danh Chuyên Môn Du Lịch & Vé Máy Bay)');
 
-    // 13. Seed Job Positions (Vị Trí Công Việc Đính Kèm Định Biên Headcount)
-    const [deptClinic] = await db.select().from(schema.departments).where(sql`code = 'DEPT-CLINIC'`).limit(1);
-    const [deptTherapy] = await db.select().from(schema.departments).where(sql`code = 'DEPT-SPA-THERAPY'`).limit(1);
-    const [deptSales] = await db.select().from(schema.departments).where(sql`code = 'DEPT-SALES-CSKH'`).limit(1);
+    // 9. Seed Job Positions (Vị Trí Công Việc Kèm Định Biên Headcount Quota)
+    const [deptOutboundHN] = await db.select().from(schema.departments).where(sql`code = 'DEPT-HN-OUTBOUND'`).limit(1);
+    const [deptGuidesHN] = await db.select().from(schema.departments).where(sql`code = 'DEPT-HN-GUIDES'`).limit(1);
+    const [deptSalesHN] = await db.select().from(schema.departments).where(sql`code = 'DEPT-HN-SALES'`).limit(1);
+    const [deptFinanceHN] = await db.select().from(schema.departments).where(sql`code = 'DEPT-HN-FINANCE'`).limit(1);
+
     const [postStaff] = await db.select().from(schema.jobPosts).where(sql`code = 'POST-STAFF'`).limit(1);
     const [postLead] = await db.select().from(schema.jobPosts).where(sql`code = 'POST-TEAM-LEAD'`).limit(1);
-    const [titleDoc] = await db.select().from(schema.jobTitles).where(sql`code = 'TITLE-DERMA-DOC'`).limit(1);
-    const [titleLaser] = await db.select().from(schema.jobTitles).where(sql`code = 'TITLE-SENIOR-THERAPIST'`).limit(1);
-    const [titleConsultant] = await db.select().from(schema.jobTitles).where(sql`code = 'TITLE-BEAUTY-CONSULTANT'`).limit(1);
+    const [postHead] = await db.select().from(schema.jobPosts).where(sql`code = 'POST-DEPT-HEAD'`).limit(1);
+
+    const [titleLeader] = await db.select().from(schema.jobTitles).where(sql`code = 'TITLE-TOUR-LEADER'`).limit(1);
+    const [titleTicket] = await db.select().from(schema.jobTitles).where(sql`code = 'TITLE-TICKETING-SPEC'`).limit(1);
+    const [titleOperator] = await db.select().from(schema.jobTitles).where(sql`code = 'TITLE-TOUR-OPERATOR'`).limit(1);
+    const [titleMICE] = await db.select().from(schema.jobTitles).where(sql`code = 'TITLE-MICE-CONSULTANT'`).limit(1);
 
     const jobPositionsData = [
       {
         tenantId: tenant.id,
-        departmentId: deptClinic?.id,
+        departmentId: deptOutboundHN?.id,
+        postId: postHead?.id,
+        titleId: titleOperator?.id,
+        code: 'POS-HN-OP-HEAD',
+        name: 'Trưởng Phòng Điều Hành Tour Outbound (HN)',
+        headcountQuota: 1,
+        currentHeadcount: 1,
+        minSalary: '25000000.00',
+        maxSalary: '40000000.00',
+        jdDescription: 'Quản lý điều hành các tour Châu Âu, Mỹ, Úc; đàm phán đối tác land-tour quốc tế'
+      },
+      {
+        tenantId: tenant.id,
+        departmentId: deptGuidesHN?.id,
         postId: postLead?.id,
-        titleId: titleDoc?.id,
-        code: 'POS-DOC-LEAD',
-        name: 'Bác Sĩ Trưởng Ca Trị Liệu Da Liễu',
-        headcountQuota: 2,
-        currentHeadcount: 2,
-        minSalary: '30000000.00',
-        maxSalary: '60000000.00',
-        jdDescription: 'Chịu trách nhiệm chuyên môn các ca can thiệp laser chuyên sâu, tiêm meso và trẻ hóa'
-      },
-      {
-        tenantId: tenant.id,
-        departmentId: deptTherapy?.id,
-        postId: postStaff?.id,
-        titleId: titleLaser?.id,
-        code: 'POS-LASER-SPECIALIST',
-        name: 'Chuyên Viên Vận Hành Máy Laser Pico & HIFU',
+        titleId: titleLeader?.id,
+        code: 'POS-HN-GUIDE-LEAD',
+        name: 'Tour Leader Trưởng Tuyến Châu Âu & Mỹ',
         headcountQuota: 6,
-        currentHeadcount: 4,
-        minSalary: '15000000.00',
-        maxSalary: '25000000.00',
-        jdDescription: 'Vận hành máy laser theo chỉ định của bác sĩ, vệ sinh đầu tip và bảo dưỡng thiết bị'
+        currentHeadcount: 5,
+        minSalary: '20000000.00',
+        maxSalary: '35000000.00',
+        jdDescription: 'Phụ trách dẫn đoàn VIP, giám sát các trưởng đoàn thực tập và xử lý tình huống khẩn cấp'
       },
       {
         tenantId: tenant.id,
-        departmentId: deptSales?.id,
+        departmentId: deptSalesHN?.id,
         postId: postStaff?.id,
-        titleId: titleConsultant?.id,
-        code: 'POS-BEAUTY-CONSULTANT',
-        name: 'Chuyên Viên Tư Vấn & Chăm Sóc Hội Viên Ruby',
+        titleId: titleMICE?.id,
+        code: 'POS-HN-MICE-CONSULTANT',
+        name: 'Chuyên Viên Tư Vấn Tour M.I.C.E & Khách Đoàn',
         headcountQuota: 8,
         currentHeadcount: 6,
-        minSalary: '10000000.00',
-        maxSalary: '35000000.00',
-        jdDescription: 'Tư vấn phác đồ và gói liệu trình, đạt chỉ tiêu KPI cá nhân và chăm sóc khách quen'
+        minSalary: '12000000.00',
+        maxSalary: '30000000.00',
+        jdDescription: 'Tìm kiếm khách hàng doanh nghiệp, tư vấn gói teambuilding và chốt hợp đồng tour đoàn'
+      },
+      {
+        tenantId: tenant.id,
+        departmentId: deptFinanceHN?.id,
+        postId: postStaff?.id,
+        titleId: titleTicket?.id,
+        code: 'POS-HN-TICKETING',
+        name: 'Chuyên Viên Đặt Chỗ & Xuất Vé Hàng Không GDS',
+        headcountQuota: 4,
+        currentHeadcount: 3,
+        minSalary: '14000000.00',
+        maxSalary: '22000000.00',
+        jdDescription: 'Đặt giữ chỗ đoàn trên GDS, xuất vé BSP, xử lý đổi ngày bay và hoàn vé theo chính sách'
       }
     ];
 
@@ -616,9 +543,9 @@ Các phân hạng thành viên:
         await db.insert(schema.jobPositions).values(pos);
       }
     }
-    console.log('✅ Seeded Job Positions (Vị Trí Công Việc Kèm Định Biên Headcount)');
+    console.log('✅ Seeded Job Positions (Vị Trí Công Việc Kèm Định Biên Headcount Quota)');
 
-    // 14. Seed Employment Types (Tính Chất Công Việc & Chính Sách Phúc Lợi)
+    // 10. Seed Employment Types (Tính Chất Công Việc & Phúc Lợi)
     const employmentTypesData = [
       {
         tenantId: tenant.id,
@@ -631,12 +558,21 @@ Các phân hạng thành viên:
       },
       {
         tenantId: tenant.id,
-        code: 'EMP-PARTTIME',
-        name: 'Bán Thời Gian / Ca Gãy (Part-Time)',
-        workHoursPerWeek: 24,
+        code: 'EMP-LEADER-FREELANCE',
+        name: 'Hướng Dẫn Viên / Tour Leader Theo Chuyến (Freelancer)',
+        workHoursPerWeek: 20,
         hasInsurance: false,
         standardAnnualLeave: 0,
-        description: 'Linh động theo ca khách hẹn, thanh toán theo giờ làm việc thực tế + hoa hồng'
+        description: 'Hợp đồng khoán việc theo từng tour cụ thể, thanh toán công tác phí + thù lao theo ngày tour'
+      },
+      {
+        tenantId: tenant.id,
+        code: 'EMP-COMMERCIAL-AGENT',
+        name: 'Cộng Tác Viên Bán Tour & Đại Lý (CTV)',
+        workHoursPerWeek: 10,
+        hasInsurance: false,
+        standardAnnualLeave: 0,
+        description: 'Hưởng hoa hồng theo số lượng khách chốt thành công, không chấm công cố định'
       },
       {
         tenantId: tenant.id,
@@ -645,25 +581,16 @@ Các phân hạng thành viên:
         workHoursPerWeek: 44,
         hasInsurance: false,
         standardAnnualLeave: 0,
-        description: 'Hưởng 85% lương cơ bản theo quy định Bộ luật Lao động, đánh giá sau 2 tháng'
-      },
-      {
-        tenantId: tenant.id,
-        code: 'EMP-CONTRACTOR-DOC',
-        name: 'Hợp Đồng Hợp Tác Chuyên Gia / Bác Sĩ Cố Vấn (Contractor)',
-        workHoursPerWeek: 16,
-        hasInsurance: false,
-        standardAnnualLeave: 0,
-        description: 'Thù lao chi trả trực tiếp theo từng ca phẫu thuật/điều trị phức tạp, thuế TNCN 10%'
+        description: 'Hưởng 85% lương cơ bản theo quy định Bộ luật Lao động, đánh giá năng lực sau 2 tháng'
       },
       {
         tenantId: tenant.id,
         code: 'EMP-SEASONAL',
-        name: 'Thời Vụ / Mùa Lễ Tết Cao Điểm (Seasonal)',
+        name: 'Thời Vụ Cao Điểm Mùa Hè & Lễ Tết (Seasonal)',
         workHoursPerWeek: 48,
         hasInsurance: false,
         standardAnnualLeave: 0,
-        description: 'Tăng cường mùa cận Tết và dịp lễ, phụ cấp ca đêm và thưởng năng suất'
+        description: 'Tăng cường mùa cao điểm du lịch hè (tháng 6-8) và dịp Tết, phụ cấp ca trực sân bay'
       }
     ];
 
@@ -673,15 +600,15 @@ Các phân hạng thành viên:
         await db.insert(schema.employmentTypes).values(et);
       }
     }
-    console.log('✅ Seeded Employment Types (Tính Chất Công Việc)');
+    console.log('✅ Seeded Employment Types (Tính Chất Công Việc Ngành Lữ Hành)');
 
-    // 15. Seed Roles (Phân Quyền Ma Trận Granular RBAC)
+    // 11. Seed Roles (Phân Quyền Ma Trận Granular RBAC)
     const rolesData = [
       {
         tenantId: tenant.id,
         code: 'ROLE_SUPER_ADMIN',
         name: 'Quản Trị Viên Tối Cao (Super Administrator)',
-        description: 'Toàn quyền cấu hình hệ thống, quản lý chi nhánh, duyệt lương và sao lưu máy chủ',
+        description: 'Toàn quyền cấu hình hệ thống, quản lý cơ cấu tổ chức, duyệt ngân sách và sao lưu máy chủ',
         isSystem: true,
         permissions: [
           'system:view', 'system:manage', 'system:backup', 'system:vps',
@@ -711,24 +638,13 @@ Các phân hạng thành viên:
       {
         tenantId: tenant.id,
         code: 'ROLE_CASHIER_POS',
-        name: 'Thu Ngân Quầy POS & Lễ Tân',
-        description: 'Tạo đơn hàng, quét thanh toán VietQR, in hóa đơn và tiếp đón khách check-in',
+        name: 'Thu Ngân Quầy Vé & Thu Tiền Tour',
+        description: 'Tạo đơn đặt tour, quét thanh toán VietQR, xuất hóa đơn vé máy bay',
         isSystem: true,
         permissions: [
           'pos:view', 'pos:create',
           'booking:view', 'booking:checkin',
           'crm:view', 'crm:create'
-        ]
-      },
-      {
-        tenantId: tenant.id,
-        code: 'ROLE_DOCTOR_THERAPIST',
-        name: 'Bác Sĩ & Kỹ Thuật Viên Điều Trị',
-        description: 'Xem lịch hẹn điều trị cá nhân, ghi nhận bệnh án và xác nhận hoàn tất ca dịch vụ',
-        isSystem: true,
-        permissions: [
-          'booking:view', 'booking:complete',
-          'crm:view:history'
         ]
       }
     ];
@@ -739,61 +655,35 @@ Các phân hạng thành viên:
         await db.insert(schema.roles).values(r);
       }
     }
-    console.log('✅ Seeded Roles (Ma Trận Phân Quyền RBAC)');
+    console.log('✅ Seeded Roles (RBAC Matrix)');
 
-    // 16. Seed System Settings (VietQR, Zalo ZNS, e-Invoice, AI Copilot, White-label)
+    // 12. Seed System Settings (VietQR, Zalo ZNS, Branding)
     const settingsData = [
       {
         tenantId: tenant.id,
         category: 'vietqr',
         key: 'vietqr_config',
         value: {
-          bankCode: 'MB',
-          bankName: 'Ngân Hàng Quân Đội (MB Bank)',
-          accountNumber: '999988882026',
-          accountHolder: 'CTY CP THAM MY VIEN BHN INTERNATIONAL',
-          template: 'compact2',
-          autoFillAmount: true,
-          memoPrefix: 'BHN'
+          bankCode: 'VCB',
+          bankName: 'Vietcombank — Ngân Hàng Ngoại Thương Việt Nam',
+          accountNumber: '1028882026',
+          accountHolder: 'CONG TY CO PHAN TAP DOAN DU LICH VIET TRAVEL GROUP',
+          qrTemplate: 'compact2',
+          autoConfirmWebhook: true
         }
       },
       {
         tenantId: tenant.id,
         category: 'zalo_zns',
-        key: 'zalo_config',
+        key: 'zns_config',
         value: {
-          appId: '182736459012',
-          oaId: '992837465019',
-          secretKey: 'zalo_sec_2026_live_production_token',
+          oaId: '2988123456789012',
+          appId: '4820268819',
           templates: [
-            { id: 'ZNS_01', name: 'Xác nhận đặt lịch hẹn thành công', status: 'ACTIVE' },
-            { id: 'ZNS_02', name: 'Nhắc lịch hẹn trước 120 phút', status: 'ACTIVE' },
-            { id: 'ZNS_03', name: 'Chúc mừng sinh nhật & Tặng Voucher 20%', status: 'ACTIVE' }
+            { id: 'TMPL-TOUR-01', name: 'Xác nhận Đặt Tour & Lịch Bay Thành Công', status: 'ACTIVE' },
+            { id: 'TMPL-VISA-02', name: 'Thông báo Kết Quả Visa & Hướng Dẫn Khởi Hành', status: 'ACTIVE' },
+            { id: 'TMPL-FEEDBACK-03', name: 'Khảo sát Hài Lòng Dịch Vụ Sau Chuyến Đi', status: 'ACTIVE' }
           ]
-        }
-      },
-      {
-        tenantId: tenant.id,
-        category: 'einvoice',
-        key: 'einvoice_config',
-        value: {
-          provider: 'VNPT-INVOICE',
-          symbol: '1C26TBB',
-          taxCode: '0109988776',
-          autoPublishOnPayment: true
-        }
-      },
-      {
-        tenantId: tenant.id,
-        category: 'ai_copilot',
-        key: 'ai_config',
-        value: {
-          primaryModel: 'gemini-2.5-flash',
-          fallbackModel: 'gpt-4o',
-          monthlyTokenQuotaPerBranch: 1000000,
-          currentMonthTokensUsed: 142850,
-          ragChunkSize: 500,
-          temperature: 0.3
         }
       },
       {
@@ -801,10 +691,10 @@ Các phân hạng thành viên:
         category: 'branding',
         key: 'branding_config',
         value: {
-          brandName: 'BHN International Wellness & Clinic',
-          shortName: 'BHN CORE',
+          brandName: 'Viet Travel Enterprise Group — International Tour Operator',
+          shortName: 'VIET TRAVEL GROUP',
           hotline: '1900 882026',
-          defaultThemeColor: '#dc0037', // lab(45 79.29 35.14)
+          defaultThemeColor: '#dc0037', // Ruby Red
           secondaryColor: '#0066cc',
           logoUrl: '/brand/logo.svg'
         }
@@ -817,17 +707,17 @@ Các phân hạng thành viên:
         await db.insert(schema.systemSettings).values(s);
       }
     }
-    console.log('✅ Seeded System Settings (VietQR, Zalo ZNS, e-Invoice, AI Quota, Branding)');
+    console.log('✅ Seeded System Settings (VietQR, ZNS, Branding)');
 
-    // 17. Seed Sample Audit Logs
+    // 13. Seed Sample Audit Logs
     const auditLogsData = [
       {
         tenantId: tenant.id,
-        userName: 'BHN System Administrator',
+        userName: 'Viet Travel Administrator',
         action: 'SYSTEM_INIT',
         resource: 'ORGANIZATION',
         resourceId: 'BR-HN-01',
-        diff: { status: 'INITIALIZED', branchesCount: 3, departmentsCount: 6 },
+        diff: { status: 'INITIALIZED', branchesCount: 4, departmentsCount: 13 },
         ipAddress: '127.0.0.1',
         userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
       },
@@ -837,7 +727,7 @@ Các phân hạng thành viên:
         action: 'PAYROLL_CALCULATE',
         resource: 'PAYROLL',
         resourceId: '2026-11',
-        diff: { month: '2026-11', totalEmployees: 5, totalPayout: 122200000 },
+        diff: { month: '2026-11', totalEmployees: 26, totalPayout: 382500000 },
         ipAddress: '192.168.1.105',
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
       }
@@ -848,7 +738,7 @@ Các phân hạng thành viên:
     }
     console.log('✅ Seeded Sample Audit Logs');
 
-    console.log('🎉 Database seed completed successfully!');
+    console.log('🎉 Database seed completed successfully for Viet Travel Group!');
   } catch (error) {
     console.error('❌ Error during database seed:', error);
   } finally {

@@ -3,13 +3,17 @@ import { tenants } from './tenants.js';
 
 export const pgvector = customType<{ data: number[]; driverData: string }>({
   dataType() {
-    return 'vector(1536)'; // 1536-dim embeddings for OpenAI / Gemini
+    return 'text'; // Universal text representation for vector embeddings compatible with standard PostgreSQL
   },
   toDriver(value: number[]): string {
     return `[${value.join(',')}]`;
   },
   fromDriver(value: string): number[] {
-    return JSON.parse(value);
+    try {
+      return JSON.parse(value);
+    } catch {
+      return [];
+    }
   }
 });
 

@@ -340,6 +340,27 @@ export default function SystemControlTowerPage() {
   const isBlue = themeColor === 'blue';
   const primaryColorHex = isBlue ? '#0066cc' : '#dc0037';
 
+  // Synchronize state with PostgreSQL via /system/api/org on mount
+  React.useEffect(() => {
+    const fetchOrgData = async () => {
+      try {
+        const res = await fetch('/system/api/org');
+        const json = await res.json();
+        if (json.success && json.data) {
+          if (json.data.departments?.length) setDepartments(json.data.departments);
+          if (json.data.jobPosts?.length) setJobPosts(json.data.jobPosts);
+          if (json.data.jobTitles?.length) setJobTitles(json.data.jobTitles);
+          if (json.data.jobPositions?.length) setJobPositions(json.data.jobPositions);
+          if (json.data.employmentTypes?.length) setEmploymentTypes(json.data.employmentTypes);
+          if (json.data.branches?.length) setBranches(json.data.branches);
+        }
+      } catch (e) {
+        console.warn('API org data fallback to local state:', e);
+      }
+    };
+    fetchOrgData();
+  }, []);
+
   // CRUD Handlers for Org Structure
   const openAddModal = (type: OrgEntityType) => {
     setModalConfig({ isOpen: true, type, initialData: undefined });
@@ -416,24 +437,53 @@ export default function SystemControlTowerPage() {
         showToast(`✅ Đã thêm tính chất công việc: ${data.name}`);
       }
     }
+
+    // Sync to PostgreSQL database in background
+    fetch('/system/api/org', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: data.id ? 'UPDATE' : 'CREATE', type, data })
+    }).catch(err => console.error('Failed to sync to PostgreSQL:', err));
+
     closeModal();
   };
 
-  const handleDeleteEntity = (type: OrgEntityType, id: string, name?: string) => {
-    if (confirm(`Bạn có chắc chắn muốn xóa "${name || 'mục này'}" khỏi cơ cấu tổ chức?`)) {
-      if (type === 'department') setDepartments(prev => prev.filter(d => d.id !== id));
-      if (type === 'post') setJobPosts(prev => prev.filter(p => p.id !== id));
-      if (type === 'title') setJobTitles(prev => prev.filter(t => t.id !== id));
-      if (type === 'position') setJobPositions(prev => prev.filter(p => p.id !== id));
-      if (type === 'type') setEmploymentTypes(prev => prev.filter(t => t.id !== id));
-      showToast(`🗑️ Đã xóa thành công!`);
+  const handleDeleteEntity = async (type: OrgEntityType, id: string, name?: string) => {
+    if (!confirm(`Bạn có chắc chắn muốn xóa "${name || 'mục này'}" khỏi cơ cấu tổ chức?`)) return;
+
+    // Safety validation via backend API
+    try {
+      const res = await fetch('/system/api/org', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'DELETE', type, data: { id } })
+      });
+      const json = await res.json();
+      if (!json.success) {
+        alert(json.message || 'Không thể xóa mục này do ràng buộc dữ liệu!');
+        return;
+      }
+    } catch {
+      // Offline fallback
     }
+
+    if (type === 'department') setDepartments(prev => prev.filter(d => d.id !== id));
+    if (type === 'post') setJobPosts(prev => prev.filter(p => p.id !== id));
+    if (type === 'title') setJobTitles(prev => prev.filter(t => t.id !== id));
+    if (type === 'position') setJobPositions(prev => prev.filter(p => p.id !== id));
+    if (type === 'type') setEmploymentTypes(prev => prev.filter(t => t.id !== id));
+    showToast(`🗑️ Đã xóa "${name || 'mục này'}" thành công!`);
   };
 
   const handleToggleActiveDept = (id: string) => {
     setDepartments(prev =>
       prev.map(d => (d.id === id ? { ...d, isActive: d.isActive === false ? true : false } : d))
     );
+    fetch('/system/api/org', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'TOGGLE_ACTIVE', type: 'department', data: { id } })
+    }).catch(err => console.error('Toggle active sync error:', err));
     showToast('Đã chuyển đổi trạng thái hoạt động của phòng ban.');
   };
 
