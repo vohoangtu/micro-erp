@@ -37,7 +37,7 @@ export function OrgMetricRibbon({
           <div className="text-2xl font-black text-slate-900">{totalDepts} Đơn Vị</div>
           <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-            <span>Phân bố trên 3 cơ sở chi nhánh</span>
+            <span>Phân bổ theo mạng lưới chi nhánh toàn quốc</span>
           </div>
         </div>
       </div>

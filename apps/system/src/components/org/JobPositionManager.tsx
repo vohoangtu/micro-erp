@@ -144,7 +144,7 @@ export function JobPositionManager({
                 <th className="py-3 px-4">Mã Vị Trí</th>
                 <th className="py-3 px-4">Tên Vị Trí Công Việc</th>
                 <th className="py-3 px-4">Cơ Sở / Chi Nhánh</th>
-                <th className="py-3 px-4">Thuộc Khoa / Phòng</th>
+                <th className="py-3 px-4">Thuộc Phòng Ban / Bộ Phận</th>
                 <th className="py-3 px-4">Định Biên (Thực Tế / Tiêu Chuẩn)</th>
                 <th className="py-3 px-4">Dải Lương Khung</th>
                 <th className="py-3 px-4 text-center">Tình Trạng Tuyển Dụng</th>

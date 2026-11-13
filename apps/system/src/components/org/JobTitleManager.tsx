@@ -119,7 +119,7 @@ export function JobTitleManager({
 
             <div className="border-t border-slate-100 pt-3 mt-4 flex items-center justify-between text-xs">
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
-                <ShieldCheck className="w-3.5 h-3.5" /> Tiêu Chuẩn Y Khoa 2026
+                <ShieldCheck className="w-3.5 h-3.5" /> Tiêu Chuẩn Lữ Hành Quốc Tế 2026
               </span>
 
               <div className="flex items-center gap-1.5">
