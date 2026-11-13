@@ -36,6 +36,8 @@ import { JobPositionManager, JobPositionItem } from '../components/org/JobPositi
 import { EmploymentTypeManager, EmploymentTypeItem } from '../components/org/EmploymentTypeManager';
 import { OrgTreeChart } from '../components/org/OrgTreeChart';
 import { OrgEntityModal, OrgEntityType } from '../components/org/OrgEntityModal';
+import { UserManager, SystemUserItem } from '../components/users/UserManager';
+import { UserProvisionModal, UnprovisionedEmployee } from '../components/users/UserProvisionModal';
 
 // Mock Data for Initial State (Travel Enterprise - Multi-Branch Architecture)
 const INITIAL_BRANCHES = [
@@ -377,6 +379,13 @@ export default function SystemControlTowerPage() {
   const [employmentTypes, setEmploymentTypes] = useState<EmploymentTypeItem[]>(INITIAL_EMPLOYMENT_TYPES);
   const [users, setUsers] = useState(INITIAL_USERS);
 
+  // States for System User Accounts (IAM) & HR Employee Provisioning
+  const [systemUsers, setSystemUsers] = useState<SystemUserItem[]>([]);
+  const [unprovisionedEmployees, setUnprovisionedEmployees] = useState<UnprovisionedEmployee[]>([]);
+  const [totalEmployeesCount, setTotalEmployeesCount] = useState<number>(0);
+  const [isProvisionModalOpen, setIsProvisionModalOpen] = useState<boolean>(false);
+  const [targetEmpIdForProvision, setTargetEmpIdForProvision] = useState<string | undefined>(undefined);
+
   // Modal State for Unified CRUD
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean;
@@ -412,7 +421,21 @@ export default function SystemControlTowerPage() {
   const isBlue = themeColor === 'blue';
   const primaryColorHex = isBlue ? '#0066cc' : '#dc0037';
 
-  // Synchronize state with PostgreSQL via /system/api/org on mount
+  // Synchronize state with PostgreSQL via /system/api/org and /system/api/users on mount
+  const fetchUsersData = async () => {
+    try {
+      const res = await fetch('/system/api/users');
+      const json = await res.json();
+      if (json.success && json.data) {
+        setSystemUsers(json.data.users);
+        setUnprovisionedEmployees(json.data.unprovisionedEmployees);
+        setTotalEmployeesCount(json.data.totalEmployees);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch system users from API:', err);
+    }
+  };
+
   React.useEffect(() => {
     const fetchOrgData = async () => {
       try {
@@ -432,6 +455,7 @@ export default function SystemControlTowerPage() {
       }
     };
     fetchOrgData();
+    fetchUsersData();
   }, []);
 
   // CRUD Handlers for Org Structure
@@ -608,6 +632,72 @@ export default function SystemControlTowerPage() {
       body: JSON.stringify({ action: 'TOGGLE_ACTIVE', type: 'department', data: { id } })
     }).catch(err => console.error('Toggle active sync error:', err));
     showToast('Đã chuyển đổi trạng thái hoạt động của phòng ban.');
+  };
+
+  // User Management & IAM Provisioning Handlers
+  const handleOpenProvisionModal = (empId?: string) => {
+    setTargetEmpIdForProvision(empId);
+    setIsProvisionModalOpen(true);
+  };
+
+  const handleProvisionUser = async (formData: any) => {
+    const res = await fetch('/system/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'PROVISION', data: formData })
+    });
+    const json = await res.json();
+    if (!json.success) {
+      throw new Error(json.message || 'Cấp phát thất bại!');
+    }
+    showToast(json.message || 'Cấp phát tài khoản thành công!');
+    await fetchUsersData();
+  };
+
+  const handleToggleLockUser = async (id: string) => {
+    const res = await fetch('/system/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'TOGGLE_LOCK', data: { id } })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast(json.message);
+      setSystemUsers(prev => prev.map(u => (u.id === id ? { ...u, isActive: json.isActive } : u)));
+    } else {
+      alert(json.message || 'Không thể đổi trạng thái tài khoản!');
+    }
+  };
+
+  const handleResetPasswordUser = async (id: string) => {
+    const res = await fetch('/system/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'RESET_PASSWORD', data: { id } })
+    });
+    const json = await res.json();
+    if (json.success) {
+      alert(`Mật khẩu mới đã được đặt lại: ${json.temporaryPassword}\nVui lòng gửi thông tin này cho nhân sự!`);
+      showToast(json.message);
+    } else {
+      alert(json.message || 'Không thể đặt lại mật khẩu!');
+    }
+  };
+
+  const handleRevokeUser = async (id: string, email: string) => {
+    if (!confirm(`Bạn có chắc chắn muốn thu hồi tài khoản "${email}" khỏi hệ thống?`)) return;
+    const res = await fetch('/system/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'REVOKE', data: { id } })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast(json.message);
+      await fetchUsersData();
+    } else {
+      alert(json.message || 'Không thể thu hồi tài khoản!');
+    }
   };
 
   // Calculations for Metric Ribbon
@@ -872,54 +962,16 @@ export default function SystemControlTowerPage() {
           {/* 2. SUBPAGE: NGƯỜI DÙNG & RBAC */}
           {activeSubpageId === 'users' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                  <div>
-                    <h3 className="font-bold text-slate-900 text-sm">Danh Sách Tài Khoản Nội Bộ</h3>
-                    <p className="text-xs text-slate-500">Gán quyền hạn và liên kết nhân sự với Cơ cấu tổ chức</p>
-                  </div>
-                  <button
-                    onClick={() => showToast('Mở hộp thoại tạo tài khoản nhân sự mới...')}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white shadow-xs"
-                    style={{ backgroundColor: primaryColorHex }}
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Thêm Tài Khoản
-                  </button>
-                </div>
-
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50/80 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                      <th className="py-3 px-4">Họ Và Tên</th>
-                      <th className="py-3 px-4">Email / Đăng Nhập</th>
-                      <th className="py-3 px-4">Vai Trò Hệ Thống</th>
-                      <th className="py-3 px-4">Cơ Sở Công Tác</th>
-                      <th className="py-3 px-4">Phòng Ban</th>
-                      <th className="py-3 px-4 text-center">Trạng Thái</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 text-xs">
-                    {users.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-50/60">
-                        <td className="py-3 px-4 font-bold text-slate-900">{u.name}</td>
-                        <td className="py-3 px-4 font-mono text-slate-600">{u.email}</td>
-                        <td className="py-3 px-4">
-                          <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">
-                            {u.role}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-slate-600">{u.branch}</td>
-                        <td className="py-3 px-4 text-slate-600">{u.dept}</td>
-                        <td className="py-3 px-4 text-center">
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            {u.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <UserManager
+                users={systemUsers}
+                unprovisionedEmployees={unprovisionedEmployees}
+                totalEmployees={totalEmployeesCount}
+                themeColorHex={primaryColorHex}
+                onOpenProvisionModal={handleOpenProvisionModal}
+                onToggleLock={handleToggleLockUser}
+                onResetPassword={handleResetPasswordUser}
+                onRevoke={handleRevokeUser}
+              />
 
               {/* RBAC Matrix */}
               <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
@@ -1321,6 +1373,15 @@ export default function SystemControlTowerPage() {
         themeColorHex={primaryColorHex}
         onClose={closeModal}
         onSave={handleSaveEntity}
+      />
+
+      {/* User IAM Account Provisioning Modal */}
+      <UserProvisionModal
+        isOpen={isProvisionModalOpen}
+        unprovisionedEmployees={unprovisionedEmployees}
+        themeColorHex={primaryColorHex}
+        onClose={() => setIsProvisionModalOpen(false)}
+        onProvision={handleProvisionUser}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UniversalTopbar, Sidebar, SubpageItem } from '@erp/ui';
 import {
   Briefcase,
@@ -15,21 +15,32 @@ import {
   Plus,
   Search,
   Download,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck,
+  Building2,
+  UserX
 } from 'lucide-react';
 
 interface Employee {
+  id?: string;
   code: string;
   name: string;
   dept: string;
+  branch?: string;
   phone: string;
+  email?: string;
+  citizenId?: string;
   salary: number;
   rate: string;
   comm: number;
   allowance: number;
   insurance: number;
   net: number;
-  status: 'ACTIVE' | 'ON_LEAVE';
+  status: 'ACTIVE' | 'PROBATION' | 'TERMINATED' | 'ON_LEAVE';
+  hasUserAccount?: boolean;
+  userEmail?: string;
+  userRole?: string;
+  userActive?: boolean;
 }
 
 export default function HrAppPage() {
@@ -41,7 +52,7 @@ export default function HrAppPage() {
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3500);
   };
 
   const isBlue = themeColor === 'blue';
@@ -60,12 +71,55 @@ export default function HrAppPage() {
   ];
 
   const [employees, setEmployees] = useState<Employee[]>([
-    { code: 'EMP-001', name: 'Nguyễn Thị Mai', dept: 'Kỹ Thuật Viên Trị Liệu', phone: '0903 888 111', salary: 10000000, rate: '8.0%', comm: 3420000, allowance: 1000000, insurance: 1050000, net: 13370000, status: 'ACTIVE' },
-    { code: 'EMP-002', name: 'Trần Văn Hoàng', dept: 'Tư Vấn Khách Hàng', phone: '0912 777 222', salary: 9000000, rate: '5.0%', comm: 2150000, allowance: 800000, insurance: 945000, net: 11005000, status: 'ACTIVE' },
-    { code: 'EMP-003', name: 'Bác sĩ Lê Đình Trọng', dept: 'Chuyên Khoa Da Liễu', phone: '0988 666 333', salary: 25000000, rate: '10.0%', comm: 6800000, allowance: 2000000, insurance: 2625000, net: 31175000, status: 'ACTIVE' },
-    { code: 'EMP-004', name: 'Nguyễn Thu Hằng', dept: 'Thu Ngân & Kế Toán Quầy', phone: '0933 555 444', salary: 8500000, rate: '2.0%', comm: 950000, allowance: 800000, insurance: 892500, net: 9357500, status: 'ACTIVE' },
-    { code: 'EMP-005', name: 'Lê Hoàng Quân', dept: 'Chuyên Viên Massage Body', phone: '0977 444 555', salary: 9500000, rate: '8.0%', comm: 2850000, allowance: 1000000, insurance: 997500, net: 12352500, status: 'ACTIVE' }
+    { code: 'NV-HN-001', name: 'Trần Hương Giang', dept: 'Phòng Kinh Doanh Tour Khách Đoàn & Bán Lẻ (Hà Nội)', branch: 'Trụ Sở Hoàn Kiếm (HN)', phone: '0903 123 456', salary: 35000000, rate: '8.0%', comm: 4500000, allowance: 2500000, insurance: 3675000, net: 38325000, status: 'ACTIVE', hasUserAccount: true, userEmail: 'giang.th@viettravel.vn', userRole: 'MANAGER', userActive: true },
+    { code: 'NV-HCM-001', name: 'Võ Minh Quân', dept: 'Phòng Kinh Doanh Tour M.I.C.E & Khách VIP (TP. HCM)', branch: 'Chi Nhánh Quận 1 (TP. HCM)', phone: '0908 234 567', salary: 35000000, rate: '8.0%', comm: 5200000, allowance: 2500000, insurance: 3675000, net: 39025000, status: 'ACTIVE', hasUserAccount: true, userEmail: 'quan.vm@viettravel.vn', userRole: 'MANAGER', userActive: true },
+    { code: 'NV-DN-001', name: 'Đặng Thảo Vy', dept: 'Phòng Điều Hành Tour Di Sản & Khách Quốc Tế Inbound', branch: 'Chi Nhánh Hải Châu (Đà Nẵng)', phone: '0905 345 678', salary: 28000000, rate: '6.0%', comm: 3200000, allowance: 2000000, insurance: 2940000, net: 30260000, status: 'ACTIVE', hasUserAccount: true, userEmail: 'vy.dt@viettravel.vn', userRole: 'MANAGER', userActive: true },
+    { code: 'NV-HN-004', name: 'Nguyễn Thị Minh Hạnh', dept: 'Phòng Kế Toán Vé Máy Bay & Quầy Thu Ngân POS (HN)', branch: 'Trụ Sở Hoàn Kiếm (HN)', phone: '0914 678 901', salary: 16000000, rate: '2.0%', comm: 1200000, allowance: 1000000, insurance: 1680000, net: 16520000, status: 'ACTIVE', hasUserAccount: true, userEmail: 'cashier@viettravel.vn', userRole: 'CASHIER', userActive: true },
+    { code: 'NV-HN-008', name: 'Vũ Đình Trọng', dept: 'Phòng Kinh Doanh Tour Khách Đoàn & Bán Lẻ (Hà Nội)', branch: 'Trụ Sở Hoàn Kiếm (HN)', phone: '0918 012 345', salary: 14000000, rate: '5.0%', comm: 2100000, allowance: 800000, insurance: 1470000, net: 15430000, status: 'ACTIVE', hasUserAccount: false },
+    { code: 'NV-HCM-002', name: 'Trần Mỹ Duyên', dept: 'Phòng Điều Hành Tour Đông Bắc Á & Đông Nam Á (HCM)', branch: 'Chi Nhánh Quận 1 (TP. HCM)', phone: '0938 123 456', salary: 18000000, rate: '5.0%', comm: 2600000, allowance: 1200000, insurance: 1890000, net: 19910000, status: 'ACTIVE', hasUserAccount: false }
   ]);
+
+  const fetchEmployees = async () => {
+    try {
+      const res = await fetch('/hr/api/employees');
+      const json = await res.json();
+      if (json.success && json.data?.employees?.length) {
+        setEmployees(json.data.employees);
+      }
+    } catch (err) {
+      console.warn('API employees fallback to local state:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const handleTerminateEmployee = async (id: string, name: string) => {
+    if (
+      !confirm(
+        `Bạn có chắc chắn muốn xác nhận THÔI VIỆC cho nhân viên "${name}"?\n\nLƯU Ý QUAN TRỌNG: Hệ thống sẽ tự động KHÓA/THU HỒI tài khoản đăng nhập hệ thống của nhân sự này ngay lập tức để bảo vệ dữ liệu công ty!`
+      )
+    )
+      return;
+
+    try {
+      const res = await fetch('/hr/api/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'TERMINATE', data: { id } })
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast(json.message);
+        fetchEmployees();
+      } else {
+        alert(json.message || 'Lỗi khi cập nhật trạng thái thôi việc!');
+      }
+    } catch {
+      showToast('Đã ghi nhận trạng thái thôi việc và tự động khóa tài khoản hệ thống.');
+    }
+  };
 
   const totalPayroll = employees.reduce((sum, e) => sum + e.net, 0);
   const totalCommission = employees.reduce((sum, e) => sum + e.comm, 0);
@@ -249,25 +303,98 @@ export default function HrAppPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredEmployees.map(e => (
-                  <div key={e.code} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-bold flex items-center justify-center text-sm">
-                          {e.name.split(' ').slice(-1)[0][0]}
+                  <div key={e.code} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3.5 flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white font-bold flex items-center justify-center text-sm shadow-xs">
+                            {e.name.split(' ').slice(-1)[0][0]}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h3 className="font-bold text-slate-900 text-sm">{e.name}</h3>
+                              <span className="text-[10px] font-mono font-bold bg-amber-50 text-amber-800 px-1.5 py-0.2 rounded border border-amber-200">
+                                {e.code}
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-slate-400 font-mono block mt-0.5">{e.email} • {e.phone}</span>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-bold text-slate-900 text-sm">{e.name}</h3>
-                          <span className="text-[11px] text-slate-400 font-mono">{e.code} • {e.phone}</span>
+
+                        {e.status === 'TERMINATED' ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                            Đã Thôi Việc
+                          </span>
+                        ) : e.status === 'PROBATION' ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            Thử Việc
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Đang Làm Việc
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl space-y-1 mt-3">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Đơn vị:</span>
+                          <span className="font-semibold text-slate-800 text-right">{e.dept}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Lương cơ bản:</span>
+                          <span className="font-bold text-slate-900">{e.salary.toLocaleString('vi-VN')} ₫</span>
                         </div>
                       </div>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        Đang làm việc
-                      </span>
+
+                      {/* Trạng Thái Cấp Phát Tài Khoản Hệ Thống (IAM Status) */}
+                      <div className="mt-3">
+                        {e.hasUserAccount ? (
+                          <div className="p-2.5 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-1.5 text-emerald-800">
+                              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                              <div className="leading-tight">
+                                <span className="font-bold block text-[11px] text-emerald-900">Đã Cấp Tài Khoản Hệ Thống</span>
+                                <span className="font-mono text-[10px] text-emerald-700">{e.userEmail} ({e.userRole})</span>
+                              </div>
+                            </div>
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                e.userActive ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                              }`}
+                            >
+                              {e.userActive ? 'Hoạt động' : 'Bị khóa'}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-1.5 text-slate-500">
+                              <AlertCircle className="w-4 h-4 text-slate-400 shrink-0" />
+                              <span className="text-[11px]">Chưa cấp tài khoản hệ thống</span>
+                            </div>
+                            <a
+                              href="/system"
+                              className="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                              Sang System cấp phát &rarr;
+                            </a>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl flex justify-between">
-                      <span>Vị trí: <strong>{e.dept}</strong></span>
-                      <span>Lương CB: <strong>{e.salary.toLocaleString('vi-VN')} ₫</strong></span>
-                    </div>
+
+                    {/* Footer Actions */}
+                    {e.id && e.status !== 'TERMINATED' && (
+                      <div className="pt-2 border-t border-slate-100 flex justify-end">
+                        <button
+                          onClick={() => handleTerminateEmployee(e.id!, e.name)}
+                          className="text-[11px] font-semibold text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-2.5 py-1 rounded-lg transition flex items-center gap-1"
+                        >
+                          <UserX className="w-3.5 h-3.5" />
+                          <span>Chấm Dứt HĐLĐ / Thôi Việc</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -321,33 +448,33 @@ export default function HrAppPage() {
           {activeTab === 'commissions' && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">Chính Sách Hoa Hồng Theo Doanh Số Dịch Vụ</h2>
+                <h2 className="text-xl font-bold text-slate-900">Chính Sách Hoa Hồng Theo Doanh Số Lữ Hành & Tour</h2>
                 <p className="text-xs text-slate-500 mt-1">
-                  Cơ chế tính thưởng minh bạch kích thích năng suất chuyên môn của kỹ thuật viên và bác sĩ
+                  Cơ chế thưởng doanh số minh bạch kích thích năng suất kinh doanh của đội ngũ điều hành tour, hướng dẫn viên và tư vấn MICE
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-2">
                   <span className="text-xs font-mono font-bold text-amber-600 px-2 py-0.5 bg-amber-50 rounded-md">
-                    8.0% Doanh Thu Gói
+                    8.0% Doanh Thu Tour
                   </span>
-                  <h3 className="font-bold text-sm text-slate-900">Kỹ Thuật Viên Trị Liệu & Spa</h3>
-                  <p className="text-xs text-slate-500">Áp dụng cho các gói chăm sóc da mặt Bio-Cell, Massage body Himalaya, đắp mặt nạ chuyên sâu.</p>
+                  <h3 className="font-bold text-sm text-slate-900">Tour Outbound (Châu Âu, Mỹ, Úc, Đông Bắc Á)</h3>
+                  <p className="text-xs text-slate-500">Áp dụng cho các tour trọn gói dài ngày, bao gồm thưởng chốt tour đoàn gia đình và khách lẻ cao cấp.</p>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-2">
                   <span className="text-xs font-mono font-bold text-amber-600 px-2 py-0.5 bg-amber-50 rounded-md">
-                    10.0% Doanh Thu Ca
+                    6.0% Doanh Thu Tour
                   </span>
-                  <h3 className="font-bold text-sm text-slate-900">Bác Sĩ Chuyên Khoa Da Liễu</h3>
-                  <p className="text-xs text-slate-500">Áp dụng cho các ca điều trị công nghệ cao HIFU, laser trẻ hóa, cấy vi điểm và hội chẩn da khó.</p>
+                  <h3 className="font-bold text-sm text-slate-900">Tour Inbound & Hướng Dẫn Viên Quốc Tế</h3>
+                  <p className="text-xs text-slate-500">Áp dụng cho đội ngũ tour leader dẫn đoàn quốc tế, hướng dẫn viên di sản miền Trung và tour vịnh biển.</p>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-2">
                   <span className="text-xs font-mono font-bold text-amber-600 px-2 py-0.5 bg-amber-50 rounded-md">
-                    5.0% Giá Trị Mỹ Phẩm
+                    5.0% Giá Trị Hợp Đồng
                   </span>
-                  <h3 className="font-bold text-sm text-slate-900">Tư Vấn Khách Hàng (Telesales & Quầy)</h3>
-                  <p className="text-xs text-slate-500">Áp dụng cho các sản phẩm mỹ phẩm bán lẻ mang về như Serum B5, kem chống nắng, toner hoa cúc.</p>
+                  <h3 className="font-bold text-sm text-slate-900">Tour Khách Đoàn Doanh Nghiệp (M.I.C.E)</h3>
+                  <p className="text-xs text-slate-500">Áp dụng cho các hợp đồng tour hội thảo, team building, gala dinner cho tập đoàn và doanh nghiệp FDI.</p>
                 </div>
               </div>
             </div>

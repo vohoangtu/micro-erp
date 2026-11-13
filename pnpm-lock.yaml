@@ -219,6 +219,9 @@ importers:
 
   apps/hr:
     dependencies:
+      '@erp/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@erp/shared-types':
         specifier: workspace:*
         version: link:../../packages/shared-types

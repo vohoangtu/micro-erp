@@ -803,6 +803,323 @@ export async function runSeed() {
     }
     console.log('✅ Seeded System Settings (VietQR, ZNS, Branding)');
 
+    // 12. Seed Employees & Link System User Accounts
+    const [deptBOD] = await db.select().from(schema.departments).where(sql`code = 'DEPT-BOD'`).limit(1);
+    const [deptHQProduct] = await db.select().from(schema.departments).where(sql`code = 'DEPT-HQ-PRODUCT'`).limit(1);
+    const [deptHQComm] = await db.select().from(schema.departments).where(sql`code = 'DEPT-HQ-COMMERCIAL'`).limit(1);
+    const [deptFleet] = await db.select().from(schema.departments).where(sql`code = 'DEPT-FLEET-LOGISTICS'`).limit(1);
+    const [deptHCMMice] = await db.select().from(schema.departments).where(sql`code = 'DEPT-HCM-MICE'`).limit(1);
+    const [deptHCMOutbound] = await db.select().from(schema.departments).where(sql`code = 'DEPT-HCM-OUTBOUND'`).limit(1);
+    const [deptHCMGuides] = await db.select().from(schema.departments).where(sql`code = 'DEPT-HCM-GUIDES'`).limit(1);
+    const [deptDNInbound] = await db.select().from(schema.departments).where(sql`code = 'DEPT-DN-INBOUND'`).limit(1);
+    const [deptDNGuides] = await db.select().from(schema.departments).where(sql`code = 'DEPT-DN-GUIDES'`).limit(1);
+
+    const employeesData = [
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        divisionId: divComm?.id,
+        departmentId: deptSalesHN?.id,
+        employeeCode: 'NV-HN-001',
+        fullName: 'Trần Hương Giang',
+        email: 'giang.th@viettravel.vn',
+        workEmail: 'giang.th@viettravel.vn',
+        phoneNumber: '0903 123 456',
+        citizenId: '001185002341',
+        department: 'Phòng Kinh Doanh Tour Khách Đoàn & Bán Lẻ (Hà Nội)',
+        baseSalary: '35000000',
+        commissionRate: '0.0800',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHCM?.id,
+        divisionId: divComm?.id,
+        departmentId: deptHCMMice?.id,
+        employeeCode: 'NV-HCM-001',
+        fullName: 'Võ Minh Quân',
+        email: 'quan.vm@viettravel.vn',
+        workEmail: 'quan.vm@viettravel.vn',
+        phoneNumber: '0908 234 567',
+        citizenId: '079188003452',
+        department: 'Phòng Kinh Doanh Tour M.I.C.E & Khách VIP (TP. HCM)',
+        baseSalary: '35000000',
+        commissionRate: '0.0800',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brDN?.id,
+        divisionId: divOps?.id,
+        departmentId: deptDNInbound?.id,
+        employeeCode: 'NV-DN-001',
+        fullName: 'Đặng Thảo Vy',
+        email: 'vy.dt@viettravel.vn',
+        workEmail: 'vy.dt@viettravel.vn',
+        phoneNumber: '0905 345 678',
+        citizenId: '048190004563',
+        department: 'Phòng Điều Hành Tour Di Sản & Khách Quốc Tế Inbound',
+        baseSalary: '28000000',
+        commissionRate: '0.0600',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        divisionId: divFin?.id,
+        departmentId: deptFinanceHN?.id,
+        employeeCode: 'NV-HN-004',
+        fullName: 'Nguyễn Thị Minh Hạnh',
+        email: 'cashier@viettravel.vn',
+        workEmail: 'cashier@viettravel.vn',
+        phoneNumber: '0914 678 901',
+        citizenId: '001192005674',
+        department: 'Phòng Kế Toán Vé Máy Bay & Quầy Thu Ngân POS (HN)',
+        baseSalary: '16000000',
+        commissionRate: '0.0200',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        divisionId: divBOD?.id,
+        departmentId: deptBOD?.id,
+        employeeCode: 'NV-HN-005',
+        fullName: 'Nguyễn Tuấn Anh',
+        email: 'admin@viettravel.vn',
+        workEmail: 'admin@viettravel.vn',
+        phoneNumber: '0904 789 012',
+        citizenId: '001180006785',
+        department: 'Ban Giám Đốc & Hội Đồng Quản Trị Lữ Hành',
+        baseSalary: '45000000',
+        commissionRate: '0.0500',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        divisionId: divOps?.id,
+        departmentId: deptOutboundHN?.id,
+        employeeCode: 'NV-HN-002',
+        fullName: 'Hoàng Mai Phương',
+        email: 'phuong.hm@viettravel.vn',
+        workEmail: 'phuong.hm@viettravel.vn',
+        phoneNumber: '0912 456 789',
+        citizenId: '001187007896',
+        department: 'Phòng Điều Hành Tour Outbound (Châu Âu, Mỹ, Úc)',
+        baseSalary: '25000000',
+        commissionRate: '0.0500',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        divisionId: divGuides?.id,
+        departmentId: deptGuidesHN?.id,
+        employeeCode: 'NV-HN-003',
+        fullName: 'Phan Thanh Hùng',
+        email: 'hung.pt@viettravel.vn',
+        workEmail: 'hung.pt@viettravel.vn',
+        phoneNumber: '0913 567 890',
+        citizenId: '001183008907',
+        department: 'Đội Ngũ Hướng Dẫn Viên Quốc Tế Miền Bắc',
+        baseSalary: '20000000',
+        commissionRate: '0.0600',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        divisionId: divComm?.id,
+        departmentId: deptHQComm?.id,
+        employeeCode: 'NV-HN-006',
+        fullName: 'Lê Thu Thảo',
+        email: 'thao.lt@viettravel.vn',
+        workEmail: 'thao.lt@viettravel.vn',
+        phoneNumber: '0906 890 123',
+        citizenId: '001186009018',
+        department: 'Khối Kinh Doanh M.I.C.E & Đại Lý B2B Toàn Quốc',
+        baseSalary: '38000000',
+        commissionRate: '0.0800',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brWH?.id,
+        divisionId: divLog?.id,
+        departmentId: deptFleet?.id,
+        employeeCode: 'NV-HN-007',
+        fullName: 'Trịnh Quốc Bảo',
+        email: 'bao.tq@viettravel.vn',
+        workEmail: 'bao.tq@viettravel.vn',
+        phoneNumber: '0907 901 234',
+        citizenId: '001182001129',
+        department: 'Trung Tâm Quản Lý Xe Du Lịch & Hậu Cần Vật Tư',
+        baseSalary: '22000000',
+        commissionRate: '0.0300',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      // --- CÁC NHÂN SỰ CHƯA CẤP TÀI KHOẢN (SẴN SÀNG ĐỂ CẤP PHÁT HỆ THỐNG) ---
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        divisionId: divComm?.id,
+        departmentId: deptSalesHN?.id,
+        employeeCode: 'NV-HN-008',
+        fullName: 'Vũ Đình Trọng',
+        email: 'trong.vd@viettravel.vn',
+        workEmail: 'trong.vd@viettravel.vn',
+        phoneNumber: '0918 012 345',
+        citizenId: '001195002230',
+        department: 'Phòng Kinh Doanh Tour Khách Đoàn & Bán Lẻ (Hà Nội)',
+        baseSalary: '14000000',
+        commissionRate: '0.0500',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHCM?.id,
+        divisionId: divOps?.id,
+        departmentId: deptHCMOutbound?.id,
+        employeeCode: 'NV-HCM-002',
+        fullName: 'Trần Mỹ Duyên',
+        email: 'duyen.tm@viettravel.vn',
+        workEmail: 'duyen.tm@viettravel.vn',
+        phoneNumber: '0938 123 456',
+        citizenId: '079193003341',
+        department: 'Phòng Điều Hành Tour Đông Bắc Á & Đông Nam Á (HCM)',
+        baseSalary: '18000000',
+        commissionRate: '0.0500',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHCM?.id,
+        divisionId: divGuides?.id,
+        departmentId: deptHCMGuides?.id,
+        employeeCode: 'NV-HCM-003',
+        fullName: 'Lê Hải Đăng',
+        email: 'dang.lh@viettravel.vn',
+        workEmail: 'dang.lh@viettravel.vn',
+        phoneNumber: '0948 234 567',
+        citizenId: '079189004452',
+        department: 'Đội Ngũ Hướng Dẫn Viên Du Lịch Miền Nam',
+        baseSalary: '16000000',
+        commissionRate: '0.0600',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brDN?.id,
+        divisionId: divGuides?.id,
+        departmentId: deptDNGuides?.id,
+        employeeCode: 'NV-DN-002',
+        fullName: 'Nguyễn Hoàng Nam',
+        email: 'nam.nh@viettravel.vn',
+        workEmail: 'nam.nh@viettravel.vn',
+        phoneNumber: '0978 345 678',
+        citizenId: '048194005563',
+        department: 'Đội Hướng Dẫn Viên Tuyến Miền Trung & Di Sản',
+        baseSalary: '15000000',
+        commissionRate: '0.0600',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brDN?.id,
+        divisionId: divOps?.id,
+        departmentId: deptDNInbound?.id,
+        employeeCode: 'NV-DN-003',
+        fullName: 'Phạm Thu Trang',
+        email: 'trang.pt@viettravel.vn',
+        workEmail: 'trang.pt@viettravel.vn',
+        phoneNumber: '0988 456 789',
+        citizenId: '048196006674',
+        department: 'Phòng Điều Hành Tour Di Sản & Khách Quốc Tế Inbound',
+        baseSalary: '12000000',
+        commissionRate: '0.0200',
+        status: 'ACTIVE',
+        isActive: true
+      },
+      {
+        tenantId: tenant.id,
+        branchId: brHN?.id,
+        divisionId: divOps?.id,
+        departmentId: deptHQProduct?.id,
+        employeeCode: 'NV-HN-009',
+        fullName: 'Đỗ Thùy Linh',
+        email: 'linh.dt@viettravel.vn',
+        workEmail: 'linh.dt@viettravel.vn',
+        phoneNumber: '0922 567 890',
+        citizenId: '001198007785',
+        department: 'Khối Thiết Kế Sản Phẩm Tour & Hàng Không (GDS)',
+        baseSalary: '12000000',
+        commissionRate: '0.0400',
+        status: 'PROBATION',
+        isActive: true
+      }
+    ];
+
+    for (const emp of employeesData) {
+      const [existing] = await db.select().from(schema.employees).where(sql`employee_code = ${emp.employeeCode}`).limit(1);
+      if (!existing) {
+        await db.insert(schema.employees).values(emp);
+      } else {
+        await db.update(schema.employees).set({
+          branchId: emp.branchId,
+          divisionId: emp.divisionId,
+          departmentId: emp.departmentId,
+          workEmail: emp.workEmail,
+          status: emp.status
+        }).where(sql`id = ${existing.id}`);
+      }
+    }
+    console.log('✅ Seeded Employees (15 Nhân Sự Lữ Hành Đa Chi Nhánh Chuẩn HR)');
+
+    // Link User Accounts to Employees
+    const empMap: Record<string, string> = {
+      'admin@viettravel.vn': 'NV-HN-005',
+      'giang.th@viettravel.vn': 'NV-HN-001',
+      'quan.vm@viettravel.vn': 'NV-HCM-001',
+      'vy.dt@viettravel.vn': 'NV-DN-001',
+      'cashier@viettravel.vn': 'NV-HN-004'
+    };
+
+    const moduleMap: Record<string, string[]> = {
+      'admin@viettravel.vn': ['crm', 'booking', 'pos', 'hr', 'bi', 'ai', 'system'],
+      'giang.th@viettravel.vn': ['crm', 'booking', 'pos', 'hr'],
+      'quan.vm@viettravel.vn': ['crm', 'booking', 'pos', 'hr'],
+      'vy.dt@viettravel.vn': ['crm', 'booking', 'pos', 'hr'],
+      'cashier@viettravel.vn': ['pos', 'booking']
+    };
+
+    for (const [userEmail, empCode] of Object.entries(empMap)) {
+      const [emp] = await db.select().from(schema.employees).where(sql`employee_code = ${empCode}`).limit(1);
+      if (emp) {
+        await db
+          .update(schema.users)
+          .set({
+            employeeId: emp.id,
+            allowedModules: JSON.stringify(moduleMap[userEmail] || ['pos'])
+          })
+          .where(sql`email = ${userEmail}`);
+      }
+    }
+    console.log('✅ Linked Existing User Accounts to HR Employees (1-1 Provisioning Link)');
+
     // 13. Seed Sample Audit Logs
     const auditLogsData = [
       {
